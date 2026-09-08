@@ -99,6 +99,34 @@ const TrackDetailsPage = () => {
     });
   }, [sessions]);
 
+  // ── Fix #8: Derive track resources from the already-fetched sessions ──────
+  // PDFs come from each session's resources[] attachments;
+  // Recordings are sessions that have a primary URL (video/embed).
+  const trackResources = useMemo(() => {
+    const pdfs = sortedSessions.flatMap((s) =>
+      s.resources.map((r) => r.title),
+    );
+    const recordings = sortedSessions
+      .filter((s) => !!s.url)
+      .map((s) => s.title);
+    return { pdfs, recordings };
+  }, [sortedSessions]);
+
+  // ── Fix #9: Derive schedule from sessions with a startDate ────────────────
+  const scheduleItems = useMemo(() => {
+    return sortedSessions
+      .filter((s) => !!s.startDate)
+      .map((s) => ({
+        date: new Date(s.startDate!).toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+        event: s.title,
+        type: "session" as const,
+      }));
+  }, [sortedSessions]);
+
   const nextSessionLabel = useMemo(() => {
     const now = Date.now();
     const upcoming = sortedSessions.find(
@@ -217,19 +245,23 @@ const TrackDetailsPage = () => {
           <Divider />
 
           <section id="resources" className="scroll-mt-32">
-            <ComingSoonNotice
-              message="Track resources aren't available on the backend yet."
-              className="mb-6"
-            />
-            <TrackResources resources={{ pdfs: [], recordings: [] }} />
+            {trackResources.pdfs.length === 0 && trackResources.recordings.length === 0 ? (
+              <ComingSoonNotice
+                message="Track resources will appear here once sessions have attached materials."
+                className="mb-6"
+              />
+            ) : null}
+            <TrackResources resources={trackResources} />
           </section>
 
           <section id="schedule" className="scroll-mt-32">
-            <ComingSoonNotice
-              message="A full schedule view isn't available yet."
-              className="mb-6"
-            />
-            <TrackSchedule upcoming={[]} />
+            {scheduleItems.length === 0 && (
+              <ComingSoonNotice
+                message="Session dates will appear here once sessions have scheduled start dates."
+                className="mb-6"
+              />
+            )}
+            <TrackSchedule upcoming={scheduleItems} />
             <TrackCertificate
               certificate={{
                 includes: [

@@ -1,26 +1,31 @@
 import { useForm } from "react-hook-form";
 import { Send } from "lucide-react";
-import ComingSoonNotice from "./ComingSoonNotice";
+import toast from "react-hot-toast";
+import * as api from "../services/api";
+import type { ContactPayload } from "../services/api";
 
-type ContactFormInputs = {
-  username: string;
-  track: string;
-  email: string;
-  phone: string;
-  message: string;
-};
+type ContactFormInputs = ContactPayload;
 
 const ContactUsForm = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    reset,
+    formState: { errors, isSubmitting },
   } = useForm<ContactFormInputs>();
 
-  // The backend has no POST /v1/contact endpoint yet — submission is
-  // disabled until that's wired up. See frontend_backend_gap_analysis.md.
-  const onSubmit = () => {
-    // no-op: submission disabled until backend support lands
+  const onSubmit = async (data: ContactFormInputs) => {
+    try {
+      const res = await api.submitContact(data);
+      toast.success(res.message ?? "Message sent! We'll be in touch soon.");
+      reset();
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Failed to send message. Please try again.",
+      );
+    }
   };
 
   const inputBase =
@@ -36,11 +41,6 @@ const ContactUsForm = () => {
       <p className="font-[Poppins] font-semibold text-[30px] leading-[1.5] text-black mb-4">
         Let's get in touch
       </p>
-
-      <ComingSoonNotice
-        message="Contact form submission isn't available yet — we're wiring it up on the backend. Please reach us via phone or email in the meantime."
-        className="mb-6"
-      />
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         <div>
@@ -168,13 +168,12 @@ const ContactUsForm = () => {
 
         <button
           type="submit"
-          disabled
-          title="Coming soon"
+          disabled={isSubmitting}
           id="contact-submit-btn"
-          className="w-full flex items-center justify-center gap-3 bg-[#D41132] text-white font-[Poppins] font-bold text-[20px] leading-[1.5] py-3 rounded-2xl opacity-50 cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-3 bg-[#D41132] text-white font-[Poppins] font-bold text-[20px] leading-[1.5] py-3 rounded-2xl transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Send size={20} />
-          Send Message (Coming soon)
+          {isSubmitting ? "Sending..." : "Send Message"}
         </button>
       </form>
     </div>

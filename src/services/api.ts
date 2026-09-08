@@ -184,7 +184,9 @@ export function updateMe(payload: {
 export interface EnrollmentsResponse {
   status: string;
   data: {
-    track: BackendTrack | null;
+    // The backend returns an array; the frontend reads [0] to get the single
+    // enrolled track (a user can only be in one track at a time).
+    tracks: BackendTrack[];
     courses: unknown[];
     sessions: BackendSession[];
   };
@@ -257,6 +259,12 @@ export function getEvents(query?: string): Promise<EventsResponse> {
   return request<EventsResponse>("GET", `/events${query ? `?${query}` : ""}`);
 }
 
+// Returns only events the current user has RSVP'd to (uses the dedicated
+// backend route instead of loading all events and filtering client-side).
+export function getMyEvents(): Promise<EventsResponse> {
+  return request<EventsResponse>("GET", "/events/my-events");
+}
+
 export function getFeed(): Promise<FeedResponse> {
   return request<FeedResponse>("GET", "/feed");
 }
@@ -275,8 +283,50 @@ export function cancelRsvp(
   return request("DELETE", `/events/${eventId}/rsvp`);
 }
 
-// ── Contact & feedback ────────────────────────────────────────
-// NOTE: The backend has no POST /v1/contact or POST /v1/tracks/:id/reviews
-// endpoints yet, so there is nothing to call here. ContactUsForm and
-// TrackFeedback show a "coming soon" notice and disable submission until
-// these routes exist. See frontend_backend_gap_analysis.md for details.
+// ── Contact ───────────────────────────────────────────────────
+
+export interface ContactPayload {
+  username: string;
+  track: string;
+  email: string;
+  phone: string;
+  message: string;
+}
+
+export function submitContact(
+  payload: ContactPayload,
+): Promise<{ status: string; message: string }> {
+  return request("POST", "/contact", payload);
+}
+
+// ── Reviews ───────────────────────────────────────────────────
+
+export interface ReviewPayload {
+  rating: number;
+  content: string;
+}
+
+export interface Review {
+  _id: string;
+  rating: number;
+  content: string;
+  user: { _id: string; name: string; photo?: string };
+  createdAt: string;
+}
+
+export interface ReviewsResponse {
+  status: string;
+  results: number;
+  data: { reviews: Review[] };
+}
+
+export function submitTrackReview(
+  trackId: string,
+  payload: ReviewPayload,
+): Promise<{ status: string; data: { review: Review } }> {
+  return request("POST", `/tracks/${trackId}/reviews`, payload);
+}
+
+export function getTrackReviews(trackId: string): Promise<ReviewsResponse> {
+  return request<ReviewsResponse>("GET", `/tracks/${trackId}/reviews`);
+}

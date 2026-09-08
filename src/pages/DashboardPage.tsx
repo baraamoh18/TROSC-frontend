@@ -199,13 +199,12 @@ const DashboardPage = () => {
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
+    // Use the dedicated /events/my-events endpoint instead of loading all
+    // events and filtering client-side (fix for gap #6).
     api
-      .getEvents("limit=100")
+      .getMyEvents()
       .then((res) => {
-        if (cancelled) return;
-        setRsvpEvents(
-          res.data.events.filter((event) => event.attendees.includes(user._id)),
-        );
+        if (!cancelled) setRsvpEvents(res.data.events);
       })
       .catch(() => {
         // API unavailable — section shows the empty state
@@ -255,43 +254,48 @@ const DashboardPage = () => {
 
           {enrollmentsLoading ? (
             <div className="h-24 animate-pulse rounded-2xl bg-gray-200" />
-          ) : enrollments?.track ? (
-            <div className="flex flex-col gap-4 rounded-2xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h3 className="mb-1 text-xl font-bold text-neutral-darker">
-                  {enrollments.track.title}
-                </h3>
-                <p className="flex flex-wrap gap-4 text-sm text-neutral-dark">
-                  <span className="flex items-center gap-1.5">
-                    <BookOpen size={16} /> {enrollments.courses.length} course
-                    {enrollments.courses.length === 1 ? "" : "s"}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Video size={16} /> {enrollments.sessions.length} session
-                    {enrollments.sessions.length === 1 ? "" : "s"}
-                  </span>
-                </p>
+          ) : (() => {
+            // Backend returns tracks[] array; grab first element since a user
+            // can only be enrolled in one track at a time (fix for gap #4).
+            const enrolledTrack = enrollments?.tracks?.[0] ?? null;
+            return enrolledTrack ? (
+              <div className="flex flex-col gap-4 rounded-2xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="mb-1 text-xl font-bold text-neutral-darker">
+                    {enrolledTrack.title}
+                  </h3>
+                  <p className="flex flex-wrap gap-4 text-sm text-neutral-dark">
+                    <span className="flex items-center gap-1.5">
+                      <BookOpen size={16} /> {enrollments!.courses.length} course
+                      {enrollments!.courses.length === 1 ? "" : "s"}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Video size={16} /> {enrollments!.sessions.length} session
+                      {enrollments!.sessions.length === 1 ? "" : "s"}
+                    </span>
+                  </p>
+                </div>
+                <Link
+                  to={`/track/${enrolledTrack._id}`}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-2.5 text-base font-bold text-white transition-colors hover:bg-primary-hover"
+                >
+                  <GraduationCap size={18} />
+                  Go to Track
+                </Link>
               </div>
-              <Link
-                to={`/track/${enrollments.track._id}`}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-2.5 text-base font-bold text-white transition-colors hover:bg-primary-hover"
-              >
-                <GraduationCap size={18} />
-                Go to Track
-              </Link>
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
-              You haven't joined a track yet.{" "}
-              <Link
-                to="/#tracks"
-                className="font-semibold text-primary hover:text-primary-hover"
-              >
-                Browse tracks
-              </Link>{" "}
-              to get started.
-            </div>
-          )}
+            ) : (
+              <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
+                You haven't joined a track yet.{" "}
+                <Link
+                  to="/#tracks"
+                  className="font-semibold text-primary hover:text-primary-hover"
+                >
+                  Browse tracks
+                </Link>{" "}
+                to get started.
+              </div>
+            );
+          })()}
         </section>
 
         {/* RSVP'd events */}

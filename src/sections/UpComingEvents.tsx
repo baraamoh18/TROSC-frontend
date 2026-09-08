@@ -136,10 +136,13 @@ const UpcomingEvents = () => {
 
   useEffect(() => {
     let cancelled = false;
+    // Fix #11: Call /events directly with a future-date filter instead of
+    // /feed which is hardcoded to return only 3 events on the backend.
+    const now = new Date().toISOString();
     api
-      .getFeed()
+      .getEvents(`sort=date&limit=10&date[gte]=${encodeURIComponent(now)}`)
       .then((res) => {
-        if (!cancelled) setEvents(res.data.upcomingEvents);
+        if (!cancelled) setEvents(res.data.events);
       })
       .catch(() => {
         // Keep empty array — section shows "nothing yet" message
