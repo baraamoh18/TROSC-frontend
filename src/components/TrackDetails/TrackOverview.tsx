@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, BookOpen, GraduationCap, BarChart3, Users, Layers } from "lucide-react";
+import { Calendar, BookOpen, GraduationCap, BarChart3, Users, Layers, LogOut } from "lucide-react";
 import toast from "react-hot-toast";
 import * as api from "../../services/api";
 import type { BackendTrack } from "../../services/api";
@@ -27,9 +27,11 @@ const TrackOverview = ({
   scheduleSummary,
   resourcesSummary,
 }: TrackOverviewProps) => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, refreshUser } = useAuth();
   const [enrolling, setEnrolling] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
 
   const handleEnroll = async () => {
     if (!trackId) return;
@@ -46,6 +48,24 @@ const TrackOverview = ({
       );
     } finally {
       setEnrolling(false);
+    }
+  };
+
+  const handleLeave = async () => {
+    if (!trackId) return;
+    setLeaving(true);
+    try {
+      const res = await api.leaveTrack(trackId);
+      toast.success(res.message ?? "Leave request submitted.");
+      setShowLeaveConfirm(false);
+      // Refresh user so enrolledTrack clears in context
+      await refreshUser();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to submit leave request.",
+      );
+    } finally {
+      setLeaving(false);
     }
   };
 
@@ -85,8 +105,41 @@ const TrackOverview = ({
 
     if (isEnrolled) {
       return (
-        <div className="rounded-xl px-4 py-3 text-sm font-semibold bg-green-50 text-green-700 border border-green-200 text-center">
-          You are enrolled ✓
+        <div className="space-y-2">
+          <div className="rounded-xl px-4 py-3 text-sm font-semibold bg-green-50 text-green-700 border border-green-200 text-center">
+            You are enrolled ✓
+          </div>
+          {!showLeaveConfirm ? (
+            <button
+              onClick={() => setShowLeaveConfirm(true)}
+              className="w-full flex items-center justify-center gap-2 text-sm text-red-500 hover:text-red-700 py-2 transition-colors"
+            >
+              <LogOut size={15} />
+              Leave this track
+            </button>
+          ) : (
+            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm space-y-2">
+              <p className="text-red-700 font-medium text-center">
+                Leave this track? Your progress will be kept.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleLeave}
+                  disabled={leaving}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg transition-colors disabled:opacity-50 text-xs"
+                >
+                  {leaving ? "Submitting..." : "Yes, leave"}
+                </button>
+                <button
+                  onClick={() => setShowLeaveConfirm(false)}
+                  disabled={leaving}
+                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-3 rounded-lg transition-colors disabled:opacity-50 text-xs"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       );
     }

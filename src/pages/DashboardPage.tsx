@@ -9,10 +9,16 @@ import {
   Mail,
   Camera,
   Loader2,
+  Activity,
+  LogIn,
+  UserCheck,
+  ClipboardList,
+  Star,
+  UploadCloud,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import * as api from "../services/api";
-import type { EnrollmentsResponse, BackendEvent } from "../services/api";
+import type { EnrollmentsResponse, BackendEvent, ActivityLog } from "../services/api";
 import { useAuth } from "../context/useAuth";
 
 const PLACEHOLDER_IMAGE = "https://placehold.co/800x400?text=Trosc+Event";
@@ -167,6 +173,32 @@ const AvatarUpload = () => {
 
 // ── Dashboard Page ────────────────────────────────────────────
 
+// ── Activity icon helper ─────────────────────────────────────
+
+const getActivityIcon = (action: string) => {
+  const cls = "w-4 h-4";
+  if (action.includes("login")) return <LogIn className={cls} />;
+  if (action.includes("enroll")) return <UserCheck className={cls} />;
+  if (action.includes("submit") || action.includes("assignment")) return <ClipboardList className={cls} />;
+  if (action.includes("review")) return <Star className={cls} />;
+  if (action.includes("upload") || action.includes("photo")) return <UploadCloud className={cls} />;
+  return <Activity className={cls} />;
+};
+
+const formatRelative = (isoDate: string) => {
+  const diff = Date.now() - new Date(isoDate).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(isoDate).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+};
+
+// ── Dashboard Page ────────────────────────────────────────────
+
 const DashboardPage = () => {
   const { user } = useAuth();
 
@@ -177,6 +209,9 @@ const DashboardPage = () => {
 
   const [rsvpEvents, setRsvpEvents] = useState<BackendEvent[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
+
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [activityLoading, setActivityLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -211,6 +246,25 @@ const DashboardPage = () => {
       })
       .finally(() => {
         if (!cancelled) setEventsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    api
+      .getMyActivityLogs("limit=10")
+      .then((res) => {
+        if (!cancelled) setActivityLogs(res.data.logs);
+      })
+      .catch(() => {
+        // Activity log unavailable — section shows empty state
+      })
+      .finally(() => {
+        if (!cancelled) setActivityLoading(false);
       });
     return () => {
       cancelled = true;
@@ -355,6 +409,46 @@ const DashboardPage = () => {
                   </div>
                 );
               })}
+            </div>
+          )}
+        </section>
+
+        {/* Recent Activity */}
+        <section className="mt-10">
+          <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">
+            Recent Activity
+          </h2>
+
+          {activityLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="h-12 animate-pulse rounded-xl bg-gray-200" />
+              ))}
+            </div>
+          ) : activityLogs.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
+              No activity recorded yet.
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-neutral-light-active bg-white shadow-sm divide-y divide-gray-100">
+              {activityLogs.map((log) => (
+                <div
+                  key={log._id}
+                  className="flex items-center gap-3 px-5 py-3.5"
+                >
+                  <span className="shrink-0 rounded-full bg-primary/10 text-primary p-2">
+                    {getActivityIcon(log.action)}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-800 capitalize leading-snug">
+                      {log.action.replace(/_/g, " ")}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-xs text-gray-400">
+                    {formatRelative(log.createdAt)}
+                  </span>
+                </div>
+              ))}
             </div>
           )}
         </section>

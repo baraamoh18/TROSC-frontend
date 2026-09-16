@@ -4,7 +4,9 @@ import { smoothScrollToId } from "../../utils/smoothScroll";
 const tabs = [
   { name: "Overview", id: "overview" },
   { name: "Weekly Tasks", id: "weekly-tasks" },
+  { name: "Courses", id: "courses" },
   { name: "Sessions", id: "sessions" },
+  { name: "Assignments", id: "assignments" },
   { name: "Resources", id: "resources" },
   { name: "Schedule", id: "schedule" },
 ];

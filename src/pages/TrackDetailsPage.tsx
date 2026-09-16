@@ -2,7 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import * as api from "../services/api";
 import { ApiError } from "../services/api";
-import type { BackendTrack, BackendSession } from "../services/api";
+import type {
+  BackendTrack,
+  BackendSession,
+  BackendCourse,
+  BackendAssignment,
+  WeeklyTask,
+} from "../services/api";
 import TrackHero from "../components/TrackDetails/TrackHero";
 import TrackTabs from "../components/TrackDetails/TrackTabs";
 import TrackOverview from "../components/TrackDetails/TrackOverview";
@@ -10,6 +16,7 @@ import TrackSessionsSummary from "../components/TrackDetails/TrackSessionsSummar
 import TrackWeeklyTasks from "../components/TrackDetails/TrackWeeklyTasks";
 import TrackSessionsTable from "../components/TrackDetails/TrackSessionsTable";
 import TrackAssignments from "../components/TrackDetails/TrackAssignments";
+import TrackCourses from "../components/TrackDetails/TrackCourses";
 import TrackLearningPath from "../components/TrackDetails/TrackLearningPath";
 import TrackResources from "../components/TrackDetails/TrackResources";
 import TrackSchedule from "../components/TrackDetails/TrackSchedule";
@@ -48,10 +55,26 @@ const TrackDetailsPage = () => {
     );
   }
 
+  // ── State ────────────────────────────────────────────────────
+
   const [liveTrack, setLiveTrack] = useState<BackendTrack | null>(null);
+
   const [sessions, setSessions] = useState<BackendSession[]>([]);
   const [sessionsUnauthorized, setSessionsUnauthorized] = useState(false);
 
+  const [courses, setCourses] = useState<BackendCourse[]>([]);
+
+  const [weeklyTasks, setWeeklyTasks] = useState<WeeklyTask[]>([]);
+  const [weeklyTasksLoading, setWeeklyTasksLoading] = useState(true);
+  const [weeklyTasksUnauthorized, setWeeklyTasksUnauthorized] = useState(false);
+
+  const [assignments, setAssignments] = useState<BackendAssignment[]>([]);
+  const [assignmentsLoading, setAssignmentsLoading] = useState(true);
+  const [assignmentsUnauthorized, setAssignmentsUnauthorized] = useState(false);
+
+  // ── Fetches ──────────────────────────────────────────────────
+
+  // Track info (public)
   useEffect(() => {
     if (!trackId) return;
     let cancelled = false;
@@ -63,11 +86,10 @@ const TrackDetailsPage = () => {
       .catch(() => {
         // Invalid ID or network error — hero falls back to placeholders below
       });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [trackId]);
 
+  // Sessions (requires auth)
   useEffect(() => {
     if (!trackId) return;
     let cancelled = false;
@@ -78,17 +100,74 @@ const TrackDetailsPage = () => {
       })
       .catch((err) => {
         if (cancelled) return;
-        // The sessions routes require auth on the backend — treat 401s as
-        // "sign in to view sessions" rather than a hard error.
         if (err instanceof ApiError && err.status === 401) {
           setSessionsUnauthorized(true);
         }
         setSessions([]);
       });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [trackId]);
+
+  // Courses by track (public)
+  useEffect(() => {
+    if (!trackId) return;
+    let cancelled = false;
+    api
+      .getCoursesByTrack(trackId)
+      .then((res) => {
+        if (!cancelled) setCourses(res.data.courses);
+      })
+      .catch(() => {
+        if (!cancelled) setCourses([]);
+      });
+    return () => { cancelled = true; };
+  }, [trackId]);
+
+  // Weekly tasks (requires auth)
+  useEffect(() => {
+    if (!trackId) return;
+    let cancelled = false;
+    api
+      .getWeeklyTasksByTrack(trackId)
+      .then((res) => {
+        if (!cancelled) setWeeklyTasks(res.data.weeklyTasks);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        if (err instanceof ApiError && err.status === 401) {
+          setWeeklyTasksUnauthorized(true);
+        }
+        setWeeklyTasks([]);
+      })
+      .finally(() => {
+        if (!cancelled) setWeeklyTasksLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [trackId]);
+
+  // Assignments (requires auth)
+  useEffect(() => {
+    if (!trackId) return;
+    let cancelled = false;
+    api
+      .getAssignmentsByTrack(trackId)
+      .then((res) => {
+        if (!cancelled) setAssignments(res.data.assignments);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        if (err instanceof ApiError && err.status === 401) {
+          setAssignmentsUnauthorized(true);
+        }
+        setAssignments([]);
+      })
+      .finally(() => {
+        if (!cancelled) setAssignmentsLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [trackId]);
+
+  // ── Derived data ─────────────────────────────────────────────
 
   // Sort sessions chronologically (soonest first) for display + scheduling.
   const sortedSessions = useMemo(() => {
@@ -99,7 +178,6 @@ const TrackDetailsPage = () => {
     });
   }, [sessions]);
 
-  // ── Fix #8: Derive track resources from the already-fetched sessions ──────
   // PDFs come from each session's resources[] attachments;
   // Recordings are sessions that have a primary URL (video/embed).
   const trackResources = useMemo(() => {
@@ -112,7 +190,7 @@ const TrackDetailsPage = () => {
     return { pdfs, recordings };
   }, [sortedSessions]);
 
-  // ── Fix #9: Derive schedule from sessions with a startDate ────────────────
+  // Derive schedule from sessions with a startDate
   const scheduleItems = useMemo(() => {
     return sortedSessions
       .filter((s) => !!s.startDate)
@@ -140,8 +218,26 @@ const TrackDetailsPage = () => {
       : "TBA";
   }, [sortedSessions]);
 
-  // Resolve hero data from the live API; fall back to generic placeholders
-  // while the request is in-flight or if it fails.
+  // Update a single assignment's mySubmission after a successful submit
+  const handleAssignmentSubmission = (assignmentId: string, fileUrl: string) => {
+    setAssignments((prev) =>
+      prev.map((a) =>
+        a._id === assignmentId
+          ? {
+              ...a,
+              mySubmission: {
+                student: "",
+                file: fileUrl,
+                submittedAt: new Date().toISOString(),
+              },
+            }
+          : a,
+      ),
+    );
+  };
+
+  // ── Hero values ───────────────────────────────────────────────
+
   const heroTitle = liveTrack?.title ?? "Track";
   const heroSubtitle = liveTrack?.description ?? "";
   const heroImage =
@@ -154,6 +250,8 @@ const TrackDetailsPage = () => {
     projectDeadline: "TBA",
     finalExam: "TBA",
   };
+
+  // ── Render ────────────────────────────────────────────────────
 
   return (
     <div className="bg-gray-50 min-h-screen pb-20 pt-16">
@@ -193,6 +291,7 @@ const TrackDetailsPage = () => {
         <TrackTabs />
 
         <div className="mt-8 space-y-16">
+          {/* Overview */}
           <section id="overview" className="scroll-mt-32">
             <TrackOverview
               trackId={trackId ?? ""}
@@ -213,16 +312,34 @@ const TrackDetailsPage = () => {
 
           <Divider />
 
+          {/* Weekly Tasks */}
           <section id="weekly-tasks" className="scroll-mt-32">
-            <ComingSoonNotice
-              message="Weekly tasks aren't tracked by the backend yet."
-              className="mb-6"
-            />
-            <TrackWeeklyTasks tasks={[]} />
+            {weeklyTasksUnauthorized ? (
+              <ComingSoonNotice message="Sign in to view weekly tasks." />
+            ) : weeklyTasksLoading ? (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
+                <div className="space-y-3">
+                  {[1, 2, 3].map((n) => (
+                    <div key={n} className="h-16 rounded-xl bg-gray-200 animate-pulse" />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <TrackWeeklyTasks tasks={weeklyTasks} />
+            )}
           </section>
 
           <Divider />
 
+          {/* Courses */}
+          <section id="courses" className="scroll-mt-32">
+            <TrackCourses courses={courses} />
+          </section>
+
+          <Divider />
+
+          {/* Sessions */}
           <section id="sessions" className="scroll-mt-32">
             {sessionsUnauthorized ? (
               <ComingSoonNotice message="Sign in to view this track's sessions." />
@@ -233,17 +350,33 @@ const TrackDetailsPage = () => {
 
           <Divider />
 
+          {/* Assignments */}
           <section id="assignments" className="scroll-mt-32">
-            <ComingSoonNotice
-              message="Assignments aren't wired up on the backend yet."
-              className="mb-6"
-            />
-            <TrackAssignments assignments={[]} />
-            <TrackLearningPath path={[]} />
+            {assignmentsUnauthorized ? (
+              <ComingSoonNotice message="Sign in to view assignments." />
+            ) : assignmentsLoading ? (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Assignments</h2>
+                <div className="space-y-3">
+                  {[1, 2].map((n) => (
+                    <div key={n} className="h-24 rounded-xl bg-gray-200 animate-pulse" />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <>
+                <TrackAssignments
+                  assignments={assignments}
+                  onSubmissionUpdate={handleAssignmentSubmission}
+                />
+                <TrackLearningPath path={[]} />
+              </>
+            )}
           </section>
 
           <Divider />
 
+          {/* Resources */}
           <section id="resources" className="scroll-mt-32">
             {trackResources.pdfs.length === 0 && trackResources.recordings.length === 0 ? (
               <ComingSoonNotice
@@ -254,6 +387,7 @@ const TrackDetailsPage = () => {
             <TrackResources resources={trackResources} />
           </section>
 
+          {/* Schedule & Certificate */}
           <section id="schedule" className="scroll-mt-32">
             {scheduleItems.length === 0 && (
               <ComingSoonNotice
@@ -274,6 +408,7 @@ const TrackDetailsPage = () => {
             />
           </section>
 
+          {/* Feedback */}
           <section id="feedback" className="scroll-mt-32">
             <TrackFeedback trackId={trackId ?? ""} />
           </section>

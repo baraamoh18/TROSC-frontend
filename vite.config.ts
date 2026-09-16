@@ -8,9 +8,10 @@ export default defineConfig({
   server: {
     proxy: {
       "/v1": {
-        target: "http://localhost:5000",
+        target: "https://trosc.onrender.com",
         changeOrigin: true,
         secure: false,
+        cookieDomainRewrite: "localhost",
       },
     },
   },
