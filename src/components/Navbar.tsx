@@ -4,6 +4,7 @@ import TroscLogo from "../../Assests/TroscLogoRed.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { smoothScrollToId } from "../utils/smoothScroll";
 import { useAuth } from "../context/useAuth";
+import UserDropdown from "./UserDropdown";
 
 type NavLink = {
   name: string;
@@ -146,28 +147,7 @@ const Navbar: React.FC = () => {
                     <GraduationCap size={22} />
                   </Link>
                 ) : null}
-                <Link
-                  to="/settings"
-                  title="Settings"
-                  aria-label="Settings"
-                  className="flex items-center text-gray-800 hover:text-primary transition-colors"
-                >
-                  <Settings size={20} />
-                </Link>
-                <Link
-                  to="/dashboard"
-                  className="flex items-center gap-1.5 text-sm font-semibold text-gray-800 hover:text-primary transition-colors"
-                >
-                  <UserCircle size={20} className="text-primary" />
-                  {user.name}
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-800 font-bold text-sm py-2.5 px-3 rounded-md hover:bg-gray-200 transition-colors duration-300 cursor-pointer"
-                >
-                  <LogOut size={16} />
-                  Log Out
-                </button>
+                <UserDropdown user={user} onLogout={handleLogout} />
               </div>
             ) : (
               <Link
