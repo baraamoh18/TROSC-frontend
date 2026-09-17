@@ -131,8 +131,22 @@ export interface BackendSession {
   published: boolean;
   startDate?: string;
   endDate?: string;
+  /** Present only for an enrolled requester. The server remains authoritative. */
+  myProgress?: {
+    status: "not_started" | "watched";
+    watchedAt?: string;
+  };
   createdAt?: string;
   updatedAt?: string;
+}
+
+/** Public, deliberately media-free session data for visitors. */
+export interface SessionCatalogItem {
+  _id: string;
+  title: string;
+  description?: string;
+  startDate?: string;
+  duration?: number;
 }
 
 export interface SyllabusItem {
@@ -208,8 +222,10 @@ export interface BackendAnnouncement {
 
 export interface Submission {
   student: string;
-  /** URL to the submitted file */
-  file: string;
+  /** Safe learner-facing metadata. Never expose a Drive file ID or URL. */
+  fileName: string;
+  fileSize?: number;
+  mimeType?: string;
   submittedAt: string;
   grade?: number;
 }
@@ -469,6 +485,24 @@ export function getSessionsByTrack(trackId: string): Promise<SessionsResponse> {
   return request<SessionsResponse>("GET", `/sessions/track/${trackId}`);
 }
 
+export interface SessionCatalogResponse {
+  status: string;
+  data: { sessions: SessionCatalogItem[] };
+}
+
+/** Public endpoint: session titles and schedule only, never video URLs. */
+export function getSessionCatalogByTrack(
+  trackId: string,
+): Promise<SessionCatalogResponse> {
+  return request<SessionCatalogResponse>("GET", `/tracks/${trackId}/session-catalog`);
+}
+
+export function markSessionWatched(
+  sessionId: string,
+): Promise<{ status: string; data: { progress: BackendSession["myProgress"] } }> {
+  return request("PUT", `/sessions/${sessionId}/progress`, { status: "watched" });
+}
+
 export function enrollInSession(
   sessionId: string,
 ): Promise<{ status: string; message: string }> {
@@ -681,11 +715,39 @@ export function getAssignmentsBySession(
   );
 }
 
-export function submitAssignment(
+export interface AssignmentUploadResponse {
+  status: string;
+  message: string;
+  data: { submission: Submission };
+}
+
+/**
+ * Sends file bytes to our API. The API owns the Google service-account
+ * credential and is the only party that talks to Drive.
+ */
+export async function uploadAssignmentSubmission(
   assignmentId: string,
-  payload: { file: string },
-): Promise<{ status: string; message: string }> {
-  return request("POST", `/assignments/${assignmentId}/submissions`, payload);
+  file: File,
+): Promise<AssignmentUploadResponse> {
+  const formData = new FormData();
+  formData.append("file", file, file.name);
+
+  const res = await fetch(`${API_BASE}/assignments/${assignmentId}/submissions`, {
+    method: "POST",
+    credentials: "include",
+    // The browser supplies the multipart boundary; do not set Content-Type.
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    throw new ApiError(
+      (json as { message?: string }).message ?? `Upload failed (${res.status})`,
+      res.status,
+    );
+  }
+
+  return res.json() as Promise<AssignmentUploadResponse>;
 }
 
 // ── Contact ───────────────────────────────────────────────────

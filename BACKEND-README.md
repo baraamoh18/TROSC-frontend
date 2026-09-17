@@ -71,7 +71,7 @@
 | **Docs**       | Swagger (swagger-jsdoc + swagger-ui-express)    | 3.0      |
 | **Logging**    | Winston                                         | —        |
 
-> **Design Principle:** No file uploads. All media (images, videos, PDFs) are referenced via URLs from trusted hosts (YouTube, Google Drive, Cloudinary, Imgur, GitHub, Dropbox). This keeps hosting 100% free.
+> **Design Principle:** Public media (images, videos, PDFs) is referenced through trusted hosts. Learner assignment files are uploaded through the API to a private Google Drive folder; neither Drive links nor credentials are returned to learners. See [`RBAC-AND-DRIVE-UPLOAD.md`](./RBAC-AND-DRIVE-UPLOAD.md).
 
 ---
 
@@ -424,9 +424,9 @@ All successful list responses follow this structure:
 
 ## 🏛️ Key Architectural Decisions
 
-### 1. No File Uploads
+### 1. Public Media URLs and Private Assignment Uploads
 
-Instead of S3/Cloudinary storage costs, all media is referenced by URL. The system validates URLs against a whitelist of trusted hosts (YouTube, Drive, Dropbox, GitHub, Cloudinary, Imgur, Discord CDN). This makes the backend stateless and free to host.
+Public media is referenced by trusted URLs (YouTube, Drive, Dropbox, GitHub, Cloudinary, Imgur, Discord CDN). Assignment files are the exception: the API validates and uploads them to a private Google Drive folder using a server-side service account, then returns metadata only. Learners never receive a Drive link or credential. The implementation contract is in [`RBAC-AND-DRIVE-UPLOAD.md`](./RBAC-AND-DRIVE-UPLOAD.md).
 
 ### 2. Cascade Enrollment Service
 

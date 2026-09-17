@@ -29,7 +29,6 @@ const TrackOverview = ({
 }: TrackOverviewProps) => {
   const { user, loading: authLoading, refreshUser } = useAuth();
   const [enrolling, setEnrolling] = useState(false);
-  const [enrolled, setEnrolled] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
 
@@ -39,7 +38,9 @@ const TrackOverview = ({
     try {
       const res = await api.enrollInTrack(trackId);
       toast.success(res.message);
-      setEnrolled(true);
+      // The refreshed server state is the source of truth for unlocking
+      // tasks/progress; do not grant access merely because a button was clicked.
+      await refreshUser();
     } catch (err) {
       toast.error(
         err instanceof Error
@@ -70,17 +71,8 @@ const TrackOverview = ({
   };
 
   const isEnrolled = !!user && user.enrolledTrack === trackId;
-  const isPending = !!user && !!track?.pendingStudents?.includes(user._id);
 
   const renderEnrollAction = () => {
-    if (enrolled) {
-      return (
-        <div className="rounded-xl px-4 py-3 text-sm font-semibold bg-green-50 text-green-700 border border-green-200 text-center">
-          Enrollment request submitted ✓
-        </div>
-      );
-    }
-
     if (authLoading) {
       return (
         <button
@@ -140,14 +132,6 @@ const TrackOverview = ({
               </div>
             </div>
           )}
-        </div>
-      );
-    }
-
-    if (isPending) {
-      return (
-        <div className="rounded-xl px-4 py-3 text-sm font-semibold bg-yellow-50 text-yellow-700 border border-yellow-200 text-center">
-          Pending approval
         </div>
       );
     }

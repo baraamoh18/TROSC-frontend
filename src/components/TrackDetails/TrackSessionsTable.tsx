@@ -1,8 +1,15 @@
-import React from "react";
-import type { BackendSession } from "../../services/api";
+import React, { useState } from "react";
+import { Check, Circle, Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
+import * as api from "../../services/api";
+import type { BackendSession, SessionCatalogItem } from "../../services/api";
 
 interface TrackSessionsTableProps {
   sessions: BackendSession[];
+  catalogSessions?: SessionCatalogItem[];
+  canWatch: boolean;
+  isEnrolled: boolean;
+  onWatched?: (sessionId: string) => void;
 }
 
 const formatDate = (date?: string): string =>
@@ -11,11 +18,37 @@ const formatDate = (date?: string): string =>
 const formatDuration = (duration?: number): string =>
   duration ? `${duration} min` : "—";
 
-const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({ sessions }) => {
+const isFullSession = (
+  session: BackendSession | SessionCatalogItem,
+): session is BackendSession => "instructor" in session;
+
+const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
+  sessions,
+  catalogSessions = [],
+  canWatch,
+  isEnrolled,
+  onWatched,
+}) => {
+  const [updatingSessionId, setUpdatingSessionId] = useState<string | null>(null);
+  const rows = canWatch ? sessions : catalogSessions;
+
+  const markWatched = async (sessionId: string) => {
+    setUpdatingSessionId(sessionId);
+    try {
+      await api.markSessionWatched(sessionId);
+      onWatched?.(sessionId);
+      toast.success("Session marked as watched.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not update progress.");
+    } finally {
+      setUpdatingSessionId(null);
+    }
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Sessions</h2>
-      {sessions.length === 0 ? (
+      {rows.length === 0 ? (
         <p className="text-gray-600 text-sm">No sessions available yet.</p>
       ) : (
         <div className="overflow-x-auto">
@@ -30,10 +63,10 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({ sessions }) => 
               </tr>
             </thead>
             <tbody>
-              {sessions.map((session, index) => (
+              {rows.map((session, index) => (
                 <tr
                   key={session._id}
-                  className={index !== sessions.length - 1 ? "border-b border-gray-300" : ""}
+                  className={index !== rows.length - 1 ? "border-b border-gray-300" : ""}
                 >
                   <td className="py-6 px-4 font-bold text-center align-top">{index + 1}</td>
                   <td className="py-6 px-4 text-sm text-gray-800 align-top w-1/5">{session.title}</td>
@@ -41,12 +74,12 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({ sessions }) => 
                     {session.description}
                   </td>
                   <td className="py-6 px-4 text-sm text-gray-800 align-top">
-                    {session.instructor?.name ?? "TBA"}
+                    {isFullSession(session) ? session.instructor?.name ?? "TBA" : "—"}
                   </td>
                   <td className="py-6 px-4 text-sm text-gray-800 align-top">
                     <div>{formatDate(session.startDate)}</div>
                     <div className="text-xs text-gray-500">{formatDuration(session.duration)}</div>
-                    {(session.url || session.embedUrl) && (
+                    {canWatch && isFullSession(session) && (session.url || session.embedUrl) && (
                       <a
                         href={session.url || session.embedUrl}
                         target="_blank"
@@ -55,6 +88,26 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({ sessions }) => 
                       >
                         View session
                       </a>
+                    )}
+                    {!canWatch && (
+                      <p className="mt-2 text-xs font-medium text-gray-500">Sign in to watch</p>
+                    )}
+                    {isEnrolled && isFullSession(session) && (
+                      <button
+                        type="button"
+                        disabled={session.myProgress?.status === "watched" || updatingSessionId === session._id}
+                        onClick={() => markWatched(session._id)}
+                        className="mt-2 flex items-center gap-1 text-xs font-semibold text-primary disabled:text-green-700 disabled:cursor-default"
+                      >
+                        {updatingSessionId === session._id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : session.myProgress?.status === "watched" ? (
+                          <Check className="h-3.5 w-3.5" />
+                        ) : (
+                          <Circle className="h-3.5 w-3.5" />
+                        )}
+                        {session.myProgress?.status === "watched" ? "Watched" : "Mark as watched"}
+                      </button>
                     )}
                   </td>
                 </tr>

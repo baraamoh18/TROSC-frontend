@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   CheckSquare,
   Clock,
   Upload,
-  ExternalLink,
   X,
   Loader2,
   Star,
@@ -11,7 +10,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import * as api from "../../services/api";
-import type { BackendAssignment } from "../../services/api";
+import type { BackendAssignment, Submission } from "../../services/api";
 import { useAuth } from "../../context/useAuth";
 
 // ── Submission status badge ───────────────────────────────────
@@ -65,29 +64,36 @@ const SubmitModal = ({
 }: {
   assignment: BackendAssignment;
   onClose: () => void;
-  onSuccess: (assignmentId: string, fileUrl: string) => void;
+  onSuccess: (assignmentId: string, submission: Submission) => void;
 }) => {
-  const [url, setUrl] = useState(assignment.mySubmission?.file ?? "");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [dragging, setDragging] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = async () => {
-    const trimmed = url.trim();
-    if (!trimmed) {
-      toast.error("Please enter a valid URL.");
+  const MAX_FILE_SIZE = 20 * 1024 * 1024;
+  const ACCEPTED_FILES = ".pdf,.doc,.docx,.zip,.png,.jpg,.jpeg";
+
+  const selectFile = (candidate?: File) => {
+    if (!candidate) return;
+    if (candidate.size > MAX_FILE_SIZE) {
+      toast.error("Choose a file smaller than 20 MB.");
       return;
     }
-    try {
-      new URL(trimmed);
-    } catch {
-      toast.error("Please enter a valid URL (must start with http/https).");
+    setFile(candidate);
+  };
+
+  const handleSubmit = async () => {
+    if (!file) {
+      toast.error("Choose a file to submit.");
       return;
     }
 
     setSubmitting(true);
     try {
-      await api.submitAssignment(assignment._id, { file: trimmed });
+      const response = await api.uploadAssignmentSubmission(assignment._id, file);
       toast.success("Assignment submitted!");
-      onSuccess(assignment._id, trimmed);
+      onSuccess(assignment._id, response.data.submission);
       onClose();
     } catch (err) {
       toast.error(
@@ -130,19 +136,50 @@ const SubmitModal = ({
           })}
         </p>
 
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-          Submission URL
-          <span className="text-gray-400 font-normal ml-1">
-            (Google Drive, GitHub, etc.)
-          </span>
-        </label>
         <input
-          type="url"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://drive.google.com/..."
-          className="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent mb-4"
+          ref={inputRef}
+          type="file"
+          accept={ACCEPTED_FILES}
+          className="sr-only"
+          onChange={(event) => selectFile(event.target.files?.[0])}
         />
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => inputRef.current?.click()}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") inputRef.current?.click();
+          }}
+          onDragOver={(event) => {
+            event.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={(event) => {
+            event.preventDefault();
+            setDragging(false);
+            selectFile(event.dataTransfer.files?.[0]);
+          }}
+          className={`mb-4 cursor-pointer rounded-xl border-2 border-dashed p-5 text-center transition-colors ${
+            dragging ? "border-primary bg-primary/5" : "border-gray-300 hover:border-primary"
+          }`}
+        >
+          <Upload className="mx-auto mb-2 h-5 w-5 text-primary" />
+          {file ? (
+            <>
+              <p className="text-sm font-semibold text-gray-900 break-all">{file.name}</p>
+              <p className="mt-1 text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB · Click to replace</p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm font-medium text-gray-700">Drop a file here or click to browse</p>
+              <p className="mt-1 text-xs text-gray-500">PDF, Word, ZIP, PNG, or JPG · Maximum 20 MB</p>
+            </>
+          )}
+        </div>
+        <p className="mb-4 text-xs text-gray-500">
+          Your file is uploaded securely. You will not be sent to Google Drive.
+        </p>
 
         <div className="flex gap-3">
           <button
@@ -179,11 +216,13 @@ const SubmitModal = ({
 
 interface TrackAssignmentsProps {
   assignments: BackendAssignment[];
-  onSubmissionUpdate?: (assignmentId: string, fileUrl: string) => void;
+  isEnrolled: boolean;
+  onSubmissionUpdate?: (assignmentId: string, submission: Submission) => void;
 }
 
 const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
   assignments,
+  isEnrolled,
   onSubmissionUpdate,
 }) => {
   const { user } = useAuth();
@@ -246,22 +285,15 @@ const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
                     </span>
                   </div>
 
-                  {/* Submitted file link */}
-                  {hasSub && assignment.mySubmission?.file && (
-                    <a
-                      href={assignment.mySubmission.file}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 mt-2 text-xs text-primary hover:text-primary-hover font-medium"
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      View my submission
-                    </a>
+                  {hasSub && assignment.mySubmission?.fileName && (
+                    <p className="mt-2 text-xs text-gray-500">
+                      Submitted file: {assignment.mySubmission.fileName}
+                    </p>
                   )}
                 </div>
 
                 {/* Submit / Resubmit button */}
-                {user && (
+                {user && isEnrolled && (
                   <button
                     onClick={() => setSelectedAssignment(assignment)}
                     className={`shrink-0 inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-lg transition-colors ${
@@ -284,9 +316,9 @@ const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
         <SubmitModal
           assignment={selectedAssignment}
           onClose={() => setSelectedAssignment(null)}
-          onSuccess={(id, fileUrl) => {
+          onSuccess={(id, submission) => {
             setSelectedAssignment(null);
-            onSubmissionUpdate?.(id, fileUrl);
+            onSubmissionUpdate?.(id, submission);
           }}
         />
       )}

@@ -8,7 +8,10 @@ import type {
   BackendCourse,
   BackendAssignment,
   WeeklyTask,
+  SessionCatalogItem,
+  Submission,
 } from "../services/api";
+import { useAuth } from "../context/useAuth";
 import TrackHero from "../components/TrackDetails/TrackHero";
 import TrackTabs from "../components/TrackDetails/TrackTabs";
 import TrackOverview from "../components/TrackDetails/TrackOverview";
@@ -32,28 +35,8 @@ const isValidObjectId = (id: string) => /^[a-f\d]{24}$/i.test(id);
 
 const TrackDetailsPage = () => {
   const { trackId } = useParams<{ trackId: string }>();
-
-  // Guard: if the URL segment isn't a valid MongoDB ObjectId we know it won't
-  // match anything in the database — show a clear message instead of firing
-  // requests that will always 400/500.
-  if (!trackId || !isValidObjectId(trackId)) {
-    return (
-      <div className="bg-gray-50 min-h-screen pt-16 flex items-center justify-center">
-        <div className="text-center px-4">
-          <h1 className="text-3xl font-bold text-gray-900 mb-3">Track not found</h1>
-          <p className="text-gray-600 mb-6">
-            This track doesn't exist yet or hasn't been published.
-          </p>
-          <Link
-            to="/#tracks"
-            className="inline-block bg-primary text-white font-bold py-2.5 px-6 rounded-xl hover:bg-primary-hover transition-colors"
-          >
-            Browse Tracks
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  const { user, loading: authLoading } = useAuth();
+  const hasValidTrackId = !!trackId && isValidObjectId(trackId);
 
   // ── State ────────────────────────────────────────────────────
 
@@ -61,6 +44,7 @@ const TrackDetailsPage = () => {
 
   const [sessions, setSessions] = useState<BackendSession[]>([]);
   const [sessionsUnauthorized, setSessionsUnauthorized] = useState(false);
+  const [sessionCatalog, setSessionCatalog] = useState<SessionCatalogItem[]>([]);
 
   const [courses, setCourses] = useState<BackendCourse[]>([]);
 
@@ -76,7 +60,7 @@ const TrackDetailsPage = () => {
 
   // Track info (public)
   useEffect(() => {
-    if (!trackId) return;
+    if (!hasValidTrackId || !trackId) return;
     let cancelled = false;
     api
       .getTrack(trackId)
@@ -87,11 +71,33 @@ const TrackDetailsPage = () => {
         // Invalid ID or network error — hero falls back to placeholders below
       });
     return () => { cancelled = true; };
-  }, [trackId]);
+  }, [trackId, hasValidTrackId]);
 
-  // Sessions (requires auth)
+  // Public catalog: names and schedule only. The API must never include media
+  // URLs here, because this request is made for unauthenticated visitors too.
   useEffect(() => {
-    if (!trackId) return;
+    if (!hasValidTrackId || !trackId) return;
+    let cancelled = false;
+    api
+      .getSessionCatalogByTrack(trackId)
+      .then((res) => {
+        if (!cancelled) setSessionCatalog(res.data.sessions);
+      })
+      .catch(() => {
+        if (!cancelled) setSessionCatalog([]);
+      });
+    return () => { cancelled = true; };
+  }, [trackId, hasValidTrackId]);
+
+  // Video-capable session data is available to every authenticated user.
+  useEffect(() => {
+    if (!hasValidTrackId || !trackId || authLoading) return;
+    if (!user) {
+      setSessions([]);
+      setSessionsUnauthorized(false);
+      return;
+    }
+    setSessionsUnauthorized(false);
     let cancelled = false;
     api
       .getSessionsByTrack(trackId)
@@ -106,11 +112,11 @@ const TrackDetailsPage = () => {
         setSessions([]);
       });
     return () => { cancelled = true; };
-  }, [trackId]);
+  }, [trackId, hasValidTrackId, authLoading, user]);
 
   // Courses by track (public)
   useEffect(() => {
-    if (!trackId) return;
+    if (!hasValidTrackId || !trackId) return;
     let cancelled = false;
     api
       .getCoursesByTrack(trackId)
@@ -121,11 +127,22 @@ const TrackDetailsPage = () => {
         if (!cancelled) setCourses([]);
       });
     return () => { cancelled = true; };
-  }, [trackId]);
+  }, [trackId, hasValidTrackId]);
 
-  // Weekly tasks (requires auth)
+  // Tasks and submissions are deliberately fetched only for enrolled users.
   useEffect(() => {
-    if (!trackId) return;
+    if (!hasValidTrackId || !trackId) return;
+    if (authLoading) {
+      setWeeklyTasksLoading(true);
+      return;
+    }
+    if (!user || user.enrolledTrack !== trackId) {
+      setWeeklyTasks([]);
+      setWeeklyTasksLoading(false);
+      return;
+    }
+    setWeeklyTasksLoading(true);
+    setWeeklyTasksUnauthorized(false);
     let cancelled = false;
     api
       .getWeeklyTasksByTrack(trackId)
@@ -143,11 +160,22 @@ const TrackDetailsPage = () => {
         if (!cancelled) setWeeklyTasksLoading(false);
       });
     return () => { cancelled = true; };
-  }, [trackId]);
+  }, [trackId, hasValidTrackId, authLoading, user]);
 
-  // Assignments (requires auth)
+  // Assignments follow the same enrolled-only rule as weekly tasks.
   useEffect(() => {
-    if (!trackId) return;
+    if (!hasValidTrackId || !trackId) return;
+    if (authLoading) {
+      setAssignmentsLoading(true);
+      return;
+    }
+    if (!user || user.enrolledTrack !== trackId) {
+      setAssignments([]);
+      setAssignmentsLoading(false);
+      return;
+    }
+    setAssignmentsLoading(true);
+    setAssignmentsUnauthorized(false);
     let cancelled = false;
     api
       .getAssignmentsByTrack(trackId)
@@ -165,7 +193,7 @@ const TrackDetailsPage = () => {
         if (!cancelled) setAssignmentsLoading(false);
       });
     return () => { cancelled = true; };
-  }, [trackId]);
+  }, [trackId, hasValidTrackId, authLoading, user]);
 
   // ── Derived data ─────────────────────────────────────────────
 
@@ -219,22 +247,33 @@ const TrackDetailsPage = () => {
   }, [sortedSessions]);
 
   // Update a single assignment's mySubmission after a successful submit
-  const handleAssignmentSubmission = (assignmentId: string, fileUrl: string) => {
+  const handleAssignmentSubmission = (assignmentId: string, submission: Submission) => {
     setAssignments((prev) =>
       prev.map((a) =>
         a._id === assignmentId
           ? {
               ...a,
-              mySubmission: {
-                student: "",
-                file: fileUrl,
-                submittedAt: new Date().toISOString(),
-              },
+              mySubmission: submission,
             }
           : a,
       ),
     );
   };
+
+  const handleSessionWatched = (sessionId: string) => {
+    setSessions((previous) =>
+      previous.map((session) =>
+        session._id === sessionId
+          ? {
+              ...session,
+              myProgress: { status: "watched", watchedAt: new Date().toISOString() },
+            }
+          : session,
+      ),
+    );
+  };
+
+  const isEnrolled = !!user && user.enrolledTrack === trackId;
 
   // ── Hero values ───────────────────────────────────────────────
 
@@ -250,6 +289,26 @@ const TrackDetailsPage = () => {
     projectDeadline: "TBA",
     finalExam: "TBA",
   };
+
+  // Keep the validation guard after all hooks so the hook order is stable.
+  if (!hasValidTrackId) {
+    return (
+      <div className="bg-gray-50 min-h-screen pt-16 flex items-center justify-center">
+        <div className="text-center px-4">
+          <h1 className="text-3xl font-bold text-gray-900 mb-3">Track not found</h1>
+          <p className="text-gray-600 mb-6">
+            This track doesn't exist yet or hasn't been published.
+          </p>
+          <Link
+            to="/#tracks"
+            className="inline-block bg-primary text-white font-bold py-2.5 px-6 rounded-xl hover:bg-primary-hover transition-colors"
+          >
+            Browse Tracks
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // ── Render ────────────────────────────────────────────────────
 
@@ -303,7 +362,17 @@ const TrackDetailsPage = () => {
             <div className="py-4">
               <Divider />
             </div>
-            {sessionsUnauthorized ? (
+            {!user && !authLoading ? (
+              <TrackSessionsSummary sessions={sessionCatalog.map((session) => ({
+                ...session,
+                instructor: { _id: "", name: "TBA", email: "", role: "" },
+                access: "public" as const,
+                level: "beginner" as const,
+                coverImage: "",
+                resources: [],
+                published: true,
+              }))} />
+            ) : sessionsUnauthorized ? (
               <ComingSoonNotice message="Sign in to view this track's sessions." />
             ) : (
               <TrackSessionsSummary sessions={sortedSessions.slice(0, 3)} />
@@ -314,7 +383,11 @@ const TrackDetailsPage = () => {
 
           {/* Weekly Tasks */}
           <section id="weekly-tasks" className="scroll-mt-32">
-            {weeklyTasksUnauthorized ? (
+            {!authLoading && !user ? (
+              <ComingSoonNotice message="Sign in and join this track to unlock weekly tasks." />
+            ) : !authLoading && user && !isEnrolled ? (
+              <ComingSoonNotice message="Join this track to unlock weekly tasks and progress tracking." />
+            ) : weeklyTasksUnauthorized ? (
               <ComingSoonNotice message="Sign in to view weekly tasks." />
             ) : weeklyTasksLoading ? (
               <div>
@@ -341,10 +414,22 @@ const TrackDetailsPage = () => {
 
           {/* Sessions */}
           <section id="sessions" className="scroll-mt-32">
-            {sessionsUnauthorized ? (
+            {!user && !authLoading ? (
+              <TrackSessionsTable
+                sessions={[]}
+                catalogSessions={sessionCatalog}
+                canWatch={false}
+                isEnrolled={false}
+              />
+            ) : sessionsUnauthorized ? (
               <ComingSoonNotice message="Sign in to view this track's sessions." />
             ) : (
-              <TrackSessionsTable sessions={sortedSessions} />
+              <TrackSessionsTable
+                sessions={sortedSessions}
+                canWatch={!!user}
+                isEnrolled={isEnrolled}
+                onWatched={handleSessionWatched}
+              />
             )}
           </section>
 
@@ -352,7 +437,11 @@ const TrackDetailsPage = () => {
 
           {/* Assignments */}
           <section id="assignments" className="scroll-mt-32">
-            {assignmentsUnauthorized ? (
+            {!authLoading && !user ? (
+              <ComingSoonNotice message="Sign in and join this track to unlock assignments." />
+            ) : !authLoading && user && !isEnrolled ? (
+              <ComingSoonNotice message="Join this track to unlock assignments and secure submission." />
+            ) : assignmentsUnauthorized ? (
               <ComingSoonNotice message="Sign in to view assignments." />
             ) : assignmentsLoading ? (
               <div>
@@ -367,6 +456,7 @@ const TrackDetailsPage = () => {
               <>
                 <TrackAssignments
                   assignments={assignments}
+                  isEnrolled={isEnrolled}
                   onSubmissionUpdate={handleAssignmentSubmission}
                 />
                 <TrackLearningPath path={[]} />
