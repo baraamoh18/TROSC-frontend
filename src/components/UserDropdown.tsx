@@ -73,17 +73,6 @@ const StyledWrapper = styled.div`
     overflow: visible;
   }
 
-  /* Invisible bridge so the pointer can travel from the pill to the
-     panel across the 12px gap without the menu closing */
-  .dropdown-container::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    height: 14px;
-  }
-
   /* ── Pill button: avatar + first name ── */
   .dropdown-button {
     display: flex;
@@ -213,6 +202,17 @@ const StyledWrapper = styled.div`
     border-style: solid;
     border-color: transparent transparent rgba(255, 255, 255, 0.95) transparent;
     filter: drop-shadow(0 -3px 3px rgba(64, 64, 64, 0.1));
+  }
+
+  /* Invisible bridge filling the gap above the panel so the pointer can
+     travel from the pill to the icons without the menu closing */
+  .dropdown-content::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    height: 14px;
   }
 
   .dropdown-container:hover .dropdown-content,
