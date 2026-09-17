@@ -363,39 +363,6 @@ const TrackDetailsPage = () => {
 
           <Divider />
 
-          {/* Weekly Tasks */}
-          <section id="weekly-tasks" className="scroll-mt-32">
-            {!authLoading && !user ? (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
-                <ComingSoonNotice message="Sign in and join this track to unlock weekly tasks." />
-              </div>
-            ) : !authLoading && user && !isEnrolled ? (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
-                <ComingSoonNotice message="Join this track to unlock weekly tasks and progress tracking." />
-              </div>
-            ) : weeklyTasksUnauthorized ? (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
-                <ComingSoonNotice message="Sign in to view weekly tasks." />
-              </div>
-            ) : weeklyTasksLoading ? (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
-                <div className="space-y-3">
-                  {[1, 2, 3].map((n) => (
-                    <div key={n} className="h-16 rounded-xl bg-gray-200 animate-pulse" />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <TrackWeeklyTasks tasks={weeklyTasks} />
-            )}
-          </section>
-
-          <Divider />
-
           {/* Courses */}
           <section id="courses" className="scroll-mt-32">
             <TrackCourses courses={courses} />
@@ -424,6 +391,52 @@ const TrackDetailsPage = () => {
                 isEnrolled={isEnrolled}
                 onWatched={handleSessionWatched}
               />
+            )}
+          </section>
+
+          <Divider />
+
+          {/* Resources */}
+          <section id="resources" className="scroll-mt-32">
+            {trackResources.pdfs.length === 0 && trackResources.recordings.length === 0 ? (
+              <ComingSoonNotice
+                message="Track resources will appear here once sessions have attached materials."
+                className="mb-6"
+              />
+            ) : null}
+            <TrackResources resources={trackResources} />
+          </section>
+
+          <Divider />
+
+          {/* Weekly Tasks */}
+          <section id="weekly-tasks" className="scroll-mt-32">
+            {!authLoading && !user ? (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
+                <ComingSoonNotice message="Sign in and join this track to unlock weekly tasks." />
+              </div>
+            ) : !authLoading && user && !isEnrolled ? (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
+                <ComingSoonNotice message="Join this track to unlock weekly tasks and progress tracking." />
+              </div>
+            ) : weeklyTasksUnauthorized ? (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
+                <ComingSoonNotice message="Sign in to view weekly tasks." />
+              </div>
+            ) : weeklyTasksLoading ? (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
+                <div className="space-y-3">
+                  {[1, 2, 3].map((n) => (
+                    <div key={n} className="h-16 rounded-xl bg-gray-200 animate-pulse" />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <TrackWeeklyTasks tasks={weeklyTasks} />
             )}
           </section>
 
@@ -465,19 +478,6 @@ const TrackDetailsPage = () => {
                 <TrackLearningPath path={[]} />
               </>
             )}
-          </section>
-
-          <Divider />
-
-          {/* Resources */}
-          <section id="resources" className="scroll-mt-32">
-            {trackResources.pdfs.length === 0 && trackResources.recordings.length === 0 ? (
-              <ComingSoonNotice
-                message="Track resources will appear here once sessions have attached materials."
-                className="mb-6"
-              />
-            ) : null}
-            <TrackResources resources={trackResources} />
           </section>
 
           {/* Schedule & Certificate */}
