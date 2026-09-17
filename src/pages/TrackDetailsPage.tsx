@@ -384,11 +384,20 @@ const TrackDetailsPage = () => {
           {/* Weekly Tasks */}
           <section id="weekly-tasks" className="scroll-mt-32">
             {!authLoading && !user ? (
-              <ComingSoonNotice message="Sign in and join this track to unlock weekly tasks." />
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
+                <ComingSoonNotice message="Sign in and join this track to unlock weekly tasks." />
+              </div>
             ) : !authLoading && user && !isEnrolled ? (
-              <ComingSoonNotice message="Join this track to unlock weekly tasks and progress tracking." />
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
+                <ComingSoonNotice message="Join this track to unlock weekly tasks and progress tracking." />
+              </div>
             ) : weeklyTasksUnauthorized ? (
-              <ComingSoonNotice message="Sign in to view weekly tasks." />
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
+                <ComingSoonNotice message="Sign in to view weekly tasks." />
+              </div>
             ) : weeklyTasksLoading ? (
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
@@ -422,7 +431,10 @@ const TrackDetailsPage = () => {
                 isEnrolled={false}
               />
             ) : sessionsUnauthorized ? (
-              <ComingSoonNotice message="Sign in to view this track's sessions." />
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Sessions</h2>
+                <ComingSoonNotice message="Sign in to view this track's sessions." />
+              </div>
             ) : (
               <TrackSessionsTable
                 sessions={sortedSessions}
@@ -438,11 +450,20 @@ const TrackDetailsPage = () => {
           {/* Assignments */}
           <section id="assignments" className="scroll-mt-32">
             {!authLoading && !user ? (
-              <ComingSoonNotice message="Sign in and join this track to unlock assignments." />
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Assignments</h2>
+                <ComingSoonNotice message="Sign in and join this track to unlock assignments." />
+              </div>
             ) : !authLoading && user && !isEnrolled ? (
-              <ComingSoonNotice message="Join this track to unlock assignments and secure submission." />
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Assignments</h2>
+                <ComingSoonNotice message="Join this track to unlock assignments and secure submission." />
+              </div>
             ) : assignmentsUnauthorized ? (
-              <ComingSoonNotice message="Sign in to view assignments." />
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Assignments</h2>
+                <ComingSoonNotice message="Sign in to view assignments." />
+              </div>
             ) : assignmentsLoading ? (
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Assignments</h2>
