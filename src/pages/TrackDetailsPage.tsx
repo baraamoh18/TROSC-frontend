@@ -15,7 +15,6 @@ import { useAuth } from "../context/useAuth";
 import TrackHero from "../components/TrackDetails/TrackHero";
 import TrackTabs from "../components/TrackDetails/TrackTabs";
 import TrackOverview from "../components/TrackDetails/TrackOverview";
-import TrackSessionsSummary from "../components/TrackDetails/TrackSessionsSummary";
 import TrackWeeklyTasks from "../components/TrackDetails/TrackWeeklyTasks";
 import TrackSessionsTable from "../components/TrackDetails/TrackSessionsTable";
 import TrackAssignments from "../components/TrackDetails/TrackAssignments";
