@@ -239,7 +239,7 @@ const DashboardPage = () => {
     api
       .getMyEvents()
       .then((res) => {
-        if (!cancelled) setRsvpEvents(res.data.events);
+        if (!cancelled) setRsvpEvents(res.data?.events || []);
       })
       .catch(() => {
         // API unavailable — section shows the empty state
@@ -258,7 +258,7 @@ const DashboardPage = () => {
     api
       .getMyActivityLogs("limit=10")
       .then((res) => {
-        if (!cancelled) setActivityLogs(res.data.logs);
+        if (!cancelled) setActivityLogs(res.data?.logs || []);
       })
       .catch(() => {
         // Activity log unavailable — section shows empty state
@@ -320,12 +320,12 @@ const DashboardPage = () => {
                   </h3>
                   <p className="flex flex-wrap gap-4 text-sm text-neutral-dark">
                     <span className="flex items-center gap-1.5">
-                      <BookOpen size={16} /> {enrollments!.courses.length} course
-                      {enrollments!.courses.length === 1 ? "" : "s"}
+                      <BookOpen size={16} /> {enrollments!.courses?.length || 0} course
+                      {(enrollments!.courses?.length || 0) === 1 ? "" : "s"}
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <Video size={16} /> {enrollments!.sessions.length} session
-                      {enrollments!.sessions.length === 1 ? "" : "s"}
+                      <Video size={16} /> {enrollments!.sessions?.length || 0} session
+                      {(enrollments!.sessions?.length || 0) === 1 ? "" : "s"}
                     </span>
                   </p>
                 </div>
@@ -364,7 +364,7 @@ const DashboardPage = () => {
                 <div key={n} className="h-24 animate-pulse rounded-2xl bg-gray-200" />
               ))}
             </div>
-          ) : rsvpEvents.length === 0 ? (
+          ) : (rsvpEvents?.length || 0) === 0 ? (
             <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
               You haven't RSVP'd to any events yet.{" "}
               <Link
@@ -377,7 +377,7 @@ const DashboardPage = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {rsvpEvents.map((event) => {
+              {(rsvpEvents || []).map((event) => {
                 const dateLabel = new Date(event.date).toLocaleDateString(
                   undefined,
                   { year: "numeric", month: "long", day: "numeric" },
@@ -425,13 +425,13 @@ const DashboardPage = () => {
                 <div key={n} className="h-12 animate-pulse rounded-xl bg-gray-200" />
               ))}
             </div>
-          ) : activityLogs.length === 0 ? (
+          ) : (activityLogs?.length || 0) === 0 ? (
             <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
               No activity recorded yet.
             </div>
           ) : (
             <div className="rounded-2xl border border-neutral-light-active bg-white shadow-sm divide-y divide-gray-100">
-              {activityLogs.map((log) => (
+              {(activityLogs || []).map((log) => (
                 <div
                   key={log._id}
                   className="flex items-center gap-3 px-5 py-3.5"
