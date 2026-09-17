@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   BookOpen,
   BarChart3,
@@ -63,7 +64,10 @@ const CourseCard = ({ course }: { course: BackendCourse }) => {
   const hasSyllabus = course.syllabus && course.syllabus.length > 0;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+    <Link
+      to={`/courses/${course._id}`}
+      className="block rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:ring-1 hover:ring-primary/40"
+    >
       {/* Cover image or gradient fallback */}
       {course.coverImage &&
       course.coverImage !== "https://placehold.co/800x400?text=Trosc+Course" ? (
@@ -85,7 +89,7 @@ const CourseCard = ({ course }: { course: BackendCourse }) => {
           <AccessBadge access={course.access} />
         </div>
 
-        <h3 className="font-bold text-gray-900 mb-1 leading-snug">
+        <h3 className="font-bold text-gray-900 mb-1 leading-snug group-hover:text-primary transition-colors">
           {course.title}
         </h3>
 
@@ -128,7 +132,12 @@ const CourseCard = ({ course }: { course: BackendCourse }) => {
           <div>
             <button
               type="button"
-              onClick={() => setSyllabusOpen((o) => !o)}
+              onClick={(e) => {
+                // The whole card is a link — keep the accordion click from navigating.
+                e.preventDefault();
+                e.stopPropagation();
+                setSyllabusOpen((o) => !o);
+              }}
               className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-hover transition-colors"
             >
               {syllabusOpen ? (
@@ -161,7 +170,7 @@ const CourseCard = ({ course }: { course: BackendCourse }) => {
           </div>
         )}
       </div>
-    </div>
+    </Link>
   );
 };
 

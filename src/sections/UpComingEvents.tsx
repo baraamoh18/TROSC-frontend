@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
-import toast from "react-hot-toast";
 import * as api from "../services/api";
 import type { BackendEvent } from "../services/api";
-import { useAuth } from "../context/useAuth";
-import { ApiError } from "../services/api";
+import RsvpButton from "../components/RsvpButton";
 
 // ── Countdown (unchanged logic, just moved) ───────────────────
 
@@ -68,39 +66,7 @@ const useCountdown = (targetDate: string): string => {
 // ── Event Card ────────────────────────────────────────────────
 
 const UpcomingEventCard = ({ event }: { event: BackendEvent }) => {
-  const { user } = useAuth();
-  const [rsvped, setRsvped] = useState(
-    () => !!user && event.attendees.includes(user._id),
-  );
-  const [loading, setLoading] = useState(false);
   const countdown = useCountdown(event.date);
-
-  useEffect(() => {
-    setRsvped(!!user && event.attendees.includes(user._id));
-  }, [user, event.attendees]);
-
-  const handleRsvp = async () => {
-    setLoading(true);
-    try {
-      if (rsvped) {
-        await api.cancelRsvp(event._id);
-        setRsvped(false);
-        toast.success("RSVP cancelled.");
-      } else {
-        await api.rsvpEvent(event._id);
-        setRsvped(true);
-        toast.success("You're registered for this event!");
-      }
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 401) {
-        toast.error("Sign in to RSVP for events.");
-      } else {
-        toast.error("Something went wrong. Please try again.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <article className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-neutral-light-active bg-white px-5 py-5 shadow-[0_4px_16px_rgba(0,0,0,0.12)] sm:flex-row sm:items-center sm:px-6">
@@ -113,17 +79,7 @@ const UpcomingEventCard = ({ event }: { event: BackendEvent }) => {
         </h3>
         <span className="text-xs text-neutral-dark">{countdown}</span>
       </div>
-      <button
-        onClick={handleRsvp}
-        disabled={loading}
-        className={`whitespace-nowrap rounded-full px-7 py-2.5 text-base font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-          rsvped
-            ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            : "bg-primary text-white hover:bg-primary-hover"
-        }`}
-      >
-        {loading ? "..." : rsvped ? "Cancel RSVP" : "Enroll Now"}
-      </button>
+      <RsvpButton event={event} />
     </article>
   );
 };

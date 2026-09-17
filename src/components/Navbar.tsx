@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Menu, X, LogOut, UserCircle } from "lucide-react";
+import { Menu, X, LogOut, UserCircle, Settings, GraduationCap } from "lucide-react";
 import TroscLogo from "../../Assests/TroscLogoRed.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { smoothScrollToId } from "../utils/smoothScroll";
@@ -136,6 +136,24 @@ const Navbar: React.FC = () => {
           <div className="flex items-center gap-3">
             {!loading && user ? (
               <div className="hidden sm:flex items-center gap-3">
+                {user.role === "instructor" || user.role === "admin" ? (
+                  <Link
+                    to="/instructor"
+                    title="Instructor dashboard"
+                    aria-label="Instructor dashboard"
+                    className="flex items-center text-gray-800 hover:text-primary transition-colors"
+                  >
+                    <GraduationCap size={22} />
+                  </Link>
+                ) : null}
+                <Link
+                  to="/settings"
+                  title="Settings"
+                  aria-label="Settings"
+                  className="flex items-center text-gray-800 hover:text-primary transition-colors"
+                >
+                  <Settings size={20} />
+                </Link>
                 <Link
                   to="/dashboard"
                   className="flex items-center gap-1.5 text-sm font-semibold text-gray-800 hover:text-primary transition-colors"
@@ -190,23 +208,43 @@ const Navbar: React.FC = () => {
             </Link>
           ))}
           {!loading && user && (
-            <div className="flex items-center justify-between px-3 py-2">
+            <>
+              <div className="flex items-center justify-between px-3 py-2">
+                <Link
+                  to="/dashboard"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-1.5 text-sm font-semibold text-gray-800 hover:text-primary transition-colors"
+                >
+                  <UserCircle size={20} className="text-primary" />
+                  {user.name}
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-800 font-bold text-sm py-2 px-3 rounded-md hover:bg-gray-200 transition-colors duration-300 cursor-pointer"
+                >
+                  <LogOut size={16} />
+                  Log Out
+                </button>
+              </div>
+              {(user.role === "instructor" || user.role === "admin") && (
+                <Link
+                  to="/instructor"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                >
+                  <GraduationCap size={18} />
+                  Instructor Dashboard
+                </Link>
+              )}
               <Link
-                to="/dashboard"
+                to="/settings"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-1.5 text-sm font-semibold text-gray-800 hover:text-primary transition-colors"
+                className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               >
-                <UserCircle size={20} className="text-primary" />
-                {user.name}
+                <Settings size={18} />
+                Settings
               </Link>
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-800 font-bold text-sm py-2 px-3 rounded-md hover:bg-gray-200 transition-colors duration-300 cursor-pointer"
-              >
-                <LogOut size={16} />
-                Log Out
-              </button>
-            </div>
+            </>
           )}
         </div>
       </div>

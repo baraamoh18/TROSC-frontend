@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Check, Circle, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Check, Circle, Loader2, PlayCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import * as api from "../../services/api";
 import type { BackendSession, SessionCatalogItem } from "../../services/api";
@@ -69,7 +70,18 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
                   className={index !== rows.length - 1 ? "border-b border-gray-300" : ""}
                 >
                   <td className="py-6 px-4 font-bold text-center align-top">{index + 1}</td>
-                  <td className="py-6 px-4 text-sm text-gray-800 align-top w-1/5">{session.title}</td>
+                  <td className="py-6 px-4 text-sm text-gray-800 align-top w-1/5">
+                    {canWatch && isFullSession(session) ? (
+                      <Link
+                        to={`/sessions/${session._id}`}
+                        className="font-semibold text-gray-900 hover:text-primary transition-colors"
+                      >
+                        {session.title}
+                      </Link>
+                    ) : (
+                      session.title
+                    )}
+                  </td>
                   <td className="py-6 px-4 text-sm text-gray-700 align-top w-2/5">
                     {session.description}
                   </td>
@@ -80,14 +92,13 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
                     <div>{formatDate(session.startDate)}</div>
                     <div className="text-xs text-gray-500">{formatDuration(session.duration)}</div>
                     {canWatch && isFullSession(session) && (session.url || session.embedUrl) && (
-                      <a
-                        href={session.url || session.embedUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-block mt-2 bg-primary hover:bg-primary-hover text-white text-xs font-bold py-1.5 px-3 rounded"
+                      <Link
+                        to={`/sessions/${session._id}`}
+                        className="mt-2 inline-flex items-center gap-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold py-1.5 px-3 rounded"
                       >
-                        View session
-                      </a>
+                        <PlayCircle className="h-3.5 w-3.5" />
+                        Watch session
+                      </Link>
                     )}
                     {!canWatch && (
                       <p className="mt-2 text-xs font-medium text-gray-500">Sign in to watch</p>

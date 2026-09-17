@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as api from "../services/api";
 import type { BackendEvent } from "../services/api";
+import RsvpButton from "../components/RsvpButton";
 
 const PLACEHOLDER_IMAGE = "https://placehold.co/800x400?text=Trosc+Event";
 
@@ -10,6 +11,7 @@ const EventCard: React.FC<{ event: BackendEvent }> = ({ event }) => {
     month: "long",
     day: "numeric",
   });
+  const isUpcoming = new Date(event.date).getTime() > Date.now();
 
   return (
     <article className="grid grid-cols-1 items-center gap-8 lg:grid-cols-[1fr_1.05fr]">
@@ -28,16 +30,19 @@ const EventCard: React.FC<{ event: BackendEvent }> = ({ event }) => {
         <p className="mb-7 whitespace-pre-line text-base leading-8 text-neutral-dark">
           {event.description}
         </p>
-        {event.locationLink && (
-          <a
-            href={event.locationLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-lg font-bold text-white transition-colors duration-300 hover:bg-primary-hover"
-          >
-            See More
-          </a>
-        )}
+        <div className="flex flex-wrap items-center gap-4">
+          {event.locationLink && (
+            <a
+              href={event.locationLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-lg font-bold text-white transition-colors duration-300 hover:bg-primary-hover"
+            >
+              See More
+            </a>
+          )}
+          {isUpcoming && <RsvpButton event={event} />}
+        </div>
       </div>
 
       <div className="w-full">

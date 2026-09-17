@@ -11,6 +11,10 @@ import ResetPasswordPage from "./pages/resetPasswordPage";
 import ContactUsPage from "./pages/contactUsPage";
 import TrackDetailsPage from "./pages/TrackDetailsPage";
 import DashboardPage from "./pages/DashboardPage";
+import SettingsPage from "./pages/SettingsPage";
+import SessionViewerPage from "./pages/SessionViewerPage";
+import CourseDetailsPage from "./pages/CourseDetailsPage";
+import InstructorDashboardPage from "./pages/InstructorDashboardPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import useScrollToHash from "./hooks/useScrollToHash";
 
@@ -23,6 +27,7 @@ function App() {
       <Route element={<MainLayout />}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/track/:trackId" element={<TrackDetailsPage />} />
+        <Route path="/courses/:courseId" element={<CourseDetailsPage />} />
       </Route>
 
       {/* Pages with Navbar only (no Footer) */}
@@ -33,6 +38,30 @@ function App() {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sessions/:sessionId"
+          element={
+            <ProtectedRoute>
+              <SessionViewerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/instructor"
+          element={
+            <ProtectedRoute>
+              <InstructorDashboardPage />
             </ProtectedRoute>
           }
         />
