@@ -88,7 +88,9 @@ const SessionViewerPage = () => {
     );
   }
 
-  const trackId = session.tracks?.[0];
+  // The API may return a bare id or a populated track doc here.
+  const firstTrack = session.tracks?.[0];
+  const trackId = typeof firstTrack === "string" ? firstTrack : firstTrack?._id;
   const dateLabel = session.startDate
     ? new Date(session.startDate).toLocaleString(undefined, {
         dateStyle: "medium",
@@ -219,14 +221,14 @@ const SessionViewerPage = () => {
         </div>
 
         {/* Resources */}
-        {session.resources.length > 0 && (
+        {(session.resources?.length ?? 0) > 0 && (
           <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm sm:p-8">
             <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-neutral-darker">
               <FileText size={20} className="text-primary" />
               Session resources
             </h2>
             <ul className="space-y-2">
-              {session.resources.map((resource, idx) => (
+              {(session.resources ?? []).map((resource, idx) => (
                 <li key={idx}>
                   <a
                     href={resource.url}

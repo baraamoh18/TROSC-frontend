@@ -209,7 +209,7 @@ const TrackDetailsPage = () => {
   // Recordings are sessions that have a primary URL (video/embed).
   const trackResources = useMemo(() => {
     const pdfs = sortedSessions.flatMap((s) =>
-      s.resources.map((r) => r.title),
+      (s.resources ?? []).map((r) => r.title),
     );
     const recordings = sortedSessions
       .filter((s) => !!s.url)

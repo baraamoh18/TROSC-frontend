@@ -251,7 +251,7 @@ const CourseDetailsPage = () => {
         {/* Stats row */}
         <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
           {(() => {
-            const sessionTotal = course.sessionCount ?? course.sessions.length;
+            const sessionTotal = course.sessionCount ?? course.sessions?.length ?? 0;
             const stats: {
               icon: LucideIcon;
               value: string | number;
@@ -273,12 +273,12 @@ const CourseDetailsPage = () => {
                 : []),
               {
                 icon: Users,
-                value: course.studentCount ?? course.students.length,
+                value: course.studentCount ?? course.students?.length ?? 0,
                 label: "Enrolled",
               },
               {
                 icon: ListChecks,
-                value: course.syllabus.length,
+                value: course.syllabus?.length ?? 0,
                 label: "Topics",
               },
             ];
@@ -329,13 +329,13 @@ const CourseDetailsPage = () => {
               <ListChecks size={22} />
               Syllabus
             </h2>
-            {course.syllabus.length === 0 ? (
+            {(course.syllabus?.length ?? 0) === 0 ? (
               <p className="text-sm text-neutral-dark">
                 The syllabus hasn't been published yet.
               </p>
             ) : (
               <ol className="space-y-3">
-                {course.syllabus.map((item, idx) => (
+                {(course.syllabus ?? []).map((item, idx) => (
                   <li
                     key={item._id ?? idx}
                     className="flex gap-4 rounded-xl border border-neutral-light-active p-4"
@@ -360,14 +360,14 @@ const CourseDetailsPage = () => {
           </section>
 
           {/* Attachments */}
-          {course.attachments.length > 0 && (
+          {(course.attachments?.length ?? 0) > 0 && (
             <section className="rounded-2xl bg-white p-6 shadow-sm sm:p-8">
               <h2 className="mb-4 flex items-center gap-2 text-2xl font-extrabold text-primary-darker">
                 <FileText size={22} />
                 Materials
               </h2>
               <ul className="space-y-2">
-                {course.attachments.map((url, idx) => (
+                {(course.attachments ?? []).map((url, idx) => (
                   <li key={idx}>
                     <a
                       href={url}

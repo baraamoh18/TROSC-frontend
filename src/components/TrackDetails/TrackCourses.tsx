@@ -148,14 +148,14 @@ const CourseCard = ({ course }: { course: BackendCourse }) => {
               ) : (
                 <>
                   <ChevronDown className="w-3.5 h-3.5" />
-                  View syllabus ({course.syllabus.length} topics)
+                  View syllabus ({course.syllabus?.length ?? 0} topics)
                 </>
               )}
             </button>
 
             {syllabusOpen && (
               <ol className="mt-2 space-y-1 list-decimal list-inside">
-                {course.syllabus.map((item, idx) => (
+                {(course.syllabus ?? []).map((item, idx) => (
                   <li key={idx} className="text-xs text-gray-700 leading-snug">
                     <span className="font-medium">{item.title}</span>
                     {item.description && (

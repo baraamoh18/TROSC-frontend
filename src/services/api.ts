@@ -119,7 +119,8 @@ export interface BackendSession {
   embedUrl?: string;
   instructor: PopulatedUser;
   students?: string[];
-  tracks?: string[];
+  /** Some endpoints return populated track docs, others bare ids */
+  tracks?: Array<string | { _id: string }>;
   course?: string;
   /** Controls who can access this session */
   access: "public" | "track-only" | "private";
@@ -127,7 +128,8 @@ export interface BackendSession {
   duration?: number; // minutes
   level: "beginner" | "intermediate" | "advanced";
   coverImage: string;
-  resources: { title: string; url: string }[];
+  /** GET /sessions/:id omits this field entirely when empty — always guard */
+  resources?: { title: string; url: string }[];
   published: boolean;
   startDate?: string;
   endDate?: string;
@@ -161,20 +163,20 @@ export interface BackendCourse {
   description: string;
   track?: { _id: string; title: string; description: string };
   instructor: PopulatedUser;
-  students: string[];
-  sessions: string[];
+  students?: string[];
+  sessions?: string[];
   level: "beginner" | "intermediate" | "advanced";
   coverImage: string;
   published: boolean;
   /** Controls who can access this course */
   access: "public" | "track-only" | "private";
   /** Trusted-host URLs (Drive, GitHub, Cloudinary, etc.) */
-  attachments: string[];
+  attachments?: string[];
   /** Prerequisite course ObjectIds */
-  prerequisites: string[];
+  prerequisites?: string[];
   /** Estimated total duration in hours */
   duration?: number;
-  syllabus: SyllabusItem[];
+  syllabus?: SyllabusItem[];
   /** Virtual — number of enrolled students */
   studentCount?: number;
   /** Virtual — number of linked sessions */
