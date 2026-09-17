@@ -289,6 +289,11 @@ const DashboardPage = () => {
               <Mail size={16} />
               {user.email}
             </p>
+            {user.bio && (
+              <p className="mt-2 text-sm leading-relaxed text-neutral-dark">
+                {user.bio}
+              </p>
+            )}
             <span className="mt-2 inline-block rounded-full bg-primary-light px-3 py-1 text-xs font-semibold capitalize text-primary-dark">
               {user.role}
             </span>
