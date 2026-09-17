@@ -34,7 +34,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Column 1: Logo */}
           <div className="md:col-span-1 flex items-start">
-            <img src={TroscLogo} alt="Trosc Logo" className="h-10 w-auto" />
+            <img src={TroscLogo} alt="Trosc Logo" className="h-30 w-auto" />
           </div>
 
           {/* Column 2: About Us */}

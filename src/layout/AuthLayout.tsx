@@ -12,9 +12,9 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, logo }) => {
       <div className="w-full h-full grid grid-cols-1 lg:grid-cols-2">
         <div className="hidden lg:flex flex-col items-center justify-center bg-white px-8 py-12">
           <Link to="/" className="text-center">
-            <div className="mb-10">
+            <div className="mb-2">
               {logo ? (
-                <img src={logo} alt="TROSC Logo" className="max-w-xs mx-auto cursor-pointer" />
+                <img src={logo} alt="TROSC Logo" className="w-1 lg:w-[28rem] mx-auto cursor-pointer" />
               ) : (
                 <>
                   <h1 className="text-5xl lg:text-6xl font-black text-primary mb-2 cursor-pointer">
@@ -29,14 +29,9 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, logo }) => {
             </div>
 
             {/* Tagline */}
-            <h2 className="text-2xl lg:text-3xl font-bold text-neutral-darker mb-4">
-              Learn, Grow, Lead
+            <h2 className="text-2xl lg:text-3xl font-bold text-neutral-darker uppercase tracking-wider mt-2">
+              EACH MOVES OTHERS
             </h2>
-
-            {/* Description */}
-            <p className="text-lg lg:text-xl text-neutral-darker font-semibold">
-              Your journey starts Here!
-            </p>
           </Link>
         </div>
 

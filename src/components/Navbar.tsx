@@ -113,7 +113,7 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative flex items-center justify-between h-16">
           <div className="flex-shrink-0">
-            <img src={TroscLogo} alt="Trosc Logo" className="h-10 w-auto" />
+            <img src={TroscLogo} alt="Trosc Logo" className="h-30 w-auto" />
           </div>
           <div className="absolute left-1/2 transform -translate-x-1/2 hidden md:flex space-x-10">
             {navLinks.map((link) => (
@@ -121,11 +121,10 @@ const Navbar: React.FC = () => {
                 key={link.name}
                 to={link.href}
                 onClick={(e) => handleNavClick(e, link.href)}
-                className={`text-base font-medium transition-colors duration-300 relative ${
-                  activeLink === link.href
+                className={`text-base font-medium transition-colors duration-300 relative ${activeLink === link.href
                     ? "text-gray-900"
                     : "text-gray-600 hover:text-gray-900"
-                }`}
+                  }`}
               >
                 {link.name}
                 {activeLink === link.href && (
@@ -168,9 +167,8 @@ const Navbar: React.FC = () => {
         </div>
       </div>
       <div
-        className={`md:hidden transition-all duration-300 ease-in-out ${
-          isOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0 overflow-hidden"
-        }`}
+        className={`md:hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+          }`}
       >
         <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-100">
           {navLinks.map((link) => (
@@ -178,11 +176,10 @@ const Navbar: React.FC = () => {
               key={link.name}
               to={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className={`block px-3 py-2 rounded-md text-base font-medium ${
-                activeLink === link.href
+              className={`block px-3 py-2 rounded-md text-base font-medium ${activeLink === link.href
                   ? "text-gray-900 bg-gray-50"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }`}
+                }`}
             >
               {link.name}
             </Link>
