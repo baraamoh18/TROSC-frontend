@@ -73,6 +73,17 @@ const StyledWrapper = styled.div`
     overflow: visible;
   }
 
+  /* Invisible bridge so the pointer can travel from the pill to the
+     panel across the 12px gap without the menu closing */
+  .dropdown-container::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 14px;
+  }
+
   /* ── Pill button: avatar + first name ── */
   .dropdown-button {
     display: flex;
