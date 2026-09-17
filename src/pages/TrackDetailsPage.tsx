@@ -359,24 +359,7 @@ const TrackDetailsPage = () => {
               scheduleSummary={scheduleSummary}
               resourcesSummary={[]}
             />
-            <div className="py-4">
-              <Divider />
-            </div>
-            {!user && !authLoading ? (
-              <TrackSessionsSummary sessions={sessionCatalog.map((session) => ({
-                ...session,
-                instructor: { _id: "", name: "TBA", email: "", role: "" },
-                access: "public" as const,
-                level: "beginner" as const,
-                coverImage: "",
-                resources: [],
-                published: true,
-              }))} />
-            ) : sessionsUnauthorized ? (
-              <ComingSoonNotice message="Sign in to view this track's sessions." />
-            ) : (
-              <TrackSessionsSummary sessions={sortedSessions.slice(0, 3)} />
-            )}
+
           </section>
 
           <Divider />
