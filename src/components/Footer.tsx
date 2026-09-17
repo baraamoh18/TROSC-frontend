@@ -1,5 +1,5 @@
 import React from "react";
-import TroscLogo from "../../Assests/TroscLogoRed.webp";
+import TroscLogo from "../../Assests/Trosc4x.webp";
 
 const MailIcon: React.FC = () => (
   <svg

@@ -1,7 +1,7 @@
 import React from 'react';
 import SignUpForm from '../components/SignUpForm';
 import AuthLayout from '../layout/AuthLayout';
-import TroscLogo from "../../Assests/TroscLogoRed.webp";
+import TroscLogo from "../../Assests/Trosc4x.webp";
 
 const SignUpPage: React.FC = () => {
   return (
