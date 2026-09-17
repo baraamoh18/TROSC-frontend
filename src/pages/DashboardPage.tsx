@@ -294,10 +294,7 @@ const DashboardPage = () => {
             </span>
           </div>
 
-          {/* Subtle hint */}
-          <p className="text-xs text-neutral-dark sm:text-right">
-            Hover over your photo to update it
-          </p>
+
         </div>
 
         {/* Enrolled track */}
