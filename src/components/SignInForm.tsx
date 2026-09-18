@@ -23,11 +23,12 @@ function SignInForm() {
 
   const onSubmit = async (data: SignInFormData) => {
     try {
-      const res = await api.signIn({
-        email: data.email,
-        password: data.password,
-        rememberMe: data.rememberMe,
-      });
+      const { rememberMe, ...credentials } = data;
+      // rememberMe is captured but not yet sent — backend validation rejects unknown fields.
+      // Once the backend team adds support, replace the line below with:
+      // const res = await api.signIn({ ...credentials, rememberMe });
+      void rememberMe; // prevents unused variable lint warning
+      const res = await api.signIn(credentials);
       setUser(res.data.user);
       toast.success(`Welcome back, ${res.data.user.name}!`);
       navigate("/");
