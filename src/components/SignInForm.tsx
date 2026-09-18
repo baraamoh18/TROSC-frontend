@@ -26,6 +26,7 @@ function SignInForm() {
       const res = await api.signIn({
         email: data.email,
         password: data.password,
+        rememberMe: data.rememberMe,
       });
       setUser(res.data.user);
       toast.success(`Welcome back, ${res.data.user.name}!`);

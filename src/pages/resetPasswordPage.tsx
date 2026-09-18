@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import AuthLayout from '../layout/AuthLayout';
 import ResetPasswordForm from '../components/ResetPasswordForm';
-import TroscLogo from '../../Assests/TroscLogoRed.webp';
+import TroscLogo from '../../Assests/Trosc4x1.png';
 import * as api from '../services/api';
 
 const ResetPasswordPage = () => {
