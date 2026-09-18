@@ -65,6 +65,7 @@ export interface AuthUser {
   email: string;
   role: "student" | "instructor" | "admin";
   enrolledTrack?: string | null;
+  pendingTrack?: string | null;
   enrolledCourses?: string[];
   enrolledSessions?: string[];
   photo?: string;

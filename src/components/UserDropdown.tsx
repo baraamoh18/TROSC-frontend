@@ -24,7 +24,9 @@ const UserDropdown = ({ user, onLogout }: { user: AuthUser; onLogout: () => void
           {user.photo ? (
             <img className="avatar" src={user.photo} alt="" />
           ) : (
-            <span className="avatar avatar-fallback">{firstName.charAt(0).toUpperCase()}</span>
+            <span className="avatar avatar-fallback">
+              <UserRound size={16} strokeWidth={2.5} />
+            </span>
           )}
           <span className="text">{firstName}</span>
         </button>
@@ -152,9 +154,9 @@ const StyledWrapper = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
+    background: white;
     color: #e83b3b;
+    flex-shrink: 0;
   }
 
   .text {

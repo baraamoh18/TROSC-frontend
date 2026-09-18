@@ -71,6 +71,7 @@ const TrackOverview = ({
   };
 
   const isEnrolled = !!user && user.enrolledTrack === trackId;
+  const isPending = !!user && user.pendingTrack === trackId;
 
   const renderEnrollAction = () => {
     if (authLoading) {
@@ -95,11 +96,27 @@ const TrackOverview = ({
       );
     }
 
+    // ── State 1: Approved & enrolled ──────────────────────────
     if (isEnrolled) {
       return (
         <div className="space-y-2">
-          <div className="rounded-xl px-4 py-3 text-sm font-semibold bg-green-50 text-green-700 border border-green-200 text-center">
-            You are enrolled ✓
+          <div
+            className="rounded-xl px-4 py-3 font-bold text-center text-white shadow-md flex items-center justify-center gap-2"
+            style={{ background: "linear-gradient(135deg, #10b77f, #059669)" }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5 shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+            You're In!
           </div>
           {!showLeaveConfirm ? (
             <button
@@ -136,6 +153,31 @@ const TrackOverview = ({
       );
     }
 
+    // ── State 2: Pending approval ─────────────────────────────
+    if (isPending) {
+      return (
+        <button
+          disabled
+          className="w-full bg-gray-200 text-gray-500 font-bold py-3 px-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-2 shadow-inner"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-4 h-4 shrink-0 text-gray-400 animate-spin"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+          </svg>
+          Waiting for Approval
+        </button>
+      );
+    }
+
+    // ── State 3: Not enrolled — default join button ────────────
     return (
       <button
         onClick={handleEnroll}
