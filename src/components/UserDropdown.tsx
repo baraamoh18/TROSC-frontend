@@ -48,17 +48,6 @@ const UserDropdown = ({ user, onLogout }: { user: AuthUser; onLogout: () => void
             >
               <UserRound size={18} />
             </button>
-            {user.role === "instructor" && (
-              <button
-                type="button"
-                className="menu-icon icon-instructor"
-                title="Instructor Dashboard"
-                aria-label="Instructor Dashboard"
-                onClick={() => navigate("/instructor")}
-              >
-                <GraduationCap size={18} />
-              </button>
-            )}
             <button
               type="button"
               className="menu-icon icon-settings"
