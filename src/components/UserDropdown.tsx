@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { LogOut, Settings, UserRound, GraduationCap, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { AuthUser } from "../services/api";
+import { isDefaultPhoto } from "../utils/photoUtils";
 
 /**
  * Hover dropdown for the navbar's signed-in area, adapted from the
@@ -19,8 +20,8 @@ const UserDropdown = ({ user, onLogout }: { user: AuthUser; onLogout: () => void
   const isStaff = user.role === "admin" || user.role === "instructor";
   // Determine if we should show the photo or fallback icon
   // If they are staff and it's a default/generated photo, show fallback
-  const isDefaultPhoto = !user.photo || user.photo.includes("default") || user.photo.includes("ui-avatars") || user.photo.includes("instructor-profile");
-  const showPhoto = user.photo && (!isStaff || !isDefaultPhoto);
+  const isDefault = isDefaultPhoto(user.photo);
+  const showPhoto = user.photo && (!isStaff || !isDefault);
 
   return (
     <StyledWrapper>
