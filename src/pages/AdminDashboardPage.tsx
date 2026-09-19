@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Shield, ShieldAlert, LayoutDashboard, GitBranch, Users } from "lucide-react";
+import { Shield, ShieldAlert, LayoutDashboard, GitBranch, Users, FolderEdit } from "lucide-react";
 import * as api from "../services/api";
 import type { AuthUser, BackendTrack, DashboardStats } from "../services/api";
 import { useAuth } from "../context/useAuth";
@@ -8,12 +8,14 @@ import { useNavigate } from "react-router-dom";
 import PendingApprovals from "../components/Instructor/PendingApprovals";
 import StatsOverview from "../components/Admin/StatsOverview";
 import UserManagementTable from "../components/Admin/UserManagementTable";
+import ContentManagement from "../components/Admin/ContentManagement";
 
-type Tab = "overview" | "tracks" | "users";
+type Tab = "overview" | "tracks" | "content" | "users";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "overview", label: "Overview", icon: <LayoutDashboard size={16} /> },
   { id: "tracks", label: "Track Management", icon: <GitBranch size={16} /> },
+  { id: "content", label: "Content", icon: <FolderEdit size={16} /> },
   { id: "users", label: "User Management", icon: <Users size={16} /> },
 ];
 
@@ -329,6 +331,14 @@ const AdminDashboardPage = () => {
               </>
             )}
           </div>
+        )}
+
+        {activeTab === "content" && (
+          <ContentManagement
+            tracks={tracks}
+            tracksLoading={tracksLoading}
+            onRefreshTracks={fetchTracks}
+          />
         )}
 
         {activeTab === "users" && <UserManagementTable />}

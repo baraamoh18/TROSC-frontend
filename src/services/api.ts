@@ -402,6 +402,35 @@ export function getTrackAnalytics(
   return request("GET", `/tracks/${trackId}/analytics`);
 }
 
+// ── Track CRUD (admin/instructor) ────────────────────────────
+
+export interface TrackPayload {
+  title: string;
+  description: string;
+  level?: "beginner" | "intermediate" | "advanced" | "all";
+  instructor?: string; // user id
+  published?: boolean;
+}
+
+export function createTrack(
+  payload: TrackPayload,
+): Promise<TrackResponse> {
+  return request<TrackResponse>("POST", "/tracks", payload);
+}
+
+export function updateTrack(
+  trackId: string,
+  payload: Partial<TrackPayload>,
+): Promise<TrackResponse> {
+  return request<TrackResponse>("PATCH", `/tracks/${trackId}`, payload);
+}
+
+export function deleteTrack(
+  trackId: string,
+): Promise<void> {
+  return request("DELETE", `/tracks/${trackId}`);
+}
+
 // ── Track enrollment (protected) ─────────────────────────────
 
 export function enrollInTrack(
@@ -566,6 +595,36 @@ export function leaveCourse(
   return request("DELETE", `/courses/${courseId}/leave-me`);
 }
 
+// ── Course CRUD (admin/instructor) ───────────────────────────
+
+export interface CoursePayload {
+  title: string;
+  description: string;
+  track?: string;
+  level?: "beginner" | "intermediate" | "advanced";
+  published?: boolean;
+  access?: "public" | "track-only" | "private";
+}
+
+export function createCourse(
+  payload: CoursePayload,
+): Promise<CourseResponse> {
+  return request<CourseResponse>("POST", "/courses", payload);
+}
+
+export function updateCourse(
+  courseId: string,
+  payload: Partial<CoursePayload>,
+): Promise<CourseResponse> {
+  return request<CourseResponse>("PATCH", `/courses/${courseId}`, payload);
+}
+
+export function deleteCourse(
+  courseId: string,
+): Promise<void> {
+  return request("DELETE", `/courses/${courseId}`);
+}
+
 // ── Events (public) ──────────────────────────────────────────
 
 export interface EventsResponse {
@@ -617,6 +676,38 @@ export function cancelRsvp(
   eventId: string,
 ): Promise<{ status: string; message: string }> {
   return request("DELETE", `/events/${eventId}/rsvp`);
+}
+
+// ── Event CRUD (admin) ───────────────────────────────────────
+
+export interface EventPayload {
+  title: string;
+  description: string;
+  date: string;           // ISO string
+  locationType: "online" | "offline";
+  locationLink?: string;
+  locationAddress?: string;
+  track?: string;
+  course?: string;
+}
+
+export function createEvent(
+  payload: EventPayload,
+): Promise<EventResponse> {
+  return request<EventResponse>("POST", "/events", payload);
+}
+
+export function updateEvent(
+  eventId: string,
+  payload: Partial<EventPayload>,
+): Promise<EventResponse> {
+  return request<EventResponse>("PATCH", `/events/${eventId}`, payload);
+}
+
+export function deleteEvent(
+  eventId: string,
+): Promise<void> {
+  return request("DELETE", `/events/${eventId}`);
 }
 
 // ── Announcements (public) ────────────────────────────────────
