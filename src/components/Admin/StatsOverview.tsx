@@ -6,7 +6,6 @@ import {
   CalendarDays,
   TrendingUp,
   UserPlus,
-  Loader2,
   RefreshCw,
 } from "lucide-react";
 import type { DashboardStats } from "../../services/api";
