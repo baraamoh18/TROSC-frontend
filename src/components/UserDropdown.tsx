@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { LogOut, Settings, UserRound } from "lucide-react";
+import { LogOut, Settings, UserRound, Shield, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { AuthUser } from "../services/api";
 
@@ -42,6 +42,28 @@ const UserDropdown = ({ user, onLogout }: { user: AuthUser; onLogout: () => void
             >
               <UserRound size={18} />
             </button>
+            {user.role === "admin" && (
+              <button
+                type="button"
+                className="menu-icon icon-admin"
+                title="Admin Dashboard"
+                aria-label="Admin Dashboard"
+                onClick={() => navigate("/admin")}
+              >
+                <Shield size={18} />
+              </button>
+            )}
+            {user.role === "instructor" && (
+              <button
+                type="button"
+                className="menu-icon icon-instructor"
+                title="Instructor Dashboard"
+                aria-label="Instructor Dashboard"
+                onClick={() => navigate("/instructor")}
+              >
+                <GraduationCap size={18} />
+              </button>
+            )}
             <button
               type="button"
               className="menu-icon icon-settings"
@@ -290,6 +312,14 @@ const StyledWrapper = styled.div`
 
   .icon-profile:hover {
     background: linear-gradient(135deg, #e83b3b, #d13535);
+  }
+
+  .icon-admin:hover {
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  }
+
+  .icon-instructor:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
   }
 
   .icon-settings:hover {

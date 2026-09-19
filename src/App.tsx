@@ -15,6 +15,7 @@ import SettingsPage from "./pages/SettingsPage";
 import SessionViewerPage from "./pages/SessionViewerPage";
 import CourseDetailsPage from "./pages/CourseDetailsPage";
 import InstructorDashboardPage from "./pages/InstructorDashboardPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import useScrollToHash from "./hooks/useScrollToHash";
 
@@ -62,6 +63,14 @@ function App() {
           element={
             <ProtectedRoute>
               <InstructorDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboardPage />
             </ProtectedRoute>
           }
         />

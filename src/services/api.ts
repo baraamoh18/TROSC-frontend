@@ -1024,3 +1024,43 @@ export function deleteActivityLogs(
 export function deleteActivityLog(id: string): Promise<void> {
   return request("DELETE", `/activity-logs/${id}`);
 }
+
+// ── Admin: User management ────────────────────────────────────
+
+export interface UsersResponse {
+  status: string;
+  results: number;
+  total: number;
+  data: { users: AuthUser[] };
+}
+
+export interface UserAdminUpdatePayload {
+  name?: string;
+  email?: string;
+  role?: "student" | "instructor" | "admin";
+  active?: boolean;
+  emailVerified?: boolean;
+}
+
+/** List all users — admin only. Supports ?role=student&page=1 etc. */
+export function getAllUsers(query?: string): Promise<UsersResponse> {
+  return request<UsersResponse>(
+    "GET",
+    `/users${query ? `?${query}` : ""}`,
+  );
+}
+
+/** Get a single user by id — admin only. */
+export function getUser(
+  userId: string,
+): Promise<{ status: string; data: { user: AuthUser } }> {
+  return request("GET", `/users/${userId}`);
+}
+
+/** Update any user field (role, active, etc.) — admin only. */
+export function updateUserAdmin(
+  userId: string,
+  payload: UserAdminUpdatePayload,
+): Promise<{ status: string; data: { user: AuthUser } }> {
+  return request("PATCH", `/users/${userId}`, payload);
+}

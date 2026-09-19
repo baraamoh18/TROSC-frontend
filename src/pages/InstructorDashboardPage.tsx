@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { GraduationCap, ShieldAlert } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import * as api from "../services/api";
 import type { AuthUser, BackendTrack } from "../services/api";
 import { useAuth } from "../context/useAuth";
@@ -8,8 +9,15 @@ import PendingApprovals from "../components/Instructor/PendingApprovals";
 
 const InstructorDashboardPage = () => {
   const { user, loading: authLoading } = useAuth();
-  const isPrivileged =
-    !!user && (user.role === "instructor" || user.role === "admin");
+  const navigate = useNavigate();
+  const isInstructor = !!user && user.role === "instructor";
+
+  // Admins have their own dashboard — redirect them there.
+  useEffect(() => {
+    if (!authLoading && user?.role === "admin") {
+      navigate("/admin", { replace: true });
+    }
+  }, [authLoading, user, navigate]);
 
   const [tracks, setTracks] = useState<BackendTrack[]>([]);
   const [tracksLoading, setTracksLoading] = useState(true);
@@ -20,25 +28,20 @@ const InstructorDashboardPage = () => {
   const [pendingLoading, setPendingLoading] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  // Tracks owned by the signed-in instructor; admins manage every track.
+  // Tracks owned by the signed-in instructor.
   const fetchTracks = useCallback(async () => {
-    if (!user || !isPrivileged) return;
+    if (!user || !isInstructor) return;
     setTracksLoading(true);
     try {
       const res = await api.getTracks("limit=100&sort=-createdAt");
       const all = res.data?.tracks ?? [];
-      setTracks(
-        user.role === "admin"
-          ? all
-          : all.filter((t) => t.instructor?._id === user._id),
-      );
+      setTracks(all.filter((t) => t.instructor?._id === user._id));
     } catch {
-      // Network/backend error — the empty state explains itself
       setTracks([]);
     } finally {
       setTracksLoading(false);
     }
-  }, [user, isPrivileged]);
+  }, [user, isInstructor]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -75,7 +78,7 @@ const InstructorDashboardPage = () => {
 
   if (authLoading) return null;
 
-  if (!user || !isPrivileged) {
+  if (!user || !isInstructor) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-neutral-light pt-16 font-family-poppins">
         <div className="px-4 text-center">
@@ -84,7 +87,7 @@ const InstructorDashboardPage = () => {
             Restricted area
           </h1>
           <p className="text-neutral-dark">
-            Only instructors and admins can open this dashboard.
+            Only instructors can open this dashboard.
           </p>
         </div>
       </div>
