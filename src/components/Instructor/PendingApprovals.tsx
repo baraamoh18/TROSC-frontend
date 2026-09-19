@@ -1,6 +1,5 @@
 import React from "react";
 import { Check, X, Loader2, UserCircle } from "lucide-react";
-import * as api from "../../services/api";
 import type { AuthUser } from "../../services/api";
 import { isDefaultPhoto } from "../../utils/photoUtils";
 

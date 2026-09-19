@@ -9,9 +9,6 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  Check,
-  X,
-  Trash2,
 } from "lucide-react";
 import * as api from "../../services/api";
 import { isDefaultPhoto } from "../../utils/photoUtils";
