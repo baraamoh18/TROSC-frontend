@@ -10,6 +10,7 @@ import {
   CalendarDays,
   X,
   AlertTriangle,
+  Pencil,
 } from "lucide-react";
 import * as api from "../../services/api";
 import type {
@@ -84,6 +85,18 @@ const DeleteButton: React.FC<{
   );
 };
 
+/** Simple edit trigger button */
+const EditButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="inline-flex items-center gap-1 rounded-full border border-neutral-light-active bg-white px-3 py-1.5 text-xs font-bold text-neutral-dark transition-colors hover:bg-neutral-light-active"
+  >
+    <Pencil size={12} />
+    Edit
+  </button>
+);
+
 // ── Section wrapper with collapse ─────────────────────────────
 
 const Section: React.FC<{
@@ -150,6 +163,7 @@ const TracksPanel: React.FC<{
   onRefresh: () => void;
 }> = ({ tracks, loading, onRefresh }) => {
   const [showForm, setShowForm] = useState(false);
+  const [editingTrack, setEditingTrack] = useState<BackendTrack | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<TrackPayload>({
     title: "",
@@ -158,7 +172,24 @@ const TracksPanel: React.FC<{
     published: false,
   });
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const openCreate = () => {
+    setEditingTrack(null);
+    setForm({ title: "", description: "", level: "all", published: false });
+    setShowForm(true);
+  };
+
+  const openEdit = (t: BackendTrack) => {
+    setEditingTrack(t);
+    setForm({
+      title: t.title,
+      description: t.description ?? "",
+      level: (t.level as TrackPayload["level"]) ?? "all",
+      published: t.published ?? false,
+    });
+    setShowForm(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim() || !form.description.trim()) {
       toast.error("Title and description are required.");
@@ -166,13 +197,17 @@ const TracksPanel: React.FC<{
     }
     setSaving(true);
     try {
-      await api.createTrack(form);
-      toast.success("Track created!");
+      if (editingTrack) {
+        await api.updateTrack(editingTrack._id, form);
+        toast.success("Track updated!");
+      } else {
+        await api.createTrack(form);
+        toast.success("Track created!");
+      }
       setShowForm(false);
-      setForm({ title: "", description: "", level: "all", published: false });
       onRefresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to create track.");
+      toast.error(err instanceof Error ? err.message : "Operation failed.");
     } finally {
       setSaving(false);
     }
@@ -189,7 +224,7 @@ const TracksPanel: React.FC<{
       <div className="mb-4 flex justify-end">
         <button
           type="button"
-          onClick={() => setShowForm(true)}
+          onClick={openCreate}
           className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
         >
           <Plus size={15} /> Add Track
@@ -214,15 +249,21 @@ const TracksPanel: React.FC<{
                   {t.level} · {t.studentCount} students · {t.published ? "Published" : "Draft"}
                 </p>
               </div>
-              <DeleteButton onConfirm={() => handleDelete(t._id, t.title)} />
+              <div className="flex items-center gap-2">
+                <EditButton onClick={() => openEdit(t)} />
+                <DeleteButton onConfirm={() => handleDelete(t._id, t.title)} />
+              </div>
             </li>
           ))}
         </ul>
       )}
 
       {showForm && (
-        <Modal title="New Track" onClose={() => setShowForm(false)}>
-          <form onSubmit={handleCreate} className="flex flex-col gap-4">
+        <Modal
+          title={editingTrack ? "Edit Track" : "New Track"}
+          onClose={() => setShowForm(false)}
+        >
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
               <label className="mb-1 block text-sm font-semibold text-neutral-darker">Title *</label>
               <input
@@ -275,7 +316,7 @@ const TracksPanel: React.FC<{
                 className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
               >
                 {saving && <Loader2 size={14} className="animate-spin" />}
-                {saving ? "Creating…" : "Create Track"}
+                {saving ? "Saving…" : editingTrack ? "Save Changes" : "Create Track"}
               </button>
               <button
                 type="button"
@@ -296,10 +337,12 @@ const TracksPanel: React.FC<{
 
 const CoursesPanel: React.FC<{
   tracks: BackendTrack[];
-}> = ({ tracks }) => {
-  const [courses, setCourses] = useState<BackendCourse[]>([]);
-  const [loading, setLoading] = useState(true);
+  courses: BackendCourse[];
+  loading: boolean;
+  onRefresh: () => void;
+}> = ({ tracks, courses, loading, onRefresh }) => {
   const [showForm, setShowForm] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<BackendCourse | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<CoursePayload>({
     title: "",
@@ -309,21 +352,26 @@ const CoursesPanel: React.FC<{
     access: "track-only",
   });
 
-  const fetchCourses = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await api.getCourses("limit=100&sort=-createdAt");
-      setCourses(res.data?.courses ?? []);
-    } catch {
-      setCourses([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const openCreate = () => {
+    setEditingCourse(null);
+    setForm({ title: "", description: "", level: "beginner", published: false, access: "track-only" });
+    setShowForm(true);
+  };
 
-  useEffect(() => { void fetchCourses(); }, [fetchCourses]);
+  const openEdit = (c: BackendCourse) => {
+    setEditingCourse(c);
+    setForm({
+      title: c.title,
+      description: c.description ?? "",
+      level: (c.level as CoursePayload["level"]) ?? "beginner",
+      published: c.published ?? false,
+      access: (c.access as CoursePayload["access"]) ?? "track-only",
+      track: c.track ? (typeof c.track === "string" ? c.track : c.track._id) : undefined,
+    });
+    setShowForm(true);
+  };
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim() || !form.description.trim()) {
       toast.error("Title and description are required.");
@@ -331,13 +379,17 @@ const CoursesPanel: React.FC<{
     }
     setSaving(true);
     try {
-      await api.createCourse(form);
-      toast.success("Course created!");
+      if (editingCourse) {
+        await api.updateCourse(editingCourse._id, form);
+        toast.success("Course updated!");
+      } else {
+        await api.createCourse(form);
+        toast.success("Course created!");
+      }
       setShowForm(false);
-      setForm({ title: "", description: "", level: "beginner", published: false, access: "track-only" });
-      void fetchCourses();
+      onRefresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to create course.");
+      toast.error(err instanceof Error ? err.message : "Operation failed.");
     } finally {
       setSaving(false);
     }
@@ -346,7 +398,7 @@ const CoursesPanel: React.FC<{
   const handleDelete = async (id: string, title: string) => {
     await api.deleteCourse(id);
     toast.success(`"${title}" deleted.`);
-    void fetchCourses();
+    onRefresh();
   };
 
   return (
@@ -354,7 +406,7 @@ const CoursesPanel: React.FC<{
       <div className="mb-4 flex justify-end">
         <button
           type="button"
-          onClick={() => setShowForm(true)}
+          onClick={openCreate}
           className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
         >
           <Plus size={15} /> Add Course
@@ -379,15 +431,21 @@ const CoursesPanel: React.FC<{
                   {c.level} · {c.published ? "Published" : "Draft"} · {c.access}
                 </p>
               </div>
-              <DeleteButton onConfirm={() => handleDelete(c._id, c.title)} />
+              <div className="flex items-center gap-2">
+                <EditButton onClick={() => openEdit(c)} />
+                <DeleteButton onConfirm={() => handleDelete(c._id, c.title)} />
+              </div>
             </li>
           ))}
         </ul>
       )}
 
       {showForm && (
-        <Modal title="New Course" onClose={() => setShowForm(false)}>
-          <form onSubmit={handleCreate} className="flex flex-col gap-4">
+        <Modal
+          title={editingCourse ? "Edit Course" : "New Course"}
+          onClose={() => setShowForm(false)}
+        >
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
               <label className="mb-1 block text-sm font-semibold text-neutral-darker">Title *</label>
               <input id="course-title" type="text" className={inputCls} placeholder="Course title"
@@ -440,7 +498,7 @@ const CoursesPanel: React.FC<{
               <button type="submit" disabled={saving}
                 className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:opacity-50">
                 {saving && <Loader2 size={14} className="animate-spin" />}
-                {saving ? "Creating…" : "Create Course"}
+                {saving ? "Saving…" : editingCourse ? "Save Changes" : "Create Course"}
               </button>
               <button type="button" onClick={() => setShowForm(false)}
                 className="rounded-full border border-neutral-light-active px-5 py-2.5 text-sm font-bold text-neutral-dark hover:bg-neutral-light">
@@ -456,10 +514,13 @@ const CoursesPanel: React.FC<{
 
 // ── Events panel ──────────────────────────────────────────────
 
-const EventsPanel: React.FC = () => {
-  const [events, setEvents] = useState<BackendEvent[]>([]);
-  const [loading, setLoading] = useState(true);
+const EventsPanel: React.FC<{
+  events: BackendEvent[];
+  loading: boolean;
+  onRefresh: () => void;
+}> = ({ events, loading, onRefresh }) => {
   const [showForm, setShowForm] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<BackendEvent | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<EventPayload>({
     title: "",
@@ -470,21 +531,26 @@ const EventsPanel: React.FC = () => {
     locationAddress: "",
   });
 
-  const fetchEvents = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await api.getEvents("limit=100&sort=-date");
-      setEvents(res.data?.events ?? []);
-    } catch {
-      setEvents([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const openCreate = () => {
+    setEditingEvent(null);
+    setForm({ title: "", description: "", date: "", locationType: "online" });
+    setShowForm(true);
+  };
 
-  useEffect(() => { void fetchEvents(); }, [fetchEvents]);
+  const openEdit = (ev: BackendEvent) => {
+    setEditingEvent(ev);
+    setForm({
+      title: ev.title,
+      description: ev.description ?? "",
+      date: ev.date ? new Date(ev.date).toISOString().slice(0, 16) : "",
+      locationType: ev.locationType ?? "online",
+      locationLink: ev.locationLink ?? "",
+      locationAddress: ev.locationAddress ?? "",
+    });
+    setShowForm(true);
+  };
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim() || !form.description.trim() || !form.date) {
       toast.error("Title, description and date are required.");
@@ -492,17 +558,23 @@ const EventsPanel: React.FC = () => {
     }
     setSaving(true);
     try {
-      await api.createEvent({
+      const payload = {
         ...form,
         locationLink: form.locationLink?.trim() || undefined,
         locationAddress: form.locationAddress?.trim() || undefined,
-      });
-      toast.success("Event created!");
+      };
+
+      if (editingEvent) {
+        await api.updateEvent(editingEvent._id, payload);
+        toast.success("Event updated!");
+      } else {
+        await api.createEvent(payload);
+        toast.success("Event created!");
+      }
       setShowForm(false);
-      setForm({ title: "", description: "", date: "", locationType: "online" });
-      void fetchEvents();
+      onRefresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to create event.");
+      toast.error(err instanceof Error ? err.message : "Operation failed.");
     } finally {
       setSaving(false);
     }
@@ -511,7 +583,7 @@ const EventsPanel: React.FC = () => {
   const handleDelete = async (id: string, title: string) => {
     await api.deleteEvent(id);
     toast.success(`"${title}" deleted.`);
-    void fetchEvents();
+    onRefresh();
   };
 
   return (
@@ -519,7 +591,7 @@ const EventsPanel: React.FC = () => {
       <div className="mb-4 flex justify-end">
         <button
           type="button"
-          onClick={() => setShowForm(true)}
+          onClick={openCreate}
           className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
         >
           <Plus size={15} /> Add Event
@@ -544,15 +616,21 @@ const EventsPanel: React.FC = () => {
                   {new Date(ev.date).toLocaleDateString(undefined, { dateStyle: "medium" })} · {ev.locationType}
                 </p>
               </div>
-              <DeleteButton onConfirm={() => handleDelete(ev._id, ev.title)} />
+              <div className="flex items-center gap-2">
+                <EditButton onClick={() => openEdit(ev)} />
+                <DeleteButton onConfirm={() => handleDelete(ev._id, ev.title)} />
+              </div>
             </li>
           ))}
         </ul>
       )}
 
       {showForm && (
-        <Modal title="New Event" onClose={() => setShowForm(false)}>
-          <form onSubmit={handleCreate} className="flex flex-col gap-4">
+        <Modal
+          title={editingEvent ? "Edit Event" : "New Event"}
+          onClose={() => setShowForm(false)}
+        >
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
               <label className="mb-1 block text-sm font-semibold text-neutral-darker">Title *</label>
               <input id="event-title" type="text" className={inputCls} placeholder="Event name"
@@ -597,7 +675,7 @@ const EventsPanel: React.FC = () => {
               <button type="submit" disabled={saving}
                 className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:opacity-50">
                 {saving && <Loader2 size={14} className="animate-spin" />}
-                {saving ? "Creating…" : "Create Event"}
+                {saving ? "Saving…" : editingEvent ? "Save Changes" : "Create Event"}
               </button>
               <button type="button" onClick={() => setShowForm(false)}
                 className="rounded-full border border-neutral-light-active px-5 py-2.5 text-sm font-bold text-neutral-dark hover:bg-neutral-light">
@@ -624,6 +702,43 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
   tracksLoading,
   onRefreshTracks,
 }) => {
+  // ── Courses state ──────────────────────────────────────────
+  const [courses, setCourses] = useState<BackendCourse[]>([]);
+  const [coursesLoading, setCoursesLoading] = useState(true);
+
+  const fetchCourses = useCallback(async () => {
+    setCoursesLoading(true);
+    try {
+      const res = await api.getCourses("limit=100&sort=-createdAt");
+      setCourses(res.data?.courses ?? []);
+    } catch {
+      setCourses([]);
+    } finally {
+      setCoursesLoading(false);
+    }
+  }, []);
+
+  // ── Events state ───────────────────────────────────────────
+  const [events, setEvents] = useState<BackendEvent[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+
+  const fetchEvents = useCallback(async () => {
+    setEventsLoading(true);
+    try {
+      const res = await api.getEvents("limit=100&sort=-date");
+      setEvents(res.data?.events ?? []);
+    } catch {
+      setEvents([]);
+    } finally {
+      setEventsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void fetchCourses();
+    void fetchEvents();
+  }, [fetchCourses, fetchEvents]);
+
   return (
     <div className="space-y-5">
       <Section
@@ -635,12 +750,21 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
         <TracksPanel tracks={tracks} loading={tracksLoading} onRefresh={onRefreshTracks} />
       </Section>
 
-      <Section icon={<BookOpen size={18} />} title="Courses" count={0}>
-        <CoursesPanel tracks={tracks} />
+      <Section icon={<BookOpen size={18} />} title="Courses" count={courses.length}>
+        <CoursesPanel
+          tracks={tracks}
+          courses={courses}
+          loading={coursesLoading}
+          onRefresh={fetchCourses}
+        />
       </Section>
 
-      <Section icon={<CalendarDays size={18} />} title="Events" count={0}>
-        <EventsPanel />
+      <Section icon={<CalendarDays size={18} />} title="Events" count={events.length}>
+        <EventsPanel
+          events={events}
+          loading={eventsLoading}
+          onRefresh={fetchEvents}
+        />
       </Section>
     </div>
   );

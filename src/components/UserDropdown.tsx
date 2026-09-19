@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { LogOut, Settings, UserRound, GraduationCap } from "lucide-react";
+import { LogOut, Settings, UserRound, GraduationCap, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { AuthUser } from "../services/api";
 
@@ -16,19 +16,24 @@ import type { AuthUser } from "../services/api";
 const UserDropdown = ({ user, onLogout }: { user: AuthUser; onLogout: () => void }) => {
   const navigate = useNavigate();
   const firstName = user.name.trim().split(/\s+/)[0];
+  const isStaff = user.role === "admin" || user.role === "instructor";
+  // Determine if we should show the photo or fallback icon
+  // If they are staff and it's a default/generated photo, show fallback
+  const isDefaultPhoto = !user.photo || user.photo.includes("default") || user.photo.includes("ui-avatars") || user.photo.includes("instructor-profile");
+  const showPhoto = user.photo && (!isStaff || !isDefaultPhoto);
 
   return (
     <StyledWrapper>
       <div className="dropdown-container">
         <button type="button" className="dropdown-button" aria-haspopup="menu">
-          {user.photo ? (
+          {showPhoto ? (
             <img className="avatar" src={user.photo} alt="" />
           ) : (
             <span className="avatar avatar-fallback">
-              <UserRound size={16} strokeWidth={2.5} />
+              {user.role === "admin" ? <Shield size={16} strokeWidth={2.5} /> : user.role === "instructor" ? <GraduationCap size={16} strokeWidth={2.5} /> : <UserRound size={16} strokeWidth={2.5} />}
             </span>
           )}
-          <span className="text">{firstName}</span>
+          <span className="text">{isStaff ? (user.role === "admin" ? "Admin" : "Instructor") : firstName}</span>
         </button>
 
         <div className="dropdown-content" role="menu">
