@@ -21,6 +21,7 @@ import toast from "react-hot-toast";
 import * as api from "../services/api";
 import { ApiError } from "../services/api";
 import type { BackendCourse } from "../services/api";
+import { isDefaultPhoto } from "../utils/photoUtils";
 import { useAuth } from "../context/useAuth";
 
 const BACKEND_PLACEHOLDER = "https://placehold.co/800x400?text=Trosc+Course";
@@ -478,14 +479,14 @@ const CourseDetailsPage = () => {
 
             {course.instructor && (
               <div className="mt-8 flex items-center gap-3 border-t border-neutral-light-active pt-6">
-                {course.instructor.photo ? (
+                {!isDefaultPhoto(course.instructor.photo) ? (
                   <img
                     src={course.instructor.photo}
                     alt={course.instructor.name}
-                    className="h-11 w-11 rounded-full object-cover"
+                    className="h-10 w-10 shrink-0 rounded-full object-cover"
                   />
                 ) : (
-                  <UserCircle size={44} className="text-neutral" strokeWidth={1} />
+                  <UserCircle size={40} className="shrink-0 text-neutral" strokeWidth={1} />
                 )}
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-neutral-dark">

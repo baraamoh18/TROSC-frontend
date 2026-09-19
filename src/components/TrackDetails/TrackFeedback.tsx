@@ -6,6 +6,7 @@ import * as api from "../../services/api";
 import type { Review } from "../../services/api";
 import { useAuth } from "../../context/useAuth";
 import { ApiError } from "../../services/api";
+import { isDefaultPhoto } from "../../utils/photoUtils";
 
 interface TrackFeedbackProps {
   trackId: string;
@@ -59,14 +60,14 @@ const ReviewCard = ({ review }: { review: Review }) => {
 
   return (
     <div className="flex gap-4 rounded-xl border border-gray-200 bg-white p-4">
-      {review.user.photo ? (
+      {!isDefaultPhoto(review.user.photo) ? (
         <img
           src={review.user.photo}
           alt={review.user.name}
           className="h-10 w-10 rounded-full object-cover shrink-0"
         />
       ) : (
-        <UserCircle size={40} className="text-gray-400 shrink-0" strokeWidth={1} />
+        <UserCircle size={40} className="text-neutral shrink-0" strokeWidth={1} />
       )}
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-2 mb-1">

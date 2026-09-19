@@ -1,6 +1,8 @@
 import React from "react";
-import { Check, Loader2, UserCircle, X } from "lucide-react";
+import { Check, X, Loader2, UserCircle } from "lucide-react";
+import * as api from "../../services/api";
 import type { AuthUser } from "../../services/api";
+import { isDefaultPhoto } from "../../utils/photoUtils";
 
 interface PendingApprovalsProps {
   heading: string;
@@ -59,7 +61,7 @@ const PendingApprovals: React.FC<PendingApprovalsProps> = ({
               className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex items-center gap-3">
-                {person.photo ? (
+                {!isDefaultPhoto(person.photo) ? (
                   <img
                     src={person.photo}
                     alt={person.name}

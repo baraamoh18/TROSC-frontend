@@ -18,6 +18,7 @@ import {
   Shield,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { isDefaultPhoto } from "../utils/photoUtils";
 import * as api from "../services/api";
 import type { EnrollmentsResponse, BackendEvent, ActivityLog } from "../services/api";
 import { useAuth } from "../context/useAuth";
@@ -125,8 +126,7 @@ const AvatarUpload = () => {
   return (
     <div className="relative h-24 w-24 shrink-0">
       {/* Avatar */}
-      {displaySrc &&
-      displaySrc !== "https://placehold.co/800x400?text=Trosc+User" ? (
+      {displaySrc && !isDefaultPhoto(displaySrc) ? (
         <img
           src={displaySrc}
           alt={user.name}

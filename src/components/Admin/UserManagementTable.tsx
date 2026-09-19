@@ -9,8 +9,12 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  Check,
+  X,
+  Trash2,
 } from "lucide-react";
 import * as api from "../../services/api";
+import { isDefaultPhoto } from "../../utils/photoUtils";
 import type { AuthUser } from "../../services/api";
 
 const RoleBadge: React.FC<{ role: AuthUser["role"] }> = ({ role }) => {
@@ -145,7 +149,7 @@ const UserManagementTable: React.FC = () => {
                 <tr key={user._id} className="transition-colors hover:bg-neutral-light/50">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      {user.photo ? (
+                      {!isDefaultPhoto(user.photo) ? (
                         <img
                           src={user.photo}
                           alt={user.name}
