@@ -6,7 +6,7 @@ import * as api from "../../services/api";
 import { useAuth } from "../../context/useAuth";
 
 const DangerZone = () => {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [confirming, setConfirming] = useState(false);
   const [deactivating, setDeactivating] = useState(false);
@@ -33,8 +33,9 @@ const DangerZone = () => {
       <div>
         <h2 className="text-xl font-bold text-neutral-darker">Danger zone</h2>
         <p className="mt-1 text-sm text-neutral-dark">
-          Deactivating your account removes you from all tracks, courses, and
-          events. Your data is kept so you can reactivate by signing in again.
+          {user?.role === "student"
+            ? "Deactivating your account removes you from all tracks, courses, and events. Your data is kept so you can reactivate by signing in again."
+            : "Deactivating your account will sign you out immediately. Your data is kept and you can reactivate by signing in again."}
         </p>
       </div>
 
@@ -50,10 +51,10 @@ const DangerZone = () => {
       ) : (
         <div className="rounded-2xl border-2 border-primary-light-active bg-primary-light p-6">
           <p className="mb-4 flex items-start gap-2 text-sm font-semibold text-primary-darker">
-            <TriangleAlert size={18} className="mt-0.5 shrink-0" />
-            Are you sure? You will be signed out immediately and lose access to
-            your enrollments.
-          </p>
+              <TriangleAlert size={18} className="mt-0.5 shrink-0" />
+              Are you sure? You will be signed out immediately
+              {user?.role === "student" && " and lose access to your enrollments"}.
+            </p>
           <div className="flex flex-wrap gap-3">
             <button
               type="button"

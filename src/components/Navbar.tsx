@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Menu, X, LogOut, UserCircle, Settings, GraduationCap } from "lucide-react";
+import { Menu, X, LogOut, UserCircle, Settings, GraduationCap, Shield } from "lucide-react";
 import TroscLogo from "../../Assests/Trosc4x.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { smoothScrollToId } from "../utils/smoothScroll";
@@ -136,7 +136,16 @@ const Navbar: React.FC = () => {
           <div className="flex items-center gap-3">
             {!loading && user ? (
               <div className="hidden sm:flex items-center gap-3">
-                {user.role === "instructor" || user.role === "admin" ? (
+                {user.role === "admin" ? (
+                  <Link
+                    to="/admin"
+                    title="Admin dashboard"
+                    aria-label="Admin dashboard"
+                    className="flex items-center text-gray-800 hover:text-primary transition-colors"
+                  >
+                    <Shield size={22} />
+                  </Link>
+                ) : user.role === "instructor" ? (
                   <Link
                     to="/instructor"
                     title="Instructor dashboard"
@@ -203,7 +212,17 @@ const Navbar: React.FC = () => {
                   Log Out
                 </button>
               </div>
-              {(user.role === "instructor" || user.role === "admin") && (
+              {user.role === "admin" && (
+                <Link
+                  to="/admin"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                >
+                  <Shield size={18} />
+                  Admin Dashboard
+                </Link>
+              )}
+              {user.role === "instructor" && (
                 <Link
                   to="/instructor"
                   onClick={() => setIsOpen(false)}

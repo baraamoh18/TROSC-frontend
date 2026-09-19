@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { LogOut, Settings, UserRound, Shield, GraduationCap } from "lucide-react";
+import { LogOut, Settings, UserRound, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { AuthUser } from "../services/api";
 
@@ -42,17 +42,6 @@ const UserDropdown = ({ user, onLogout }: { user: AuthUser; onLogout: () => void
             >
               <UserRound size={18} />
             </button>
-            {user.role === "admin" && (
-              <button
-                type="button"
-                className="menu-icon icon-admin"
-                title="Admin Dashboard"
-                aria-label="Admin Dashboard"
-                onClick={() => navigate("/admin")}
-              >
-                <Shield size={18} />
-              </button>
-            )}
             {user.role === "instructor" && (
               <button
                 type="button"
