@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   BarChart3,
@@ -23,6 +23,7 @@ import { ApiError } from "../services/api";
 import type { BackendCourse } from "../services/api";
 import { isDefaultPhoto } from "../utils/photoUtils";
 import { useAuth } from "../context/useAuth";
+import FeedbackPanel from "../components/FeedbackPanel";
 
 const BACKEND_PLACEHOLDER = "https://placehold.co/800x400?text=Trosc+Course";
 
@@ -54,6 +55,7 @@ const AccessBadge = ({ access }: { access: BackendCourse["access"] }) => {
 const CourseDetailsPage = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const { user, loading: authLoading, refreshUser } = useAuth();
+  const location = useLocation();
   const hasValidId = !!courseId && isValidObjectId(courseId);
 
   const [course, setCourse] = useState<BackendCourse | null>(null);
@@ -398,6 +400,7 @@ const CourseDetailsPage = () => {
                 </p>
                 <Link
                   to="/signin"
+                  state={{ from: location }}
                   className="rounded-full bg-primary px-8 py-3 text-base font-bold text-white transition-colors hover:bg-primary-hover"
                 >
                   Sign In
@@ -499,6 +502,9 @@ const CourseDetailsPage = () => {
               </div>
             )}
           </section>
+
+          {/* Reviews */}
+          <FeedbackPanel subject="course" subjectId={course._id} />
         </div>
       </div>
     </div>

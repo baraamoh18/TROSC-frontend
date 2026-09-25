@@ -21,7 +21,7 @@ import TrackAssignments from "../components/TrackDetails/TrackAssignments";
 import TrackCourses from "../components/TrackDetails/TrackCourses";
 import TrackResources from "../components/TrackDetails/TrackResources";
 import TrackSchedule from "../components/TrackDetails/TrackSchedule";
-import TrackFeedback from "../components/TrackDetails/TrackFeedback";
+import FeedbackPanel from "../components/FeedbackPanel";
 import Divider from "../components/Divider";
 import ComingSoonNotice from "../components/ComingSoonNotice";
 import { trackCoverImage, trackGradient } from "../utils/trackVisuals";
@@ -484,7 +484,7 @@ const TrackDetailsPage = () => {
 
           {/* Feedback */}
           <section id="feedback" className="scroll-mt-32">
-            <TrackFeedback trackId={trackId ?? ""} />
+            <FeedbackPanel subject="track" subjectId={trackId ?? ""} />
           </section>
         </div>
       </div>

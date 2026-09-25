@@ -11,6 +11,8 @@ import {
   X,
   AlertTriangle,
   Pencil,
+  Megaphone,
+  Pin,
 } from "lucide-react";
 import * as api from "../../services/api";
 import SharedModal from "../Modal";
@@ -18,6 +20,8 @@ import type {
   BackendTrack,
   BackendCourse,
   BackendEvent,
+  BackendAnnouncement,
+  AnnouncementPayload,
   TrackPayload,
   CoursePayload,
   EventPayload,
@@ -694,6 +698,221 @@ const EventsPanel: React.FC<{
   );
 };
 
+// ── Announcements panel ───────────────────────────────────────
+
+const EMPTY_ANNOUNCEMENT: AnnouncementPayload = {
+  title: "",
+  message: "",
+  audience: "all",
+  isPinned: false,
+};
+
+const AnnouncementsPanel: React.FC<{
+  announcements: BackendAnnouncement[];
+  tracks: BackendTrack[];
+  courses: BackendCourse[];
+  loading: boolean;
+  onRefresh: () => void;
+}> = ({ announcements, tracks, courses, loading, onRefresh }) => {
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<BackendAnnouncement | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<AnnouncementPayload>(EMPTY_ANNOUNCEMENT);
+
+  const openCreate = () => {
+    setEditing(null);
+    setForm(EMPTY_ANNOUNCEMENT);
+    setShowForm(true);
+  };
+
+  const openEdit = (a: BackendAnnouncement) => {
+    setEditing(a);
+    setForm({
+      title: a.title,
+      message: a.message,
+      audience: a.audience,
+      targetTrack: a.targetTrack,
+      targetCourse: a.targetCourse,
+      isPinned: a.isPinned,
+    });
+    setShowForm(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (form.title.trim().length < 3) {
+      toast.error("Title must be at least 3 characters.");
+      return;
+    }
+    if (form.message.trim().length < 10) {
+      toast.error("Message must be at least 10 characters.");
+      return;
+    }
+    if (form.audience === "track" && !form.targetTrack) {
+      toast.error("Choose the track this announcement is for.");
+      return;
+    }
+    if (form.audience === "course" && !form.targetCourse) {
+      toast.error("Choose the course this announcement is for.");
+      return;
+    }
+    // The API only accepts a target that matches the chosen audience.
+    const payload: AnnouncementPayload = {
+      title: form.title.trim(),
+      message: form.message.trim(),
+      audience: form.audience,
+      isPinned: !!form.isPinned,
+      ...(form.audience === "track" ? { targetTrack: form.targetTrack } : {}),
+      ...(form.audience === "course" ? { targetCourse: form.targetCourse } : {}),
+    };
+    setSaving(true);
+    try {
+      if (editing) {
+        await api.updateAnnouncement(editing._id, payload);
+        toast.success("Announcement updated!");
+      } else {
+        await api.createAnnouncement(payload);
+        toast.success("Announcement published!");
+      }
+      setShowForm(false);
+      onRefresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Operation failed.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string, title: string) => {
+    await api.deleteAnnouncement(id);
+    toast.success(`"${title}" deleted.`);
+    onRefresh();
+  };
+
+  const audienceLabel = (a: BackendAnnouncement) => {
+    if (a.audience === "track") {
+      return `Track: ${tracks.find((t) => t._id === a.targetTrack)?.title ?? "—"}`;
+    }
+    if (a.audience === "course") {
+      return `Course: ${courses.find((c) => c._id === a.targetCourse)?.title ?? "—"}`;
+    }
+    return "Everyone";
+  };
+
+  return (
+    <>
+      <div className="mb-4 flex justify-end">
+        <button
+          type="button"
+          onClick={openCreate}
+          className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
+        >
+          <Plus size={15} /> Add Announcement
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="space-y-2">
+          {[1, 2].map((n) => (
+            <div key={n} className="h-12 animate-pulse rounded-xl bg-gray-200" />
+          ))}
+        </div>
+      ) : announcements.length === 0 ? (
+        <p className="text-center text-sm text-neutral-dark py-4">No announcements yet.</p>
+      ) : (
+        <ul className="divide-y divide-gray-100">
+          {announcements.map((a) => (
+            <li key={a._id} className="flex items-center justify-between gap-3 py-3">
+              <div className="min-w-0">
+                <p className="flex items-center gap-1.5 truncate font-semibold text-neutral-darker">
+                  {a.isPinned && <Pin size={13} className="shrink-0 text-primary" aria-label="Pinned" />}
+                  {a.title}
+                </p>
+                <p className="text-xs text-neutral-dark">
+                  {audienceLabel(a)} ·{" "}
+                  {new Date(a.createdAt).toLocaleDateString(undefined, { dateStyle: "medium" })}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <EditButton onClick={() => openEdit(a)} />
+                <DeleteButton onConfirm={() => handleDelete(a._id, a.title)} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {showForm && (
+        <Modal
+          title={editing ? "Edit Announcement" : "New Announcement"}
+          onClose={() => setShowForm(false)}
+        >
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div>
+              <label htmlFor="announcement-title" className="mb-1 block text-sm font-semibold text-neutral-darker">Title *</label>
+              <input id="announcement-title" type="text" className={inputCls} placeholder="e.g. New semester starts Sunday"
+                value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} />
+            </div>
+            <div>
+              <label htmlFor="announcement-message" className="mb-1 block text-sm font-semibold text-neutral-darker">Message *</label>
+              <textarea id="announcement-message" rows={4}
+                className="w-full rounded-xl border border-neutral-light-active bg-neutral-light px-4 py-2.5 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                placeholder="At least 10 characters"
+                value={form.message} onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))} />
+            </div>
+            <div>
+              <label htmlFor="announcement-audience" className="mb-1 block text-sm font-semibold text-neutral-darker">Audience</label>
+              <select id="announcement-audience" className={selectCls} value={form.audience}
+                onChange={(e) => setForm((f) => ({ ...f, audience: e.target.value as AnnouncementPayload["audience"] }))}>
+                <option value="all">Everyone</option>
+                <option value="track">A track</option>
+                <option value="course">A course</option>
+              </select>
+            </div>
+            {form.audience === "track" && (
+              <div>
+                <label htmlFor="announcement-track" className="mb-1 block text-sm font-semibold text-neutral-darker">Track *</label>
+                <select id="announcement-track" className={selectCls} value={form.targetTrack ?? ""}
+                  onChange={(e) => setForm((f) => ({ ...f, targetTrack: e.target.value || undefined }))}>
+                  <option value="">Choose a track…</option>
+                  {tracks.map((t) => <option key={t._id} value={t._id}>{t.title}</option>)}
+                </select>
+              </div>
+            )}
+            {form.audience === "course" && (
+              <div>
+                <label htmlFor="announcement-course" className="mb-1 block text-sm font-semibold text-neutral-darker">Course *</label>
+                <select id="announcement-course" className={selectCls} value={form.targetCourse ?? ""}
+                  onChange={(e) => setForm((f) => ({ ...f, targetCourse: e.target.value || undefined }))}>
+                  <option value="">Choose a course…</option>
+                  {courses.map((c) => <option key={c._id} value={c._id}>{c.title}</option>)}
+                </select>
+              </div>
+            )}
+            <label className="flex items-center gap-2 text-sm font-semibold text-neutral-darker cursor-pointer">
+              <input type="checkbox" checked={!!form.isPinned}
+                onChange={(e) => setForm((f) => ({ ...f, isPinned: e.target.checked }))}
+                className="h-4 w-4 rounded accent-primary" />
+              Pin to the top
+            </label>
+            <div className="flex gap-3 pt-2">
+              <button type="submit" disabled={saving}
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:opacity-50">
+                {saving && <Loader2 size={14} className="animate-spin" />}
+                {saving ? "Saving…" : editing ? "Save Changes" : "Publish"}
+              </button>
+              <button type="button" onClick={() => setShowForm(false)}
+                className="rounded-full border border-neutral-light-active px-5 py-2.5 text-sm font-bold text-neutral-dark hover:bg-neutral-light">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </>
+  );
+};
+
 // ── Main export ───────────────────────────────────────────────
 
 interface ContentManagementProps {
@@ -739,10 +958,27 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
     }
   }, []);
 
+  // ── Announcements state ────────────────────────────────────
+  const [announcements, setAnnouncements] = useState<BackendAnnouncement[]>([]);
+  const [announcementsLoading, setAnnouncementsLoading] = useState(true);
+
+  const fetchAnnouncements = useCallback(async () => {
+    setAnnouncementsLoading(true);
+    try {
+      const res = await api.getAnnouncements("limit=100&sort=-createdAt");
+      setAnnouncements(res.data?.announcements ?? []);
+    } catch {
+      setAnnouncements([]);
+    } finally {
+      setAnnouncementsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     void fetchCourses();
     void fetchEvents();
-  }, [fetchCourses, fetchEvents]);
+    void fetchAnnouncements();
+  }, [fetchCourses, fetchEvents, fetchAnnouncements]);
 
   return (
     <div className="space-y-5">
@@ -761,6 +997,16 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
           courses={courses}
           loading={coursesLoading}
           onRefresh={fetchCourses}
+        />
+      </Section>
+
+      <Section icon={<Megaphone size={18} />} title="Announcements" count={announcements.length}>
+        <AnnouncementsPanel
+          announcements={announcements}
+          tracks={tracks}
+          courses={courses}
+          loading={announcementsLoading}
+          onRefresh={fetchAnnouncements}
         />
       </Section>
 

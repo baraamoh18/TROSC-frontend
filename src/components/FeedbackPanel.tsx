@@ -2,15 +2,30 @@ import { useEffect, useState } from "react";
 import type { FC } from "react";
 import { Star, UserCircle, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import * as api from "../../services/api";
-import type { Review } from "../../services/api";
-import { useAuth } from "../../context/useAuth";
-import { ApiError } from "../../services/api";
-import { isDefaultPhoto } from "../../utils/photoUtils";
+import * as api from "../services/api";
+import type { Review } from "../services/api";
+import { useAuth } from "../context/useAuth";
+import { ApiError } from "../services/api";
+import { isDefaultPhoto } from "../utils/photoUtils";
 
-interface TrackFeedbackProps {
-  trackId: string;
+export type FeedbackSubject = "track" | "course" | "session";
+
+interface FeedbackPanelProps {
+  subject: FeedbackSubject;
+  subjectId: string;
 }
+
+const REVIEW_API: Record<
+  FeedbackSubject,
+  {
+    load: (id: string) => Promise<api.ReviewsResponse>;
+    submit: (id: string, payload: api.ReviewPayload) => Promise<{ data: { review: Review } }>;
+  }
+> = {
+  track: { load: api.getTrackReviews, submit: api.submitTrackReview },
+  course: { load: api.getCourseReviews, submit: api.submitCourseReview },
+  session: { load: api.getSessionReviews, submit: api.submitSessionReview },
+};
 
 const StarRating = ({
   value,
@@ -94,7 +109,8 @@ const ReviewCard = ({ review }: { review: Review }) => {
   );
 };
 
-const TrackFeedback: FC<TrackFeedbackProps> = ({ trackId }) => {
+/** Rating + written review form and review list for a track, course or session. */
+const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
   const { user } = useAuth();
   const [text, setText] = useState("");
   const [rating, setRating] = useState(0);
@@ -106,10 +122,10 @@ const TrackFeedback: FC<TrackFeedbackProps> = ({ trackId }) => {
 
   // Load existing reviews
   useEffect(() => {
-    if (!trackId) return;
+    if (!subjectId) return;
     let cancelled = false;
-    api
-      .getTrackReviews(trackId)
+    REVIEW_API[subject]
+      .load(subjectId)
       .then((res) => {
         if (!cancelled) setReviews(res.data.reviews);
       })
@@ -122,7 +138,7 @@ const TrackFeedback: FC<TrackFeedbackProps> = ({ trackId }) => {
     return () => {
       cancelled = true;
     };
-  }, [trackId]);
+  }, [subject, subjectId]);
 
   const handleSubmit = async () => {
     if (!user) {
@@ -139,7 +155,7 @@ const TrackFeedback: FC<TrackFeedbackProps> = ({ trackId }) => {
     }
     setSubmitting(true);
     try {
-      const res = await api.submitTrackReview(trackId, {
+      const res = await REVIEW_API[subject].submit(subjectId, {
         rating,
         content: text.trim(),
       });
@@ -168,7 +184,7 @@ const TrackFeedback: FC<TrackFeedbackProps> = ({ trackId }) => {
           Your Feedback Matters
         </h2>
         <p className="text-gray-700 mb-6 max-w-2xl">
-          Help us make this track even better.
+          Help us make this {subject} even better.
           <br />
           Tell us what you liked, what was hard, and what you want to learn next.
         </p>
@@ -190,7 +206,7 @@ const TrackFeedback: FC<TrackFeedbackProps> = ({ trackId }) => {
 
           <div className="flex flex-col items-center justify-center min-w-[200px] w-full md:w-auto">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Rate the track
+              Rate the {subject}
             </h3>
             <StarRating
               value={rating}
@@ -254,4 +270,4 @@ const TrackFeedback: FC<TrackFeedbackProps> = ({ trackId }) => {
   );
 };
 
-export default TrackFeedback;
+export default FeedbackPanel;

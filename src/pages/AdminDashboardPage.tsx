@@ -223,7 +223,12 @@ const AdminDashboardPage = () => {
 
         {/* Tab content */}
         {activeTab === "overview" && (
-          <StatsOverview stats={stats} loading={statsLoading} onRefresh={fetchStats} />
+          <StatsOverview
+            stats={stats}
+            loading={statsLoading}
+            onRefresh={fetchStats}
+            mostActiveTrackTitle={tracks.find((t) => t._id === stats?.mostActiveTrack)?.title}
+          />
         )}
 
         {activeTab === "tracks" && (

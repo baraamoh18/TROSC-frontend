@@ -7,7 +7,10 @@ import {
   TrendingUp,
   UserPlus,
   RefreshCw,
+  Flame,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+import TrendsChart from "./TrendsChart";
 import type { DashboardStats } from "../../services/api";
 
 interface StatCardProps {
@@ -43,9 +46,11 @@ interface StatsOverviewProps {
   stats: DashboardStats | null;
   loading: boolean;
   onRefresh: () => void;
+  /** Resolved title of stats.mostActiveTrack, if known */
+  mostActiveTrackTitle?: string;
 }
 
-const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh }) => {
+const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh, mostActiveTrackTitle }) => {
   if (loading) {
     return (
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3">
@@ -121,15 +126,36 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
         />
       </div>
 
-      {stats.createdAt && (
+      {stats.mostActiveTrack && (
+        <Link
+          to={`/track/${stats.mostActiveTrack}`}
+          className="mt-4 flex items-center gap-3 rounded-2xl border border-neutral-light-active bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+        >
+          <span className="rounded-xl bg-primary-light p-2.5 text-primary">
+            <Flame size={20} />
+          </span>
+          <span>
+            <span className="block text-xs font-semibold uppercase tracking-wide text-neutral-dark">
+              Most active track
+            </span>
+            <span className="font-bold text-neutral-darker">
+              {mostActiveTrackTitle ?? "View track"}
+            </span>
+          </span>
+        </Link>
+      )}
+
+      {(stats.computedAt ?? stats.createdAt) && (
         <p className="mt-4 text-right text-xs text-neutral">
-          Stats snapshot:{" "}
-          {new Date(stats.createdAt).toLocaleString(undefined, {
+          Stats as of{" "}
+          {new Date((stats.computedAt ?? stats.createdAt) as string).toLocaleString(undefined, {
             dateStyle: "medium",
             timeStyle: "short",
           })}
         </p>
       )}
+
+      <TrendsChart />
     </div>
   );
 };

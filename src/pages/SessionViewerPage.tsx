@@ -13,6 +13,8 @@ import * as api from "../services/api";
 import { ApiError } from "../services/api";
 import type { BackendSession } from "../services/api";
 import ProgressToggle from "../components/Session/ProgressToggle";
+import FeedbackPanel from "../components/FeedbackPanel";
+import { useAuth } from "../context/useAuth";
 
 const LEVEL_BADGE: Record<BackendSession["level"], string> = {
   beginner: "bg-emerald-100 text-emerald-700",
@@ -22,6 +24,7 @@ const LEVEL_BADGE: Record<BackendSession["level"], string> = {
 
 const SessionViewerPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
+  const { user } = useAuth();
 
   const [session, setSession] = useState<BackendSession | null>(null);
   const [loading, setLoading] = useState(true);
@@ -91,6 +94,12 @@ const SessionViewerPage = () => {
   // The API may return a bare id or a populated track doc here.
   const firstTrack = session.tracks?.[0];
   const trackId = typeof firstTrack === "string" ? firstTrack : firstTrack?._id;
+  // GET /sessions/:id omits myProgress when there's no progress record yet,
+  // so also treat members of any of the session's tracks as enrolled —
+  // the same rule the track page uses.
+  const sessionTrackIds = (session.tracks ?? []).map((t) => (typeof t === "string" ? t : t._id));
+  const canTrackProgress =
+    !!session.myProgress || (!!user?.enrolledTrack && sessionTrackIds.includes(user.enrolledTrack));
   const dateLabel = session.startDate
     ? new Date(session.startDate).toLocaleString(undefined, {
         dateStyle: "medium",
@@ -188,11 +197,11 @@ const SessionViewerPage = () => {
 
           {/* Progress tracking */}
           <div className="mt-6 border-t border-neutral-light-active pt-6">
-            {session.myProgress ? (
+            {canTrackProgress ? (
               <div className="flex flex-wrap items-center gap-4">
                 <ProgressToggle
                   sessionId={session._id}
-                  initialWatched={session.myProgress.status === "watched"}
+                  initialWatched={session.myProgress?.status === "watched"}
                   onWatched={() =>
                     setSession((prev) =>
                       prev
@@ -244,6 +253,11 @@ const SessionViewerPage = () => {
             </ul>
           </div>
         )}
+
+        {/* Reviews */}
+        <div className="mt-6">
+          <FeedbackPanel subject="session" subjectId={session._id} />
+        </div>
       </div>
     </div>
   );

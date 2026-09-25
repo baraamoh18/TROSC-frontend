@@ -1,8 +1,13 @@
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Send } from "lucide-react";
 import toast from "react-hot-toast";
 import * as api from "../services/api";
 import type { ContactPayload } from "../services/api";
+import { useAuth } from "../context/useAuth";
+
+// Value sent when the message isn't about a specific track.
+const GENERAL_TRACK = "General inquiry";
 
 type ContactFormInputs = ContactPayload;
 
@@ -11,14 +16,40 @@ const ContactUsForm = () => {
     register,
     handleSubmit,
     reset,
+    getValues,
+    setValue,
     formState: { errors, isSubmitting },
-  } = useForm<ContactFormInputs>();
+  } = useForm<ContactFormInputs>({ defaultValues: { track: "" } });
+  const { user } = useAuth();
+  const [trackTitles, setTrackTitles] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .getTracks("published=true&limit=100&sort=title")
+      .then((res) => {
+        if (!cancelled) setTrackTitles(res.data.tracks.map((t) => t.title));
+      })
+      .catch(() => {
+        // Select still offers "General inquiry"
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Prefill name and email for signed-in users without overwriting typing.
+  useEffect(() => {
+    if (!user) return;
+    if (!getValues("username")) setValue("username", user.name);
+    if (!getValues("email")) setValue("email", user.email);
+  }, [user, getValues, setValue]);
 
   const onSubmit = async (data: ContactFormInputs) => {
     try {
       const res = await api.submitContact(data);
       toast.success(res.message ?? "Message sent! We'll be in touch soon.");
-      reset();
+      reset({ username: user?.name ?? "", email: user?.email ?? "", track: "", phone: "", message: "" });
     } catch (err) {
       toast.error(
         err instanceof Error
@@ -74,15 +105,23 @@ const ContactUsForm = () => {
           >
             Track
           </label>
-          <input
+          <select
             id="track"
             aria-invalid={!!errors.track}
             aria-describedby={errors.track ? "contact-track-error" : undefined}
-            type="text"
-            placeholder="Enter your track"
-            className={`${inputBase} ${errors.track ? errorClass : ""}`}
-            {...register("track", { required: "Track is required" })}
-          />
+            className={`${inputBase} cursor-pointer ${errors.track ? errorClass : ""}`}
+            {...register("track", { required: "Please choose a track" })}
+          >
+            <option value="" disabled>
+              Choose a track…
+            </option>
+            {trackTitles.map((title) => (
+              <option key={title} value={title}>
+                {title}
+              </option>
+            ))}
+            <option value={GENERAL_TRACK}>{GENERAL_TRACK}</option>
+          </select>
           {errors.track && (
             <p id="contact-track-error" role="alert" className="mt-1 text-xs text-primary-dark">
               {errors.track.message}

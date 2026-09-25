@@ -244,7 +244,8 @@ export interface BackendAnnouncement {
   targetTrack?: string;
   targetCourse?: string;
   attachments: string[];
-  createdBy: string;
+  /** Populated on list/detail responses */
+  createdBy: string | { _id: string; name: string; role: string; photo?: string };
   /** Pinned announcements sort first (isPinned: -1, createdAt: -1) */
   isPinned: boolean;
   createdAt: string;
@@ -763,6 +764,36 @@ export function getAnnouncement(id: string): Promise<AnnouncementResponse> {
   return request<AnnouncementResponse>("GET", `/announcements/${id}`);
 }
 
+// ── Announcements (admin/instructor) ──────────────────────────
+// Validation: title ≥ 3 chars, message ≥ 10 chars; targetTrack/targetCourse
+// are only allowed when audience is "track"/"course" respectively.
+
+export interface AnnouncementPayload {
+  title: string;
+  message: string;
+  audience: "all" | "track" | "course";
+  targetTrack?: string;
+  targetCourse?: string;
+  isPinned?: boolean;
+}
+
+export function createAnnouncement(
+  payload: AnnouncementPayload,
+): Promise<AnnouncementResponse> {
+  return request<AnnouncementResponse>("POST", "/announcements", payload);
+}
+
+export function updateAnnouncement(
+  id: string,
+  payload: Partial<AnnouncementPayload>,
+): Promise<AnnouncementResponse> {
+  return request<AnnouncementResponse>("PATCH", `/announcements/${id}`, payload);
+}
+
+export function deleteAnnouncement(id: string): Promise<void> {
+  return request("DELETE", `/announcements/${id}`);
+}
+
 // ── Weekly Tasks (protected) ──────────────────────────────────
 
 export interface WeeklyTasksResponse {
@@ -990,8 +1021,11 @@ export interface DashboardStats {
   avgCompletionRate: number;
   totalEvents: number;
   totalAnnouncements: number;
+  /** Track id */
   mostActiveTrack?: string;
   createdAt: string;
+  /** Present on /dashboard-stats/live instead of createdAt */
+  computedAt?: string;
 }
 
 export interface DashboardStatsResponse {
