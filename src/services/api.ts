@@ -1,11 +1,10 @@
 // ============================================================
 // API service layer
-// Dev: Vite proxy forwards /v1/* → http://localhost:5000/v1/*
-// Prod: set VITE_API_URL=https://your-api.com
-//
-// IMPORTANT FOR LOCAL DEV:
-// Add FRONTEND_URL=http://localhost:5173 to trosc-backend/.env
-// so the backend's CORS whitelist allows the Vite dev server.
+// Dev: Vite proxy forwards /v1/* to DEV_API_TARGET (see vite.config.ts).
+//      `npm run dev` → local backend on http://localhost:5000
+//      `npm run dev:prod-api` → deployed backend (production data!)
+// Prod: requests go to /v1 and Vercel rewrites them to the backend
+//       (vercel.json), or set VITE_API_URL=https://your-api.com
 // ============================================================
 
 const API_BASE = import.meta.env.VITE_API_URL
