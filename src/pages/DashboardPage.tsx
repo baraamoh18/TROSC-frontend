@@ -387,6 +387,16 @@ const DashboardPage = () => {
                     Go to Track
                   </Link>
                 </div>
+              ) : user.pendingTrack ? (
+                <div className="rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-6 text-center text-amber-800">
+                  Your request to join a track is waiting for approval.{" "}
+                  <Link
+                    to={`/track/${user.pendingTrack}`}
+                    className="font-semibold text-primary hover:text-primary-hover"
+                  >
+                    View track
+                  </Link>
+                </div>
               ) : (
                 <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
                   You haven't joined a track yet.{" "}

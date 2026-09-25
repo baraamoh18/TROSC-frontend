@@ -32,6 +32,9 @@ const TrackOverview = ({
   const [enrolling, setEnrolling] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  // Set right after a successful leave request; the track's pendingLeaves
+  // covers later visits.
+  const [leaveRequested, setLeaveRequested] = useState(false);
 
   const handleEnroll = async () => {
     if (!trackId) return;
@@ -60,6 +63,7 @@ const TrackOverview = ({
       const res = await api.leaveTrack(trackId);
       toast.success(res.message ?? "Leave request submitted.");
       setShowLeaveConfirm(false);
+      setLeaveRequested(true);
       // Refresh user so enrolledTrack clears in context
       await refreshUser();
     } catch (err) {
@@ -73,6 +77,8 @@ const TrackOverview = ({
 
   const isEnrolled = !!user && user.enrolledTrack === trackId;
   const isPending = !!user && user.pendingTrack === trackId;
+  const isLeavePending =
+    isEnrolled && (leaveRequested || (!!user && !!track?.pendingLeaves?.includes(user._id)));
 
   const renderEnrollAction = () => {
     if (authLoading) {
@@ -119,7 +125,11 @@ const TrackOverview = ({
             </svg>
             You're In!
           </div>
-          {!showLeaveConfirm ? (
+          {isLeavePending ? (
+            <p className="rounded-xl bg-amber-50 px-3 py-2 text-center text-sm font-medium text-amber-800">
+              Leave requested — waiting for approval
+            </p>
+          ) : !showLeaveConfirm ? (
             <button
               onClick={() => setShowLeaveConfirm(true)}
               className="w-full flex items-center justify-center gap-2 text-sm text-red-500 hover:text-red-700 py-2 transition-colors"
