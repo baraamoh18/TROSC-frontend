@@ -9,6 +9,7 @@ import { getRedirectPath } from "../utils/redirect";
 interface SignInFormData {
   email: string;
   password: string;
+  rememberMe: boolean;
 }
 
 function SignInForm() {
@@ -97,8 +98,22 @@ function SignInForm() {
           )}
         </div>
 
-        {/* Forgot Password */}
-        <div className="flex items-center justify-end">
+        {/* Remember Me & Forgot Password */}
+        <div className="flex items-center justify-between">
+          <label
+            htmlFor="rememberMe"
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <input
+              id="rememberMe"
+              type="checkbox"
+              {...register("rememberMe")}
+              className="w-4 h-4 rounded cursor-pointer accent-primary"
+            />
+            <span className="text-sm text-neutral-darker font-medium">
+              Remember me
+            </span>
+          </label>
           <Link
             to="/forgot-password"
             className="text-sm text-primary hover:text-primary-hover font-semibold transition-colors"

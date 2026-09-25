@@ -436,9 +436,8 @@ export interface TrackPayload {
   title: string;
   description: string;
   level?: "beginner" | "intermediate" | "advanced" | "all";
+  instructor?: string; // user id
   published?: boolean;
-  // No `instructor` field: the backend sets the track's instructor to the
-  // requesting user and rejects `instructor` in the body with a 400.
 }
 
 export function createTrack(

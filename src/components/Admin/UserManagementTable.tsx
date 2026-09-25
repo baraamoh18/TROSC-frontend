@@ -9,6 +9,8 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  UserX,
+  UserCheck,
 } from "lucide-react";
 import * as api from "../../services/api";
 import { isDefaultPhoto } from "../../utils/photoUtils";
@@ -89,6 +91,26 @@ const UserManagementTable: React.FC = () => {
     }
   };
 
+  const handleToggleActive = async (user: AuthUser) => {
+    const activate = user.active === false;
+    if (
+      !activate &&
+      !window.confirm(`Deactivate ${user.name}? They won't be able to sign in.`)
+    ) {
+      return;
+    }
+    setBusyId(user._id);
+    try {
+      await api.updateUserAdmin(user._id, { active: activate });
+      toast.success(`${user.name} has been ${activate ? "activated" : "deactivated"}.`);
+      await fetchUsers(page);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Status change failed.");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   // Client-side name/email filter over the current page only: the backend's
   // GET /users doesn't apply ?search= yet, so server-side search needs a
   // backend change first.
@@ -162,6 +184,11 @@ const UserManagementTable: React.FC = () => {
                         <UserCircle size={36} className="shrink-0 text-neutral" strokeWidth={1} />
                       )}
                       <span className="font-semibold text-neutral-darker">{user.name}</span>
+                      {user.active === false && (
+                        <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-bold text-neutral-dark">
+                          Inactive
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td className="hidden px-4 py-3 text-neutral-dark sm:table-cell">
@@ -171,6 +198,7 @@ const UserManagementTable: React.FC = () => {
                     <RoleBadge role={user.role} />
                   </td>
                   <td className="px-4 py-3 text-right">
+                    <div className="inline-flex flex-wrap items-center justify-end gap-2">
                     {user.role === "student" && (
                       <button
                         type="button"
@@ -201,9 +229,24 @@ const UserManagementTable: React.FC = () => {
                         Make Student
                       </button>
                     )}
-                    {user.role === "admin" && (
+                    {user.role === "admin" ? (
                       <span className="text-xs text-neutral">—</span>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={busyId !== null}
+                        onClick={() => handleToggleActive(user)}
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                          user.active === false
+                            ? "border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
+                            : "border-neutral-light-active bg-white text-primary-dark hover:bg-primary-light"
+                        }`}
+                      >
+                        {user.active === false ? <UserCheck size={12} /> : <UserX size={12} />}
+                        {user.active === false ? "Activate" : "Deactivate"}
+                      </button>
                     )}
+                    </div>
                   </td>
                 </tr>
               ))}
