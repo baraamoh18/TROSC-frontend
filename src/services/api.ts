@@ -771,19 +771,30 @@ export interface WeeklyTasksResponse {
   data: { weeklyTasks: WeeklyTask[] };
 }
 
+// The deployed API returns the list as `data.tasks`; older builds used
+// `data.weeklyTasks`. Normalise so callers always get `data.weeklyTasks`.
+async function getWeeklyTasks(path: string): Promise<WeeklyTasksResponse> {
+  const res = await request<{
+    status: string;
+    results: number;
+    data?: { weeklyTasks?: WeeklyTask[]; tasks?: WeeklyTask[] };
+  }>("GET", path);
+  return {
+    ...res,
+    data: { weeklyTasks: res.data?.weeklyTasks ?? res.data?.tasks ?? [] },
+  };
+}
+
 export function getWeeklyTasksByTrack(
   trackId: string,
 ): Promise<WeeklyTasksResponse> {
-  return request<WeeklyTasksResponse>("GET", `/tracks/${trackId}/weekly-tasks`);
+  return getWeeklyTasks(`/tracks/${trackId}/weekly-tasks`);
 }
 
 export function getWeeklyTasksByCourse(
   courseId: string,
 ): Promise<WeeklyTasksResponse> {
-  return request<WeeklyTasksResponse>(
-    "GET",
-    `/courses/${courseId}/weekly-tasks`,
-  );
+  return getWeeklyTasks(`/courses/${courseId}/weekly-tasks`);
 }
 
 export function completeWeeklyTaskItem(
