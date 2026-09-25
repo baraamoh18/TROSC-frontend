@@ -24,6 +24,7 @@ import type { BackendCourse } from "../services/api";
 import { isDefaultPhoto } from "../utils/photoUtils";
 import { useAuth } from "../context/useAuth";
 import FeedbackPanel from "../components/FeedbackPanel";
+import usePageTitle from "../hooks/usePageTitle";
 
 const BACKEND_PLACEHOLDER = "https://placehold.co/800x400?text=Trosc+Course";
 
@@ -88,6 +89,8 @@ const CourseDetailsPage = () => {
       cancelled = true;
     };
   }, [courseId, hasValidId, authLoading]);
+
+  usePageTitle(course?.title);
 
   if (!hasValidId) {
     return (
@@ -483,7 +486,7 @@ const CourseDetailsPage = () => {
             {course.instructor && (
               <div className="mt-8 flex items-center gap-3 border-t border-neutral-light-active pt-6">
                 {!isDefaultPhoto(course.instructor.photo) ? (
-                  <img
+                  <img loading="lazy"
                     src={course.instructor.photo}
                     alt={course.instructor.name}
                     className="h-10 w-10 shrink-0 rounded-full object-cover"

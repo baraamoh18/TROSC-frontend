@@ -47,7 +47,7 @@ const EventCard: React.FC<{ event: BackendEvent }> = ({ event }) => {
       </div>
 
       <div className="w-full">
-        <img
+        <img loading="lazy"
           src={event.coverImage || PLACEHOLDER_IMAGE}
           alt={event.title}
           className="h-[220px] w-full rounded-2xl object-cover shadow-md md:h-[260px]"

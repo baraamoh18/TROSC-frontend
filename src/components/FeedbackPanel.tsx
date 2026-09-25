@@ -76,7 +76,7 @@ const ReviewCard = ({ review }: { review: Review }) => {
   return (
     <div className="flex gap-4 rounded-xl border border-gray-200 bg-white p-4">
       {!isDefaultPhoto(review.user.photo) ? (
-        <img
+        <img loading="lazy"
           src={review.user.photo}
           alt={review.user.name}
           className="h-10 w-10 rounded-full object-cover shrink-0"

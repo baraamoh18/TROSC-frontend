@@ -24,6 +24,7 @@ import { isDefaultPhoto } from "../utils/photoUtils";
 import * as api from "../services/api";
 import type { EnrollmentsResponse, BackendEvent, ActivityLog } from "../services/api";
 import { useAuth } from "../context/useAuth";
+import usePageTitle from "../hooks/usePageTitle";
 
 const PLACEHOLDER_IMAGE = "https://placehold.co/800x400?text=Trosc+Event";
 const MAX_SOURCE_FILE_SIZE_MB = 5;
@@ -222,6 +223,7 @@ const SectionError = ({ what, onRetry }: { what: string; onRetry: () => void }) 
 // ── Dashboard Page ────────────────────────────────────────────
 
 const DashboardPage = () => {
+  usePageTitle("My Dashboard");
   const { user } = useAuth();
 
   const [enrollments, setEnrollments] = useState<
@@ -467,7 +469,7 @@ const DashboardPage = () => {
                     key={event._id}
                     className="flex flex-col gap-4 rounded-2xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center"
                   >
-                    <img
+                    <img loading="lazy"
                       src={event.coverImage || PLACEHOLDER_IMAGE}
                       alt={event.title}
                       className="h-24 w-full shrink-0 rounded-xl object-cover sm:w-40"

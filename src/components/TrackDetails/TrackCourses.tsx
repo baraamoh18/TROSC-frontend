@@ -70,7 +70,7 @@ const CourseCard = ({ course }: { course: BackendCourse }) => {
       {/* Cover image or gradient fallback */}
       {course.coverImage &&
       course.coverImage !== "https://placehold.co/800x400?text=Trosc+Course" ? (
-        <img
+        <img loading="lazy"
           src={course.coverImage}
           alt=""
           className="w-full h-32 object-cover"

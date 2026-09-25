@@ -1,8 +1,10 @@
 import React from "react";
 import { Phone, Mail } from "lucide-react";
 import ContactUsForm from "../components/ContactUsForm";
+import usePageTitle from "../hooks/usePageTitle";
 
 const ContactUsPage: React.FC = () => {
+  usePageTitle("Contact us");
   return (
     <div className="min-h-screen bg-neutral-light-hover pt-20 font-family-poppins">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-16 py-8">

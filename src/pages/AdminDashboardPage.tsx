@@ -9,6 +9,7 @@ import PendingApprovals from "../components/Instructor/PendingApprovals";
 import StatsOverview from "../components/Admin/StatsOverview";
 import UserManagementTable from "../components/Admin/UserManagementTable";
 import ContentManagement from "../components/Admin/ContentManagement";
+import usePageTitle from "../hooks/usePageTitle";
 
 type Tab = "overview" | "tracks" | "content" | "users";
 
@@ -20,6 +21,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
 ];
 
 const AdminDashboardPage = () => {
+  usePageTitle("Admin Dashboard");
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const isAdmin = !!user && user.role === "admin";

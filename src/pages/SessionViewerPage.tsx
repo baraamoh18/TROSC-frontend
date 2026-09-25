@@ -15,6 +15,7 @@ import type { BackendSession } from "../services/api";
 import ProgressToggle from "../components/Session/ProgressToggle";
 import FeedbackPanel from "../components/FeedbackPanel";
 import { useAuth } from "../context/useAuth";
+import usePageTitle from "../hooks/usePageTitle";
 
 const LEVEL_BADGE: Record<BackendSession["level"], string> = {
   beginner: "bg-emerald-100 text-emerald-700",
@@ -53,6 +54,8 @@ const SessionViewerPage = () => {
       cancelled = true;
     };
   }, [sessionId]);
+
+  usePageTitle(session?.title);
 
   if (loading) {
     return (

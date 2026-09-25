@@ -4,6 +4,7 @@ import { useAuth } from "../context/useAuth";
 import ProfileForm from "../components/Settings/ProfileForm";
 import SecurityForm from "../components/Settings/SecurityForm";
 import DangerZone from "../components/Settings/DangerZone";
+import usePageTitle from "../hooks/usePageTitle";
 
 const tabs = [
   { id: "profile", label: "Profile", icon: User },
@@ -14,6 +15,7 @@ const tabs = [
 type TabId = (typeof tabs)[number]["id"];
 
 const SettingsPage = () => {
+  usePageTitle("Settings");
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabId>("profile");
 

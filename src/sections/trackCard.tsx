@@ -5,7 +5,7 @@ const TrackCard = ({ track }: { track: TrackItem }) => {
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
       {track.imageUrl ? (
-        <img
+        <img loading="lazy"
           src={track.imageUrl}
           alt={track.title}
           className="w-full h-48 object-cover"

@@ -6,8 +6,10 @@ import * as api from "../services/api";
 import type { AuthUser, BackendTrack } from "../services/api";
 import { useAuth } from "../context/useAuth";
 import PendingApprovals from "../components/Instructor/PendingApprovals";
+import usePageTitle from "../hooks/usePageTitle";
 
 const InstructorDashboardPage = () => {
+  usePageTitle("Instructor Dashboard");
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const isInstructor = !!user && user.role === "instructor";

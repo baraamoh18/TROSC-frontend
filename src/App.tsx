@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 
 import MainLayout from "./layout/MainLayout";
@@ -10,21 +11,31 @@ import ForgotPasswordPage from "./pages/forgotPasswordPage";
 import ResetPasswordPage from "./pages/resetPasswordPage";
 import ContactUsPage from "./pages/contactUsPage";
 import TrackDetailsPage from "./pages/TrackDetailsPage";
-import DashboardPage from "./pages/DashboardPage";
-import SettingsPage from "./pages/SettingsPage";
-import SessionViewerPage from "./pages/SessionViewerPage";
-import CourseDetailsPage from "./pages/CourseDetailsPage";
-import InstructorDashboardPage from "./pages/InstructorDashboardPage";
-import AdminDashboardPage from "./pages/AdminDashboardPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RedirectIfAuthenticated from "./components/RedirectIfAuthenticated";
 import NotFoundPage from "./pages/NotFoundPage";
 import useScrollToHash from "./hooks/useScrollToHash";
 
+// Signed-in and deep-link pages are split into their own chunks so first-time
+// visitors to the landing page don't download the dashboards.
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const SessionViewerPage = lazy(() => import("./pages/SessionViewerPage"));
+const CourseDetailsPage = lazy(() => import("./pages/CourseDetailsPage"));
+const InstructorDashboardPage = lazy(() => import("./pages/InstructorDashboardPage"));
+const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
+
+const PageFallback = () => (
+  <div className="flex min-h-screen items-center justify-center pt-16" aria-busy="true">
+    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-light border-t-primary" />
+  </div>
+);
+
 function App() {
   useScrollToHash();
 
   return (
+    <Suspense fallback={<PageFallback />}>
     <Routes>
       {/* Pages with Navbar + Footer */}
       <Route element={<MainLayout />}>
@@ -88,6 +99,7 @@ function App() {
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
+    </Suspense>
   );
 }
 

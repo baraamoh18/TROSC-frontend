@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Menu, X, LogOut, UserCircle, Settings, GraduationCap, Shield } from "lucide-react";
-import TroscLogo from "../../Assests/Trosc4x.webp";
+import TroscLogo from "../../assets/Trosc4x.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { smoothScrollToId } from "../utils/smoothScroll";
 import { useAuth } from "../context/useAuth";

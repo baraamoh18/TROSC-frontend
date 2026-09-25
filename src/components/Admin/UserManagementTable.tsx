@@ -153,7 +153,7 @@ const UserManagementTable: React.FC = () => {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {!isDefaultPhoto(user.photo) ? (
-                        <img
+                        <img loading="lazy"
                           src={user.photo}
                           alt={user.name}
                           className="h-9 w-9 shrink-0 rounded-full object-cover"

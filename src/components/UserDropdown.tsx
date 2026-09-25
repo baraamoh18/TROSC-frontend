@@ -7,7 +7,7 @@ import { isDefaultPhoto } from "../utils/photoUtils";
 
 /**
  * Hover dropdown for the navbar's signed-in area, adapted from the
- * pre-styled "tooltip" component (css_comp/dropdown.txt) and recolored
+ * pre-styled "tooltip" component and recolored
  * to the TROSC palette: primary red #e83b3b, primary-dark #ae2c2c,
  * neutral greys, Poppins.
  *

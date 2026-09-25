@@ -1,12 +1,14 @@
 import { useState } from "react";
 import AuthLayout from "../layout/AuthLayout";
 import ForgotPasswordForm from "../components/ForgotPasswordForm";
-import TroscLogo from "../../Assests/Trosc4x1.png";
+import TroscLogo from "../../assets/Trosc4x1.png";
 import * as api from "../services/api";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import usePageTitle from "../hooks/usePageTitle";
 
 const ForgotPasswordPage = () => {
+  usePageTitle("Forgot password");
   const [sent, setSent] = useState(false);
   const [sentTo, setSentTo] = useState("");
 

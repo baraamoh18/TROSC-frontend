@@ -2,10 +2,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import AuthLayout from '../layout/AuthLayout';
 import ResetPasswordForm from '../components/ResetPasswordForm';
-import TroscLogo from '../../Assests/Trosc4x1.png';
+import TroscLogo from '../../assets/Trosc4x1.png';
 import * as api from '../services/api';
+import usePageTitle from "../hooks/usePageTitle";
 
 const ResetPasswordPage = () => {
+  usePageTitle("Reset password");
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
 

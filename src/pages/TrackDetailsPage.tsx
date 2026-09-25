@@ -26,6 +26,7 @@ import Divider from "../components/Divider";
 import ComingSoonNotice from "../components/ComingSoonNotice";
 import { trackCoverImage, trackGradient } from "../utils/trackVisuals";
 import { smoothScrollToId } from "../utils/smoothScroll";
+import usePageTitle from "../hooks/usePageTitle";
 
 /** Returns true only for valid 24-character hex MongoDB ObjectIds. */
 const isValidObjectId = (id: string) => /^[a-f\d]{24}$/i.test(id);
@@ -279,6 +280,7 @@ const TrackDetailsPage = () => {
   // ── Hero values ───────────────────────────────────────────────
 
   const heroTitle = liveTrack?.title ?? "Track";
+  usePageTitle(liveTrack?.title);
   const heroSubtitle = liveTrack?.description ?? "";
   const heroImage = trackCoverImage(liveTrack?.coverImage);
   const isPending = !!user && user.pendingTrack === trackId;

@@ -5,8 +5,10 @@ import Events from "../sections/Events";
 import UpcomingEvents from "../sections/UpComingEvents";
 import MyEnrollments from "../sections/MyEnrollments";
 import Announcements from "../sections/Announcements";
+import usePageTitle from "../hooks/usePageTitle";
 
 function LandingPage() {
+  usePageTitle(null);
   return (
     <>
       <section id="home">

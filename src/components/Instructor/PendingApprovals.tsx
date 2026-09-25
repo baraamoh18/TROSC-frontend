@@ -61,7 +61,7 @@ const PendingApprovals: React.FC<PendingApprovalsProps> = ({
             >
               <div className="flex items-center gap-3">
                 {!isDefaultPhoto(person.photo) ? (
-                  <img
+                  <img loading="lazy"
                     src={person.photo}
                     alt={person.name}
                     className="h-10 w-10 shrink-0 rounded-full object-cover"
