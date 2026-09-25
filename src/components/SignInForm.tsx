@@ -1,18 +1,19 @@
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import PasswordInput from "./PasswordInput";
 import * as api from "../services/api";
 import { useAuth } from "../context/useAuth";
+import { getRedirectPath } from "../utils/redirect";
 
 interface SignInFormData {
   email: string;
   password: string;
-  rememberMe: boolean;
 }
 
 function SignInForm() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { setUser } = useAuth();
 
   const {
@@ -23,15 +24,11 @@ function SignInForm() {
 
   const onSubmit = async (data: SignInFormData) => {
     try {
-      const { rememberMe, ...credentials } = data;
-      // rememberMe is captured but not yet sent — backend validation rejects unknown fields.
-      // Once the backend team adds support, replace the line below with:
-      // const res = await api.signIn({ ...credentials, rememberMe });
-      void rememberMe; // prevents unused variable lint warning
-      const res = await api.signIn(credentials);
+      const res = await api.signIn(data);
       setUser(res.data.user);
       toast.success(`Welcome back, ${res.data.user.name}!`);
-      navigate("/");
+      // Return to the protected page that sent the user here, if any.
+      navigate(getRedirectPath(location.state, "/"), { replace: true });
     } catch (err) {
       toast.error(
         err instanceof Error
@@ -100,22 +97,8 @@ function SignInForm() {
           )}
         </div>
 
-        {/* Remember Me & Forgot Password */}
-        <div className="flex items-center justify-between">
-          <label
-            htmlFor="rememberMe"
-            className="flex items-center gap-2 cursor-pointer"
-          >
-            <input
-              id="rememberMe"
-              type="checkbox"
-              {...register("rememberMe")}
-              className="w-4 h-4 rounded cursor-pointer accent-primary"
-            />
-            <span className="text-sm text-neutral-darker font-medium">
-              Remember me
-            </span>
-          </label>
+        {/* Forgot Password */}
+        <div className="flex items-center justify-end">
           <Link
             to="/forgot-password"
             className="text-sm text-primary hover:text-primary-hover font-semibold transition-colors"

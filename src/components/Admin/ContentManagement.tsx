@@ -41,6 +41,8 @@ const DeleteButton: React.FC<{
     setBusy(true);
     try {
       await onConfirm();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Delete failed.");
     } finally {
       setBusy(false);
       setAsking(false);

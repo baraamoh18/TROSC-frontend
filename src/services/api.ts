@@ -21,6 +21,34 @@ export class ApiError extends Error {
   }
 }
 
+// ── Session-expiry hook ──────────────────────────────────────
+// AuthProvider registers a handler that runs when a request comes back 401,
+// i.e. the auth cookie is missing or expired. These endpoints are excluded
+// because their 401s mean "wrong credentials", not "session expired".
+const CREDENTIAL_ENDPOINTS = [
+  "/users/login",
+  "/users/signup",
+  "/users/logout",
+  "/users/forgotPassword",
+  "/users/resetPassword/",
+  "/users/updateMyPassword",
+];
+
+let unauthorizedHandler: (() => void) | null = null;
+
+export function setUnauthorizedHandler(handler: (() => void) | null): void {
+  unauthorizedHandler = handler;
+}
+
+function notifyIfUnauthorized(status: number, path: string): void {
+  if (
+    status === 401 &&
+    !CREDENTIAL_ENDPOINTS.some((endpoint) => path.startsWith(endpoint))
+  ) {
+    unauthorizedHandler?.();
+  }
+}
+
 async function request<T = void>(
   method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE",
   path: string,
@@ -34,6 +62,7 @@ async function request<T = void>(
   });
 
   if (!res.ok) {
+    notifyIfUnauthorized(res.status, path);
     const json = await res.json().catch(() => ({}));
     throw new ApiError(
       (json as { message?: string }).message ??
@@ -407,8 +436,9 @@ export interface TrackPayload {
   title: string;
   description: string;
   level?: "beginner" | "intermediate" | "advanced" | "all";
-  instructor?: string; // user id
   published?: boolean;
+  // No `instructor` field: the backend sets the track's instructor to the
+  // requesting user and rejects `instructor` in the body with a 400.
 }
 
 export function createTrack(
@@ -826,7 +856,8 @@ export async function uploadAssignmentSubmission(
   const formData = new FormData();
   formData.append("file", file, file.name);
 
-  const res = await fetch(`${API_BASE}/assignments/${assignmentId}/submissions`, {
+  const path = `/assignments/${assignmentId}/submissions`;
+  const res = await fetch(`${API_BASE}${path}`, {
     method: "POST",
     credentials: "include",
     // The browser supplies the multipart boundary; do not set Content-Type.
@@ -834,6 +865,7 @@ export async function uploadAssignmentSubmission(
   });
 
   if (!res.ok) {
+    notifyIfUnauthorized(res.status, path);
     const json = await res.json().catch(() => ({}));
     throw new ApiError(
       (json as { message?: string }).message ?? `Upload failed (${res.status})`,

@@ -19,10 +19,8 @@ import TrackWeeklyTasks from "../components/TrackDetails/TrackWeeklyTasks";
 import TrackSessionsTable from "../components/TrackDetails/TrackSessionsTable";
 import TrackAssignments from "../components/TrackDetails/TrackAssignments";
 import TrackCourses from "../components/TrackDetails/TrackCourses";
-import TrackLearningPath from "../components/TrackDetails/TrackLearningPath";
 import TrackResources from "../components/TrackDetails/TrackResources";
 import TrackSchedule from "../components/TrackDetails/TrackSchedule";
-import TrackCertificate from "../components/TrackDetails/TrackCertificate";
 import TrackFeedback from "../components/TrackDetails/TrackFeedback";
 import Divider from "../components/Divider";
 import ComingSoonNotice from "../components/ComingSoonNotice";
@@ -206,14 +204,17 @@ const TrackDetailsPage = () => {
   }, [sessions]);
 
   // PDFs come from each session's resources[] attachments;
-  // Recordings are sessions that have a primary URL (video/embed).
+  // Recordings are sessions that have a primary URL (video/embed) and link
+  // to the session viewer, which handles access checks and progress.
   const trackResources = useMemo(() => {
     const pdfs = sortedSessions.flatMap((s) =>
-      (s.resources ?? []).map((r) => r.title),
+      (s.resources ?? [])
+        .filter((r) => !!r.url)
+        .map((r) => ({ title: r.title, url: r.url })),
     );
     const recordings = sortedSessions
       .filter((s) => !!s.url)
-      .map((s) => s.title);
+      .map((s) => ({ sessionId: s._id, title: s.title }));
     return { pdfs, recordings };
   }, [sortedSessions]);
 
@@ -375,12 +376,13 @@ const TrackDetailsPage = () => {
           {/* Resources */}
           <section id="resources" className="scroll-mt-32">
             {trackResources.pdfs.length === 0 && trackResources.recordings.length === 0 ? (
-              <ComingSoonNotice
-                message="Track resources will appear here once sessions have attached materials."
-                className="mb-6"
-              />
-            ) : null}
-            <TrackResources resources={trackResources} trackTitle={heroTitle} />
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">{heroTitle} Resources</h2>
+                <ComingSoonNotice message="Track resources will appear here once sessions have attached materials." />
+              </div>
+            ) : (
+              <TrackResources resources={trackResources} trackTitle={heroTitle} />
+            )}
           </section>
 
           <Divider />
@@ -445,36 +447,24 @@ const TrackDetailsPage = () => {
                 </div>
               </div>
             ) : (
-              <>
-                <TrackAssignments
-                  assignments={assignments}
-                  isEnrolled={isEnrolled}
-                  onSubmissionUpdate={handleAssignmentSubmission}
-                />
-                <TrackLearningPath path={[]} />
-              </>
+              <TrackAssignments
+                assignments={assignments}
+                isEnrolled={isEnrolled}
+                onSubmissionUpdate={handleAssignmentSubmission}
+              />
             )}
           </section>
 
-          {/* Schedule & Certificate */}
+          {/* Schedule */}
           <section id="schedule" className="scroll-mt-32">
-            {scheduleItems.length === 0 && (
-              <ComingSoonNotice
-                message="Session dates will appear here once sessions have scheduled start dates."
-                className="mb-6"
-              />
+            {scheduleItems.length === 0 ? (
+              <div className="mb-12">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Upcoming Sessions & Deadlines</h2>
+                <ComingSoonNotice message="Session dates will appear here once sessions have scheduled start dates." />
+              </div>
+            ) : (
+              <TrackSchedule upcoming={scheduleItems} />
             )}
-            <TrackSchedule upcoming={scheduleItems} />
-            <TrackCertificate
-              certificate={{
-                includes: [
-                  "Your Name",
-                  "Completion Date",
-                  "Skill Level Achieved",
-                  "Instructor Signature",
-                ],
-              }}
-            />
           </section>
 
           {/* Feedback */}

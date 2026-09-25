@@ -31,9 +31,10 @@ function SignUpForm() {
         password: data.password,
         passwordConfirm: data.confirmPassword,
       });
+      // Signup sets the auth cookie, so the user is already signed in.
       setUser(res.data.user);
-      toast.success("Account created! Please sign in.");
-      navigate("/signin");
+      toast.success(`Welcome to TROSC, ${res.data.user.name}!`);
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       toast.error(
         err instanceof Error

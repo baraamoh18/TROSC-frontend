@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import toast from "react-hot-toast";
 import * as api from "../services/api";
 import { ApiError } from "../services/api";
 import { AuthContext } from "./authContextInstance";
@@ -6,6 +7,27 @@ import { AuthContext } from "./authContextInstance";
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<api.AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const userRef = useRef(user);
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
+  // A 401 on any non-credential request while signed in means the session
+  // expired. Clear the user; ProtectedRoute then sends protected pages to
+  // /signin (remembering where they were), and public pages fall back to
+  // their signed-out view. Signed-out 401s (e.g. the initial getMe) are
+  // expected and ignored.
+  useEffect(() => {
+    api.setUnauthorizedHandler(() => {
+      if (!userRef.current) return;
+      userRef.current = null;
+      setUser(null);
+      toast.error("Your session has expired. Please sign in again.", {
+        id: "session-expired",
+      });
+    });
+    return () => api.setUnauthorizedHandler(null);
+  }, []);
 
   const refreshUser = useCallback(async () => {
     try {
@@ -34,6 +56,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [refreshUser]);
 
   const logout = useCallback(async () => {
+    // Clear the ref first so in-flight requests that 401 during sign-out
+    // don't trigger the "session expired" toast.
+    userRef.current = null;
     try {
       await api.signOut();
     } finally {

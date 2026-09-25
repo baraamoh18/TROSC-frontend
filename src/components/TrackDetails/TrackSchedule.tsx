@@ -27,7 +27,7 @@ const TrackSchedule: React.FC<TrackScheduleProps> = ({ upcoming }) => {
   return (
     <div>
       <h2 className="text-2xl font-bold text-gray-900 mb-2">Upcoming Sessions & Deadlines</h2>
-      <p className="text-gray-700 mb-8">Month View (November 2025)</p>
+      <p className="text-gray-700 mb-8">All scheduled sessions for this track</p>
 
       <div className="overflow-x-auto max-w-4xl">
         <table className="min-w-full border-collapse">

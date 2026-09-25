@@ -75,9 +75,9 @@ const MyEnrollments = () => {
         ) : (
           <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
             You haven't joined a track yet.{" "}
-            <a href="/#tracks" className="text-primary font-semibold hover:text-primary-hover">
+            <Link to="/#tracks" className="text-primary font-semibold hover:text-primary-hover">
               Browse tracks
-            </a>{" "}
+            </Link>{" "}
             to get started.
           </div>
         )}

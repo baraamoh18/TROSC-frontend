@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   UserCircle,
@@ -16,6 +16,8 @@ import {
   Star,
   UploadCloud,
   Shield,
+  AlertCircle,
+  RotateCw,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { isDefaultPhoto } from "../utils/photoUtils";
@@ -198,6 +200,25 @@ const formatRelative = (isoDate: string) => {
   return new Date(isoDate).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 };
 
+// Shown instead of a section's empty state when its request failed, so a
+// failed load isn't mistaken for "you have nothing here".
+const SectionError = ({ what, onRetry }: { what: string; onRetry: () => void }) => (
+  <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
+    <p className="flex items-center gap-2">
+      <AlertCircle size={18} className="text-primary" />
+      Couldn't load {what}.
+    </p>
+    <button
+      type="button"
+      onClick={onRetry}
+      className="inline-flex items-center gap-1.5 rounded-full border border-neutral-light-active px-4 py-1.5 text-sm font-semibold text-neutral-darker transition-colors hover:bg-neutral-light"
+    >
+      <RotateCw size={14} />
+      Retry
+    </button>
+  </div>
+);
+
 // ── Dashboard Page ────────────────────────────────────────────
 
 const DashboardPage = () => {
@@ -207,22 +228,29 @@ const DashboardPage = () => {
     EnrollmentsResponse["data"] | null
   >(null);
   const [enrollmentsLoading, setEnrollmentsLoading] = useState(true);
+  const [enrollmentsError, setEnrollmentsError] = useState(false);
 
   const [rsvpEvents, setRsvpEvents] = useState<BackendEvent[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
+  const [eventsError, setEventsError] = useState(false);
 
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [activityLoading, setActivityLoading] = useState(true);
+  const [activityError, setActivityError] = useState(false);
 
-  useEffect(() => {
+  // Each loader returns a cancel function so effects can ignore stale
+  // responses after unmount; Retry buttons call the same loaders directly.
+  const loadEnrollments = useCallback(() => {
     let cancelled = false;
+    setEnrollmentsLoading(true);
+    setEnrollmentsError(false);
     api
       .getMyEnrollments()
       .then((res) => {
         if (!cancelled) setEnrollments(res.data);
       })
       .catch(() => {
-        // No enrollments yet or request failed — section shows the empty state
+        if (!cancelled) setEnrollmentsError(true);
       })
       .finally(() => {
         if (!cancelled) setEnrollmentsLoading(false);
@@ -232,18 +260,19 @@ const DashboardPage = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!user) return;
+  // Uses the dedicated /events/my-events endpoint instead of loading all
+  // events and filtering client-side.
+  const loadEvents = useCallback(() => {
     let cancelled = false;
-    // Use the dedicated /events/my-events endpoint instead of loading all
-    // events and filtering client-side (fix for gap #6).
+    setEventsLoading(true);
+    setEventsError(false);
     api
       .getMyEvents()
       .then((res) => {
         if (!cancelled) setRsvpEvents(res.data?.events || []);
       })
       .catch(() => {
-        // API unavailable — section shows the empty state
+        if (!cancelled) setEventsError(true);
       })
       .finally(() => {
         if (!cancelled) setEventsLoading(false);
@@ -251,18 +280,19 @@ const DashboardPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, []);
 
-  useEffect(() => {
-    if (!user) return;
+  const loadActivity = useCallback(() => {
     let cancelled = false;
+    setActivityLoading(true);
+    setActivityError(false);
     api
       .getMyActivityLogs("limit=10")
       .then((res) => {
         if (!cancelled) setActivityLogs(res.data?.logs || []);
       })
       .catch(() => {
-        // Activity log unavailable — section shows empty state
+        if (!cancelled) setActivityError(true);
       })
       .finally(() => {
         if (!cancelled) setActivityLoading(false);
@@ -270,7 +300,21 @@ const DashboardPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, []);
+
+  const userId = user?._id;
+
+  useEffect(() => {
+    if (!userId) return;
+    const cancelEnrollments = loadEnrollments();
+    const cancelEvents = loadEvents();
+    const cancelActivity = loadActivity();
+    return () => {
+      cancelEnrollments();
+      cancelEvents();
+      cancelActivity();
+    };
+  }, [userId, loadEnrollments, loadEvents, loadActivity]);
 
   if (!user) return null;
 
@@ -312,6 +356,8 @@ const DashboardPage = () => {
 
             {enrollmentsLoading ? (
               <div className="h-24 animate-pulse rounded-2xl bg-gray-200" />
+            ) : enrollmentsError ? (
+              <SectionError what="your track" onRetry={loadEnrollments} />
             ) : (() => {
               const enrolledTrack = enrollments?.tracks?.[0] ?? null;
               return enrolledTrack ? (
@@ -396,6 +442,8 @@ const DashboardPage = () => {
                 <div key={n} className="h-24 animate-pulse rounded-2xl bg-gray-200" />
               ))}
             </div>
+          ) : eventsError ? (
+            <SectionError what="your events" onRetry={loadEvents} />
           ) : (rsvpEvents?.length || 0) === 0 ? (
             <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
               You haven't RSVP'd to any events yet.{" "}
@@ -457,6 +505,8 @@ const DashboardPage = () => {
                 <div key={n} className="h-12 animate-pulse rounded-xl bg-gray-200" />
               ))}
             </div>
+          ) : activityError ? (
+            <SectionError what="your recent activity" onRetry={loadActivity} />
           ) : (activityLogs?.length || 0) === 0 ? (
             <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
               No activity recorded yet.

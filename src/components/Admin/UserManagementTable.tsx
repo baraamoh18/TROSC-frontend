@@ -72,20 +72,26 @@ const UserManagementTable: React.FC = () => {
     void fetchUsers(page);
   }, [page]);
 
-  const handlePromoteToInstructor = async (userId: string, name: string) => {
+  const handleChangeRole = async (
+    userId: string,
+    name: string,
+    role: "student" | "instructor",
+  ) => {
     setBusyId(userId);
     try {
-      await api.updateUserAdmin(userId, { role: "instructor" });
-      toast.success(`${name} is now an instructor.`);
+      await api.updateUserAdmin(userId, { role });
+      toast.success(`${name} is now ${role === "instructor" ? "an instructor" : "a student"}.`);
       await fetchUsers(page);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Promotion failed.");
+      toast.error(err instanceof Error ? err.message : "Role change failed.");
     } finally {
       setBusyId(null);
     }
   };
 
-  // Client-side name/email filter
+  // Client-side name/email filter over the current page only: the backend's
+  // GET /users doesn't apply ?search= yet, so server-side search needs a
+  // backend change first.
   const filtered = users.filter(
     (u) =>
       u.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -169,7 +175,7 @@ const UserManagementTable: React.FC = () => {
                       <button
                         type="button"
                         disabled={busyId !== null}
-                        onClick={() => handlePromoteToInstructor(user._id, user.name)}
+                        onClick={() => handleChangeRole(user._id, user.name, "instructor")}
                         className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {busyId === user._id ? (
@@ -180,7 +186,22 @@ const UserManagementTable: React.FC = () => {
                         Make Instructor
                       </button>
                     )}
-                    {(user.role === "instructor" || user.role === "admin") && (
+                    {user.role === "instructor" && (
+                      <button
+                        type="button"
+                        disabled={busyId !== null}
+                        onClick={() => handleChangeRole(user._id, user.name, "student")}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-neutral-light-active bg-white px-3.5 py-1.5 text-xs font-bold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {busyId === user._id ? (
+                          <Loader2 size={12} className="animate-spin" />
+                        ) : (
+                          <User size={12} />
+                        )}
+                        Make Student
+                      </button>
+                    )}
+                    {user.role === "admin" && (
                       <span className="text-xs text-neutral">—</span>
                     )}
                   </td>
