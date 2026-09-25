@@ -135,7 +135,7 @@ const UserManagementTable: React.FC = () => {
           No users found.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-neutral-light-active bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-2xl border border-neutral-light-active bg-white shadow-sm">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-neutral-light-active bg-neutral-light">
@@ -143,7 +143,7 @@ const UserManagementTable: React.FC = () => {
                 <th className="hidden px-4 py-3 text-left font-semibold text-neutral-dark sm:table-cell">
                   Email
                 </th>
-                <th className="px-4 py-3 text-left font-semibold text-neutral-dark">Role</th>
+                <th className="hidden px-4 py-3 text-left font-semibold text-neutral-dark sm:table-cell">Role</th>
                 <th className="px-4 py-3 text-right font-semibold text-neutral-dark">Actions</th>
               </tr>
             </thead>
@@ -165,13 +165,17 @@ const UserManagementTable: React.FC = () => {
                         <span className="font-semibold text-neutral-darker">{user.name}</span>
                         {/* Email column is hidden on phones; show it here instead. */}
                         <p className="truncate text-xs text-neutral-dark sm:hidden">{user.email}</p>
+                        {/* Role column is hidden on phones too. */}
+                        <div className="mt-1 sm:hidden">
+                          <RoleBadge role={user.role} />
+                        </div>
                       </div>
                     </div>
                   </td>
                   <td className="hidden px-4 py-3 text-neutral-dark sm:table-cell">
                     {user.email}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="hidden px-4 py-3 sm:table-cell">
                     <RoleBadge role={user.role} />
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -181,7 +185,7 @@ const UserManagementTable: React.FC = () => {
                         type="button"
                         disabled={busyId !== null}
                         onClick={() => handleChangeRole(user._id, user.name, "instructor")}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {busyId === user._id ? (
                           <Loader2 size={12} className="animate-spin" />
@@ -196,7 +200,7 @@ const UserManagementTable: React.FC = () => {
                         type="button"
                         disabled={busyId !== null}
                         onClick={() => handleChangeRole(user._id, user.name, "student")}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-neutral-light-active bg-white px-3.5 py-1.5 text-xs font-bold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-neutral-light-active bg-white px-3.5 py-1.5 text-xs font-bold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {busyId === user._id ? (
                           <Loader2 size={12} className="animate-spin" />
