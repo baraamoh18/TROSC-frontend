@@ -17,6 +17,8 @@ import CourseDetailsPage from "./pages/CourseDetailsPage";
 import InstructorDashboardPage from "./pages/InstructorDashboardPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import RedirectIfAuthenticated from "./components/RedirectIfAuthenticated";
+import NotFoundPage from "./pages/NotFoundPage";
 import useScrollToHash from "./hooks/useScrollToHash";
 
 function App() {
@@ -76,10 +78,15 @@ function App() {
         />
       </Route>
 
-      <Route path="/signin" element={<SignInPage />} />
-      <Route path="/signup" element={<SignUpPage />} />
+      <Route path="/signin" element={<RedirectIfAuthenticated><SignInPage /></RedirectIfAuthenticated>} />
+      <Route path="/signup" element={<RedirectIfAuthenticated><SignUpPage /></RedirectIfAuthenticated>} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+
+      {/* Catch-all 404 */}
+      <Route element={<MainLayout />}>
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
     </Routes>
   );
 }

@@ -176,7 +176,7 @@ const Navbar: React.FC = () => {
         </div>
       </div>
       <div
-        className={`md:hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+        className={`md:hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0 overflow-hidden"
           }`}
       >
         <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-100">

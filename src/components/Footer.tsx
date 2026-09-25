@@ -66,8 +66,8 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Column 4: Follow Us */}
-          <div className="md:col-span-1">
+          {/* Column 4: Follow Us — hidden until real social URLs are added */}
+          <div className="md:col-span-1 hidden">
             <h3 className="text-lg font-bold text-white mb-4">Follow Us</h3>
             <div className="flex items-center gap-3">
               {/* Facebook — TODO: replace href with your Facebook page URL */}

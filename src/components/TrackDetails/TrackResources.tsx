@@ -7,12 +7,13 @@ interface TrackResourcesData {
 
 interface TrackResourcesProps {
   resources: TrackResourcesData;
+  trackTitle: string;
 }
 
-const TrackResources: React.FC<TrackResourcesProps> = ({ resources }) => {
+const TrackResources: React.FC<TrackResourcesProps> = ({ resources, trackTitle }) => {
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-2">Cyber Security Resources</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-2">{trackTitle} Resources</h2>
       <p className="text-gray-700 mb-8">All the materials you need — in one place</p>
 
       <div className="space-y-8">

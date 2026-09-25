@@ -13,7 +13,7 @@ function WhoWeAre() {
           <div className="absolute inset-0 z-20 flex items-center">
             <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white italic leading-tight max-w-2xl">
-                Not just a team — we're a family of growth..
+                Not just a team — we're a family of growth.
               </h1>
               <div className="mt-8">
                 <Link to="/signup" className="inline-block bg-primary text-white font-bold text-lg py-3 px-8 rounded-md hover:bg-primary-hover transition-colors duration-300 shadow-lg">
@@ -36,7 +36,7 @@ function WhoWeAre() {
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 font-family-poppins">
-              Who We're?
+              Who We Are
             </h2>
 
             <p className="text-base md:text-lg leading-relaxed text-gray-700 font-family-poppins font-semibold">
