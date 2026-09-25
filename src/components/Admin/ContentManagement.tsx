@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import * as api from "../../services/api";
 import type {
-  AuthUser,
   BackendTrack,
   BackendCourse,
   BackendEvent,
@@ -174,31 +173,6 @@ const TracksPanel: React.FC<{
     level: "all",
     published: false,
   });
-  const [instructors, setInstructors] = useState<AuthUser[]>([]);
-  const [instructorsLoading, setInstructorsLoading] = useState(false);
-
-  // Load instructors for the picker whenever the form opens, so newly
-  // promoted instructors show up without a page reload.
-  useEffect(() => {
-    if (!showForm) return;
-    let cancelled = false;
-    setInstructorsLoading(true);
-    api
-      .getAllUsers("role=instructor&limit=100&sort=name")
-      .then((res) => {
-        if (!cancelled) setInstructors(res.data?.users ?? []);
-      })
-      .catch(() => {
-        if (!cancelled) toast.error("Couldn't load instructors.");
-      })
-      .finally(() => {
-        if (!cancelled) setInstructorsLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [showForm]);
-
   const openCreate = () => {
     setEditingTrack(null);
     setForm({ title: "", description: "", level: "all", published: false });
@@ -212,7 +186,6 @@ const TracksPanel: React.FC<{
       description: t.description ?? "",
       level: (t.level as TrackPayload["level"]) ?? "all",
       published: t.published ?? false,
-      instructor: t.instructor?._id,
     });
     setShowForm(true);
   };
@@ -327,31 +300,6 @@ const TracksPanel: React.FC<{
                 <option value="beginner">Beginner</option>
                 <option value="intermediate">Intermediate</option>
                 <option value="advanced">Advanced</option>
-              </select>
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-neutral-darker">Instructor</label>
-              <select
-                id="track-instructor"
-                className={selectCls}
-                value={form.instructor ?? ""}
-                disabled={instructorsLoading}
-                onChange={(e) => setForm((f) => ({ ...f, instructor: e.target.value || undefined }))}
-              >
-                <option value="">{instructorsLoading ? "Loading instructors…" : "Not assigned"}</option>
-                {/* Keep the current instructor selectable even if they're no
-                    longer in the instructor list (e.g. an admin). */}
-                {editingTrack?.instructor &&
-                  !instructors.some((i) => i._id === editingTrack.instructor._id) && (
-                    <option value={editingTrack.instructor._id}>
-                      {editingTrack.instructor.name} ({editingTrack.instructor.role})
-                    </option>
-                  )}
-                {instructors.map((i) => (
-                  <option key={i._id} value={i._id}>
-                    {i.name} — {i.email}
-                  </option>
-                ))}
               </select>
             </div>
             <label className="flex items-center gap-2 text-sm font-semibold text-neutral-darker cursor-pointer">
