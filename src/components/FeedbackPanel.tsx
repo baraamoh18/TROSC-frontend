@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { FC } from "react";
-import { Star, UserCircle, Loader2 } from "lucide-react";
+import { Star, UserCircle, Loader2, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import * as api from "../services/api";
 import type { Review } from "../services/api";
@@ -20,11 +20,13 @@ const REVIEW_API: Record<
   {
     load: (id: string) => Promise<api.ReviewsResponse>;
     submit: (id: string, payload: api.ReviewPayload) => Promise<{ data: { review: Review } }>;
+    /** Absent for tracks: the API has no track-review delete endpoint. */
+    remove?: (id: string, reviewId: string) => Promise<void>;
   }
 > = {
   track: { load: api.getTrackReviews, submit: api.submitTrackReview },
-  course: { load: api.getCourseReviews, submit: api.submitCourseReview },
-  session: { load: api.getSessionReviews, submit: api.submitSessionReview },
+  course: { load: api.getCourseReviews, submit: api.submitCourseReview, remove: api.deleteCourseReview },
+  session: { load: api.getSessionReviews, submit: api.submitSessionReview, remove: api.deleteSessionReview },
 };
 
 const StarRating = ({
@@ -66,7 +68,9 @@ const StarRating = ({
   </div>
 );
 
-const ReviewCard = ({ review }: { review: Review }) => {
+const ReviewCard = ({ review, onDelete }: { review: Review; onDelete?: () => Promise<void> }) => {
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const date = new Date(review.createdAt).toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
@@ -104,6 +108,48 @@ const ReviewCard = ({ review }: { review: Review }) => {
           <span className="text-xs text-gray-400 ml-auto">{date}</span>
         </div>
         <p className="text-sm text-gray-700 leading-relaxed">{review.content}</p>
+        {onDelete && (
+          <div className="mt-2 flex items-center gap-2 text-xs">
+            {!confirming ? (
+              <button
+                type="button"
+                onClick={() => setConfirming(true)}
+                className="inline-flex items-center gap-1 font-semibold text-neutral-dark hover:text-primary-dark"
+              >
+                <Trash2 size={12} />
+                Delete my review
+              </button>
+            ) : (
+              <>
+                <span className="font-semibold text-primary-dark">Delete this review?</span>
+                <button
+                  type="button"
+                  disabled={deleting}
+                  onClick={async () => {
+                    setDeleting(true);
+                    try {
+                      await onDelete();
+                    } finally {
+                      setDeleting(false);
+                      setConfirming(false);
+                    }
+                  }}
+                  className="rounded-full bg-primary-dark px-3 py-1 font-bold text-white disabled:opacity-50"
+                >
+                  {deleting ? <Loader2 size={12} className="animate-spin" /> : "Yes"}
+                </button>
+                <button
+                  type="button"
+                  disabled={deleting}
+                  onClick={() => setConfirming(false)}
+                  className="rounded-full border border-neutral-light-active bg-white px-3 py-1 font-bold text-neutral-dark"
+                >
+                  No
+                </button>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -160,7 +206,14 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
         content: text.trim(),
       });
       toast.success("Thanks for your feedback!");
-      setReviews((prev) => [res.data.review, ...prev]);
+      // The submit response returns `user` as a bare id; fill in the
+      // reviewer so the new card shows a name and can be deleted.
+      const created = res.data.review;
+      const withUser: Review =
+        typeof created.user === "object" && created.user
+          ? created
+          : { ...created, user: { _id: user._id, name: user.name, photo: user.photo } };
+      setReviews((prev) => [withUser, ...prev]);
       setText("");
       setRating(0);
     } catch (err) {
@@ -260,9 +313,29 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
           </p>
         ) : (
           <div className="space-y-3">
-            {reviews.map((r) => (
-              <ReviewCard key={r._id} review={r} />
-            ))}
+            {reviews.map((r) => {
+              const remove = REVIEW_API[subject].remove;
+              const isMine = !!user && r.user?._id === user._id;
+              return (
+                <ReviewCard
+                  key={r._id}
+                  review={r}
+                  onDelete={
+                    remove && isMine
+                      ? async () => {
+                          try {
+                            await remove(subjectId, r._id);
+                            setReviews((prev) => prev.filter((x) => x._id !== r._id));
+                            toast.success("Review deleted.");
+                          } catch (err) {
+                            toast.error(err instanceof Error ? err.message : "Couldn't delete review.");
+                          }
+                        }
+                      : undefined
+                  }
+                />
+              );
+            })}
           </div>
         )}
       </div>

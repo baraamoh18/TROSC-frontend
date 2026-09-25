@@ -560,10 +560,18 @@ export function getSessionCatalogByTrack(
   return request<SessionCatalogResponse>("GET", `/tracks/${trackId}/session-catalog`);
 }
 
-export function markSessionWatched(
+export async function markSessionWatched(
   sessionId: string,
 ): Promise<{ status: string; data: { progress: BackendSession["myProgress"] } }> {
-  return request("PUT", `/sessions/${sessionId}/progress`, { status: "watched" });
+  try {
+    return await request("PUT", `/sessions/${sessionId}/progress`, { status: "watched" });
+  } catch (err) {
+    // The deployed API doesn't expose this route yet (404 for every method).
+    if (err instanceof ApiError && err.status === 404) {
+      throw new ApiError("Progress tracking isn't available yet.", 404);
+    }
+    throw err;
+  }
 }
 
 export function enrollInSession(
