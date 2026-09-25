@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import * as api from "../services/api";
 import { ApiError } from "../services/api";
 import type {
@@ -24,8 +24,8 @@ import TrackSchedule from "../components/TrackDetails/TrackSchedule";
 import TrackFeedback from "../components/TrackDetails/TrackFeedback";
 import Divider from "../components/Divider";
 import ComingSoonNotice from "../components/ComingSoonNotice";
-
-const BACKEND_PLACEHOLDER = "https://placehold.co/800x400?text=Trosc+Track";
+import { trackCoverImage, trackGradient } from "../utils/trackVisuals";
+import { smoothScrollToId } from "../utils/smoothScroll";
 
 /** Returns true only for valid 24-character hex MongoDB ObjectIds. */
 const isValidObjectId = (id: string) => /^[a-f\d]{24}$/i.test(id);
@@ -33,6 +33,7 @@ const isValidObjectId = (id: string) => /^[a-f\d]{24}$/i.test(id);
 const TrackDetailsPage = () => {
   const { trackId } = useParams<{ trackId: string }>();
   const { user, loading: authLoading } = useAuth();
+  const location = useLocation();
   const hasValidTrackId = !!trackId && isValidObjectId(trackId);
 
   // ── State ────────────────────────────────────────────────────
@@ -279,10 +280,22 @@ const TrackDetailsPage = () => {
 
   const heroTitle = liveTrack?.title ?? "Track";
   const heroSubtitle = liveTrack?.description ?? "";
-  const heroImage =
-    liveTrack && liveTrack.coverImage !== BACKEND_PLACEHOLDER
-      ? liveTrack.coverImage
-      : BACKEND_PLACEHOLDER;
+  const heroImage = trackCoverImage(liveTrack?.coverImage);
+  const isPending = !!user && user.pendingTrack === trackId;
+
+  // Hero call to action so visitors don't have to find the Overview sidebar.
+  // Enrolled/pending users manage their status in the Overview section.
+  const heroCtaCls =
+    "inline-block rounded-xl bg-primary px-6 py-3 font-bold text-white shadow-lg transition-colors hover:bg-primary-hover";
+  const heroAction = authLoading || !liveTrack ? null : !user ? (
+    <Link to="/signin" state={{ from: location }} className={heroCtaCls}>
+      Sign in to enroll
+    </Link>
+  ) : !isEnrolled && !isPending ? (
+    <button type="button" onClick={() => smoothScrollToId("overview", 140)} className={heroCtaCls}>
+      Join the Track
+    </button>
+  ) : null;
 
   const scheduleSummary = {
     nextSession: nextSessionLabel,
@@ -318,6 +331,8 @@ const TrackDetailsPage = () => {
         title={heroTitle}
         subtitle={heroSubtitle}
         image={heroImage}
+        gradient={trackGradient(trackId ?? "")}
+        action={heroAction}
         level={liveTrack?.level}
         studentCount={liveTrack?.studentCount}
       />

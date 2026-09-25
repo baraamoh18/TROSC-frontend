@@ -56,6 +56,9 @@ function SignInForm() {
           </label>
           <input
             id="email"
+            autoComplete="email"
+            aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? "email-error" : undefined}
             type="email"
             {...register("email", {
               required: "Email is required",
@@ -68,7 +71,7 @@ function SignInForm() {
             className="px-4 py-3 border-2 border-neutral-light-active rounded-full bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors"
           />
           {errors.email && (
-            <span className="text-xs text-red-600">{errors.email.message}</span>
+            <span id="email-error" role="alert" className="text-xs text-red-600">{errors.email.message}</span>
           )}
         </div>
 
@@ -82,6 +85,9 @@ function SignInForm() {
           </label>
           <PasswordInput
             id="password"
+            autoComplete="current-password"
+            aria-invalid={!!errors.password}
+            aria-describedby={errors.password ? "password-error" : undefined}
             {...register("password", {
               required: "Password is required",
               minLength: {
@@ -92,7 +98,7 @@ function SignInForm() {
             placeholder="Enter your password"
           />
           {errors.password && (
-            <span className="text-xs text-red-600">
+            <span id="password-error" role="alert" className="text-xs text-red-600">
               {errors.password.message}
             </span>
           )}

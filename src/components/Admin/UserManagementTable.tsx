@@ -139,7 +139,7 @@ const UserManagementTable: React.FC = () => {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-neutral-light-active bg-neutral-light">
-                <th className="px-4 py-3 text-left font-semibold text-neutral-dark">User</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold text-neutral-dark">User</th>
                 <th className="hidden px-4 py-3 text-left font-semibold text-neutral-dark sm:table-cell">
                   Email
                 </th>
@@ -161,7 +161,11 @@ const UserManagementTable: React.FC = () => {
                       ) : (
                         <UserCircle size={36} className="shrink-0 text-neutral" strokeWidth={1} />
                       )}
-                      <span className="font-semibold text-neutral-darker">{user.name}</span>
+                      <div className="min-w-0">
+                        <span className="font-semibold text-neutral-darker">{user.name}</span>
+                        {/* Email column is hidden on phones; show it here instead. */}
+                        <p className="truncate text-xs text-neutral-dark sm:hidden">{user.email}</p>
+                      </div>
                     </div>
                   </td>
                   <td className="hidden px-4 py-3 text-neutral-dark sm:table-cell">

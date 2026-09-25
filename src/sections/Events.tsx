@@ -20,6 +20,7 @@ const EventCard: React.FC<{ event: BackendEvent }> = ({ event }) => {
           {event.title}
         </h3>
         <p className="mb-3 text-sm font-semibold text-primary">
+          {!isUpcoming && "Past event · "}
           {dateLabel}
           {event.locationType === "offline" && event.locationAddress
             ? ` — ${event.locationAddress}`
@@ -56,16 +57,24 @@ const EventCard: React.FC<{ event: BackendEvent }> = ({ event }) => {
   );
 };
 
+const EVENT_SLOTS = 2;
+
 const Events: React.FC = () => {
   const [events, setEvents] = useState<BackendEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    api
-      .getEvents("sort=-createdAt&limit=2")
-      .then((res) => {
-        if (!cancelled) setEvents(res.data.events);
+    // Show the next upcoming events first, then fill the remaining slots
+    // with the most recent past events.
+    const now = encodeURIComponent(new Date().toISOString());
+    Promise.all([
+      api.getEvents(`sort=date&limit=${EVENT_SLOTS}&date[gte]=${now}`),
+      api.getEvents(`sort=-date&limit=${EVENT_SLOTS}&date[lt]=${now}`),
+    ])
+      .then(([upcoming, past]) => {
+        if (cancelled) return;
+        setEvents([...upcoming.data.events, ...past.data.events].slice(0, EVENT_SLOTS));
       })
       .catch(() => {
         // Keep empty array — section shows "nothing yet" message

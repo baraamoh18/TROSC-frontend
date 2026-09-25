@@ -47,8 +47,9 @@ const TrackTabs: React.FC = () => {
   };
 
   return (
-    <div className="border-b border-red-200 mt-6 sticky top-16 bg-gray-50 z-40">
-      <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+    <div className="border-b border-primary-light-active mt-6 sticky top-16 bg-gray-50 z-40">
+      {/* Scrolls horizontally on phones instead of overflowing the page. */}
+      <nav className="-mb-px flex space-x-6 sm:space-x-8 overflow-x-auto [scrollbar-width:none]" aria-label="Tabs">
         {tabs.map((tab) => (
           <button
             key={tab.name}
@@ -57,7 +58,7 @@ const TrackTabs: React.FC = () => {
               whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors
               ${
                 activeTab === tab.id
-                  ? "border-red-600 text-gray-900"
+                  ? "border-primary text-gray-900"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }
             `}

@@ -64,16 +64,15 @@ const CourseCard = ({ course }: { course: BackendCourse }) => {
   const hasSyllabus = course.syllabus && course.syllabus.length > 0;
 
   return (
-    <Link
-      to={`/courses/${course._id}`}
-      className="block rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:ring-1 hover:ring-primary/40"
-    >
+    // The title link stretches over the whole card (after:inset-0), so the
+    // card is clickable without nesting the syllabus button inside a link.
+    <div className="group relative rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:ring-1 hover:ring-primary/40">
       {/* Cover image or gradient fallback */}
       {course.coverImage &&
       course.coverImage !== "https://placehold.co/800x400?text=Trosc+Course" ? (
         <img
           src={course.coverImage}
-          alt={course.title}
+          alt=""
           className="w-full h-32 object-cover"
         />
       ) : (
@@ -90,7 +89,12 @@ const CourseCard = ({ course }: { course: BackendCourse }) => {
         </div>
 
         <h3 className="font-bold text-gray-900 mb-1 leading-snug group-hover:text-primary transition-colors">
-          {course.title}
+          <Link
+            to={`/courses/${course._id}`}
+            className="after:absolute after:inset-0 after:content-[''] focus:outline-none focus-visible:underline"
+          >
+            {course.title}
+          </Link>
         </h3>
 
         {course.description && (
@@ -129,15 +133,11 @@ const CourseCard = ({ course }: { course: BackendCourse }) => {
 
         {/* Syllabus accordion */}
         {hasSyllabus && (
-          <div>
+          <div className="relative z-10">
             <button
               type="button"
-              onClick={(e) => {
-                // The whole card is a link — keep the accordion click from navigating.
-                e.preventDefault();
-                e.stopPropagation();
-                setSyllabusOpen((o) => !o);
-              }}
+              aria-expanded={syllabusOpen}
+              onClick={() => setSyllabusOpen((o) => !o)}
               className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-hover transition-colors"
             >
               {syllabusOpen ? (
@@ -170,7 +170,7 @@ const CourseCard = ({ course }: { course: BackendCourse }) => {
           </div>
         )}
       </div>
-    </Link>
+    </div>
   );
 };
 

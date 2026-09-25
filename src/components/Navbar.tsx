@@ -115,13 +115,13 @@ const Navbar: React.FC = () => {
           <div className="flex-shrink-0">
             <img src={TroscLogo} alt="Trosc Logo" className="h-30 w-auto" />
           </div>
-          <div className="absolute left-1/2 transform -translate-x-1/2 hidden md:flex space-x-10">
+          <div className="absolute left-1/2 transform -translate-x-1/2 hidden lg:flex space-x-8 xl:space-x-10">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 to={link.href}
                 onClick={(e) => handleNavClick(e, link.href)}
-                className={`text-base font-medium transition-colors duration-300 relative ${activeLink === link.href
+                className={`text-base font-medium whitespace-nowrap transition-colors duration-300 relative ${activeLink === link.href
                     ? "text-gray-900"
                     : "text-gray-600 hover:text-gray-900"
                   }`}
@@ -134,7 +134,14 @@ const Navbar: React.FC = () => {
             ))}
           </div>
           <div className="flex items-center gap-3">
-            {!loading && user ? (
+            {loading ? (
+              // Placeholder while the session check runs, so signed-in users
+              // don't see "Log In" flash before their avatar appears.
+              <div
+                className="hidden sm:block h-10 w-28 animate-pulse rounded-full bg-gray-200"
+                aria-hidden="true"
+              />
+            ) : user ? (
               <div className="hidden sm:flex items-center gap-3">
                 {user.role === "admin" ? (
                   <Link
@@ -167,7 +174,7 @@ const Navbar: React.FC = () => {
             )}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden text-gray-600 hover:text-gray-900 transition-colors duration-300"
+              className="lg:hidden text-gray-600 hover:text-gray-900 transition-colors duration-300"
               aria-label={isOpen ? "Close menu" : "Open menu"}
             >
               {isOpen ? <X size={28} /> : <Menu size={28} />}
@@ -176,7 +183,7 @@ const Navbar: React.FC = () => {
         </div>
       </div>
       <div
-        className={`md:hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+        className={`lg:hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0 overflow-hidden"
           }`}
       >
         <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-100">

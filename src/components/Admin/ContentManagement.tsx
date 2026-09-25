@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useId, useState } from "react";
 import toast from "react-hot-toast";
 import {
   Plus,
@@ -13,6 +13,7 @@ import {
   Pencil,
 } from "lucide-react";
 import * as api from "../../services/api";
+import SharedModal from "../Modal";
 import type {
   BackendTrack,
   BackendCourse,
@@ -139,23 +140,25 @@ const Modal: React.FC<{ title: string; onClose: () => void; children: React.Reac
   title,
   onClose,
   children,
-}) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
-    <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+}) => {
+  const titleId = useId();
+  return (
+    <SharedModal onClose={onClose} labelledBy={titleId} className="max-w-md p-6">
       <div className="mb-5 flex items-center justify-between">
-        <h3 className="text-lg font-bold text-neutral-darker">{title}</h3>
+        <h3 id={titleId} className="text-lg font-bold text-neutral-darker">{title}</h3>
         <button
           type="button"
           onClick={onClose}
+          aria-label="Close"
           className="rounded-full p-1.5 text-neutral hover:bg-neutral-light"
         >
           <X size={18} />
         </button>
       </div>
       {children}
-    </div>
-  </div>
-);
+    </SharedModal>
+  );
+};
 
 // ── Tracks panel ──────────────────────────────────────────────
 

@@ -77,6 +77,16 @@ const UpcomingEventCard = ({ event }: { event: BackendEvent }) => {
             ? ` — ${event.locationAddress}`
             : ""}
         </h3>
+        <p className="mb-0.5 text-sm font-semibold text-primary">
+          {new Date(event.date).toLocaleString(undefined, {
+            weekday: "short",
+            month: "long",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+          })}
+          {event.locationType === "online" ? " · Online" : ""}
+        </p>
         <span className="text-xs text-neutral-dark">{countdown}</span>
       </div>
       <RsvpButton event={event} />

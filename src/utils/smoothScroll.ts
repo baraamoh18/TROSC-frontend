@@ -26,6 +26,12 @@ export function smoothScrollToY(targetY: number, duration = DURATION): void {
   // Nothing to scroll
   if (Math.abs(distance) < 1) return;
 
+  // Respect the user's reduced-motion preference: jump instead of animating.
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+    window.scrollTo(0, targetY);
+    return;
+  }
+
   const startTime = performance.now();
 
   function step(now: number) {

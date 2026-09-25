@@ -44,6 +44,9 @@ const ResetPasswordForm = ({ onSubmit }: ResetPasswordFormProps) => {
           </label>
           <PasswordInput
             id="newPassword"
+            autoComplete="new-password"
+            aria-invalid={!!errors.newPassword}
+            aria-describedby={errors.newPassword ? "newPassword-error" : undefined}
             {...register("newPassword", {
               required: "New password is required",
               minLength: {
@@ -55,7 +58,7 @@ const ResetPasswordForm = ({ onSubmit }: ResetPasswordFormProps) => {
             className="bg-white"
           />
           {errors.newPassword && (
-            <span className="text-xs text-red-600">
+            <span id="newPassword-error" role="alert" className="text-xs text-red-600">
               {errors.newPassword.message}
             </span>
           )}
@@ -71,6 +74,9 @@ const ResetPasswordForm = ({ onSubmit }: ResetPasswordFormProps) => {
           </label>
           <PasswordInput
             id="confirmPassword"
+            autoComplete="new-password"
+            aria-invalid={!!errors.confirmPassword}
+            aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
             {...register("confirmPassword", {
               required: "Please confirm your password",
               validate: (value) =>
@@ -80,7 +86,7 @@ const ResetPasswordForm = ({ onSubmit }: ResetPasswordFormProps) => {
             className="bg-white"
           />
           {errors.confirmPassword && (
-            <span className="text-xs text-red-600">
+            <span id="confirmPassword-error" role="alert" className="text-xs text-red-600">
               {errors.confirmPassword.message}
             </span>
           )}

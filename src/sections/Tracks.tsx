@@ -1,31 +1,18 @@
 import { useState, useEffect, useCallback } from "react";
 import { X, Loader2 } from "lucide-react";
 import TrackCard from "./trackCard";
+import Modal from "../components/Modal";
+import { trackCoverImage, trackGradient } from "../utils/trackVisuals";
 import * as api from "../services/api";
 import type { BackendTrack } from "../services/api";
 import type { TrackItem } from "../data/tracksData";
 
 // Placeholder URL used by the backend when no cover image is set
-const BACKEND_PLACEHOLDER = "https://placehold.co/800x400?text=Trosc+Track";
-
-// Stable gradient per ObjectId: hash first char for colour bucket
-const GRADIENTS = [
-  "linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%)",
-  "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
-  "linear-gradient(135deg, #16a34a 0%, #14532d 100%)",
-  "linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%)",
-  "linear-gradient(135deg, #ea580c 0%, #9a3412 100%)",
-  "linear-gradient(135deg, #0d9488 0%, #134e4a 100%)",
-];
-
 function mapTrack(t: BackendTrack): TrackItem {
-  const hasRealImage = t.coverImage && t.coverImage !== BACKEND_PLACEHOLDER;
-  // Derive a stable gradient from the ObjectId's last character
-  const bucket = parseInt(t._id.slice(-1), 16) % GRADIENTS.length;
   return {
     id: t._id,
-    imageUrl: hasRealImage ? t.coverImage : undefined,
-    gradient: GRADIENTS[bucket],
+    imageUrl: trackCoverImage(t.coverImage),
+    gradient: trackGradient(t._id),
     title: t.title,
     description: t.description,
   };
@@ -100,37 +87,18 @@ const AllTracksModal = ({
     fetchPage(1);
   }, [fetchPage]);
 
-  // Lock body scroll
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-    };
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    document.addEventListener("keydown", handleKey);
-    return () => {
-      document.body.style.overflow = prev;
-      document.removeEventListener("keydown", handleKey);
-    };
-  }, [close]);
-
   const hasMore = tracks.length < total;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) close();
-      }}
-      role="dialog"
-      aria-modal="true"
-      aria-label="All tracks"
+    <Modal
+      onClose={close}
+      labelledBy="all-tracks-title"
+      className="max-w-5xl max-h-[90vh] flex flex-col"
     >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
           <div>
-            <h2 className="text-2xl font-extrabold text-gray-900">All Tracks</h2>
+            <h2 id="all-tracks-title" className="text-2xl font-extrabold text-gray-900">All Tracks</h2>
             {!initialLoading && (
               <p className="text-sm text-gray-500 mt-0.5">
                 {total} track{total !== 1 ? "s" : ""} available — pick your path
@@ -195,8 +163,7 @@ const AllTracksModal = ({
             </>
           )}
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

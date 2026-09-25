@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 import * as api from "../../services/api";
 import type { BackendAssignment, Submission } from "../../services/api";
 import { useAuth } from "../../context/useAuth";
+import Modal from "../Modal";
 
 // ── Submission status badge ───────────────────────────────────
 
@@ -105,19 +106,20 @@ const SubmitModal = ({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+    <Modal
+      onClose={() => {
+        if (!submitting) onClose();
       }}
+      labelledBy="submit-assignment-title"
+      className="max-w-md p-6"
     >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-gray-900">
+          <h3 id="submit-assignment-title" className="text-lg font-bold text-gray-900">
             {assignment.mySubmission ? "Resubmit Assignment" : "Submit Assignment"}
           </h3>
           <button
             onClick={onClose}
+            aria-label="Close"
             className="p-1.5 rounded-full text-gray-500 hover:bg-gray-100"
           >
             <X size={18} />
@@ -207,8 +209,7 @@ const SubmitModal = ({
             Cancel
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

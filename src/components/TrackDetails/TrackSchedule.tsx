@@ -53,7 +53,7 @@ const TrackSchedule: React.FC<TrackScheduleProps> = ({ upcoming }) => {
         </table>
       </div>
 
-      <div className="border-b border-red-200 mt-12 mb-12 max-w-3xl"></div>
+      <div className="border-b border-primary-light-active mt-12 mb-12 max-w-3xl"></div>
     </div>
   );
 };

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { LogOut, Settings, UserRound, GraduationCap, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -10,8 +11,9 @@ import { isDefaultPhoto } from "../utils/photoUtils";
  * to the TROSC palette: primary red #e83b3b, primary-dark #ae2c2c,
  * neutral greys, Poppins.
  *
- * The pill shows the user's avatar + first name; hovering (or focusing)
- * reveals three circular icon actions: Profile, Settings, Log out.
+ * The pill shows the user's avatar + first name; hovering, focusing or
+ * clicking/tapping it reveals three circular icon actions: Profile,
+ * Settings, Log out. Escape or a click outside closes it.
  */
 
 const UserDropdown = ({ user, onLogout }: { user: AuthUser; onLogout: () => void }) => {
@@ -22,11 +24,45 @@ const UserDropdown = ({ user, onLogout }: { user: AuthUser; onLogout: () => void
   // If they are staff and it's a default/generated photo, show fallback
   const isDefault = isDefaultPhoto(user.photo);
   const showPhoto = user.photo && (!isStaff || !isDefault);
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        // Move focus off the menu so :focus-within doesn't keep it visible.
+        (document.activeElement as HTMLElement | null)?.blur();
+      }
+    };
+    const handlePointer = (e: PointerEvent) => {
+      if (!containerRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("keydown", handleKey);
+    document.addEventListener("pointerdown", handlePointer);
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      document.removeEventListener("pointerdown", handlePointer);
+    };
+  }, [open]);
+
+  const choose = (action: () => void) => {
+    setOpen(false);
+    (document.activeElement as HTMLElement | null)?.blur();
+    action();
+  };
 
   return (
     <StyledWrapper>
-      <div className="dropdown-container">
-        <button type="button" className="dropdown-button" aria-haspopup="menu">
+      <div ref={containerRef} className={`dropdown-container${open ? " open" : ""}`}>
+        <button
+          type="button"
+          className="dropdown-button"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          onClick={() => setOpen((o) => !o)}
+        >
           {showPhoto ? (
             <img className="avatar" src={user.photo} alt="" />
           ) : (
@@ -44,7 +80,7 @@ const UserDropdown = ({ user, onLogout }: { user: AuthUser; onLogout: () => void
               className="menu-icon icon-profile"
               title="My profile"
               aria-label="My profile"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => choose(() => navigate("/dashboard"))}
             >
               <UserRound size={18} />
             </button>
@@ -53,7 +89,7 @@ const UserDropdown = ({ user, onLogout }: { user: AuthUser; onLogout: () => void
               className="menu-icon icon-settings"
               title="Settings"
               aria-label="Settings"
-              onClick={() => navigate("/settings")}
+              onClick={() => choose(() => navigate("/settings"))}
             >
               <Settings size={18} />
             </button>
@@ -62,7 +98,7 @@ const UserDropdown = ({ user, onLogout }: { user: AuthUser; onLogout: () => void
               className="menu-icon icon-logout"
               title="Log out"
               aria-label="Log out"
-              onClick={onLogout}
+              onClick={() => choose(onLogout)}
             >
               <LogOut size={18} />
             </button>
@@ -224,7 +260,8 @@ const StyledWrapper = styled.div`
   }
 
   .dropdown-container:hover .dropdown-content,
-  .dropdown-container:focus-within .dropdown-content {
+  .dropdown-container:focus-within .dropdown-content,
+  .dropdown-container.open .dropdown-content {
     opacity: 1;
     visibility: visible;
     transform: scale(1);

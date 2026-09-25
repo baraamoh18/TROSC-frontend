@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import * as api from "../../services/api";
 import type { BackendTrack } from "../../services/api";
 import { useAuth } from "../../context/useAuth";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 interface ScheduleSummary {
   nextSession: string;
@@ -28,6 +28,7 @@ const TrackOverview = ({
   resourcesSummary,
 }: TrackOverviewProps) => {
   const { user, loading: authLoading, refreshUser } = useAuth();
+  const location = useLocation();
   const [enrolling, setEnrolling] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
@@ -89,6 +90,7 @@ const TrackOverview = ({
       return (
         <Link
           to="/signin"
+          state={{ from: location }}
           className="block w-full text-center bg-primary hover:bg-primary-hover text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-md"
         >
           Sign in to enroll
@@ -101,8 +103,7 @@ const TrackOverview = ({
       return (
         <div className="space-y-2">
           <div
-            className="rounded-xl px-4 py-3 font-bold text-center text-white shadow-md flex items-center justify-center gap-2"
-            style={{ background: "linear-gradient(135deg, #10b77f, #059669)" }}
+            className="rounded-xl px-4 py-3 font-bold text-center text-white shadow-md flex items-center justify-center gap-2 bg-gradient-to-br from-emerald-500 to-emerald-600"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
