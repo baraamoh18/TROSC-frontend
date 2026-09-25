@@ -486,10 +486,26 @@ export interface PendingListResponse {
   };
 }
 
-export function getTrackPending(
+/**
+ * Pending join and leave requests for a track. The deployed API returns
+ * join requests from /pending and leave requests from a separate /leaves
+ * endpoint, so fetch both and merge them.
+ */
+export async function getTrackPending(
   trackId: string,
 ): Promise<PendingListResponse> {
-  return request<PendingListResponse>("GET", `/tracks/${trackId}/pending`);
+  const [pending, leaves] = await Promise.all([
+    request<PendingListResponse>("GET", `/tracks/${trackId}/pending`),
+    request<{ data?: { pendingLeaves?: AuthUser[] } }>("GET", `/tracks/${trackId}/leaves`)
+      .catch(() => null),
+  ]);
+  return {
+    ...pending,
+    data: {
+      ...pending.data,
+      pendingLeaves: leaves?.data?.pendingLeaves ?? pending.data?.pendingLeaves ?? [],
+    },
+  };
 }
 
 export function approveEnrollment(
