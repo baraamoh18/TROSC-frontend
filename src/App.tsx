@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate, useParams } from "react-router-dom";
 
 import MainLayout from "./layout/MainLayout";
 import MainLayoutNoFooter from "./layout/MainLayoutNoFooter";
@@ -26,6 +26,13 @@ const SessionViewerPage = lazy(() => import("./pages/SessionViewerPage"));
 const CourseDetailsPage = lazy(() => import("./pages/CourseDetailsPage"));
 const InstructorDashboardPage = lazy(() => import("./pages/InstructorDashboardPage"));
 const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
+const EventDetailsPage = lazy(() => import("./pages/EventDetailsPage"));
+
+/** Old or guessed links: /tracks/:id → /track/:id */
+const TracksRedirect = () => {
+  const { trackId } = useParams<{ trackId: string }>();
+  return <Navigate to={`/track/${trackId}`} replace />;
+};
 
 const PageFallback = () => (
   <div className="flex min-h-screen items-center justify-center pt-16" aria-busy="true">
@@ -44,7 +51,9 @@ function App() {
       <Route element={<MainLayout />}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/track/:trackId" element={<TrackDetailsPage />} />
+        <Route path="/tracks/:trackId" element={<TracksRedirect />} />
         <Route path="/courses/:courseId" element={<CourseDetailsPage />} />
+        <Route path="/events/:eventId" element={<EventDetailsPage />} />
       </Route>
 
       {/* Pages with Navbar only (no Footer) */}

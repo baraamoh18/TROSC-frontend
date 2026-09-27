@@ -4,6 +4,7 @@ import { Star, UserCircle, Loader2, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import * as api from "../services/api";
 import type { Review } from "../services/api";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { ApiError } from "../services/api";
 import { isDefaultPhoto } from "../utils/photoUtils";
@@ -158,6 +159,7 @@ const ReviewCard = ({ review, onDelete }: { review: Review; onDelete?: () => Pro
 /** Rating + written review form and review list for a track, course or session. */
 const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
   const { user } = useAuth();
+  const location = useLocation();
   const [text, setText] = useState("");
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -231,7 +233,19 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
 
   return (
     <div className="space-y-8">
-      {/* Submit form */}
+      {/* Signed out: no form they can't use, just a way in */}
+      {!user ? (
+        <div className="flex flex-col items-start gap-3 rounded-2xl border border-gray-200 bg-gray-100 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-gray-700">Sign in to rate and review this {subject}.</p>
+          <Link
+            to="/signin"
+            state={{ from: location }}
+            className="rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-hover"
+          >
+            Sign in
+          </Link>
+        </div>
+      ) : (
       <div className="bg-gray-100 rounded-2xl p-6 md:p-8 shadow-sm border border-gray-200">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Your Feedback Matters
@@ -294,6 +308,7 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
           </div>
         </div>
       </div>
+      )}
 
       {/* Reviews list */}
       <div>
@@ -309,7 +324,7 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
           </div>
         ) : reviews.length === 0 ? (
           <p className="text-gray-500 text-sm">
-            No reviews yet — be the first!
+            {user ? "No reviews yet. Be the first!" : "No reviews yet."}
           </p>
         ) : (
           <div className="space-y-3">

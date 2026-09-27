@@ -121,13 +121,25 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
           value={stats.totalEvents}
           accent="#8e44ad"
         />
-        <StatCard
-          icon={<TrendingUp size={20} />}
-          label="Avg Completion"
-          value={completionPct}
-          sub="across all tracks"
-          accent="#27ae60"
-        />
+        {/* Avg completion stays hidden until the backend computes it from
+            session progress; it has only ever reported 0%. */}
+        {stats.avgCompletionRate > 0 ? (
+          <StatCard
+            icon={<TrendingUp size={20} />}
+            label="Avg Completion"
+            value={completionPct}
+            sub="across all tracks"
+            accent="#27ae60"
+          />
+        ) : (
+          <StatCard
+            icon={<TrendingUp size={20} />}
+            label="Submissions"
+            value={stats.totalSubmissions ?? 0}
+            sub={`across ${stats.totalAssignments ?? 0} assignments`}
+            accent="#27ae60"
+          />
+        )}
       </div>
 
       {mostActiveId && (

@@ -357,7 +357,7 @@ const TrackDetailsPage = () => {
               track={liveTrack}
               overview={heroSubtitle || "No overview available yet."}
               scheduleSummary={scheduleSummary}
-              resourcesSummary={[]}
+              courseCount={courses.length}
             />
 
           </section>

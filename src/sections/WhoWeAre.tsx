@@ -1,7 +1,9 @@
 import TeamPic from '../../assets/teamwork.webp';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/useAuth';
 
 function WhoWeAre() {
+  const { user } = useAuth();
   return (
     <>
       {/* Hero Section */}
@@ -12,12 +14,15 @@ function WhoWeAre() {
 
           <div className="absolute inset-0 z-20 flex items-center">
             <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white italic leading-tight max-w-2xl">
-                Not just a team — we're a family of growth.
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-tight max-w-2xl">
+                Not just a team. A family of growth.
               </h1>
               <div className="mt-8">
-                <Link to="/signup" className="inline-block bg-primary text-white font-bold text-lg py-3 px-8 rounded-md hover:bg-primary-hover transition-colors duration-300 shadow-lg">
-                  Join our Family
+                <Link
+                  to={user ? "/dashboard" : "/signup"}
+                  className="inline-block bg-primary text-white font-bold text-lg py-3 px-8 rounded-md hover:bg-primary-hover transition-colors duration-300 shadow-lg"
+                >
+                  {user ? "Go to my dashboard" : "Join our family"}
                 </Link>
               </div>
             </div>
@@ -25,7 +30,7 @@ function WhoWeAre() {
 
           <img
             src={TeamPic}
-            alt="Trosc Team"
+            alt="TROSC members together at a team meetup"
             className="w-full h-full object-cover object-center"
           />
         </div>

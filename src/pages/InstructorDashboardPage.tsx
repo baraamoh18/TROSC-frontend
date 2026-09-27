@@ -7,6 +7,7 @@ import type { AuthUser, BackendTrack } from "../services/api";
 import { useAuth } from "../context/useAuth";
 import PendingApprovals from "../components/Instructor/PendingApprovals";
 import usePageTitle from "../hooks/usePageTitle";
+import usePendingCounts from "../hooks/usePendingCounts";
 
 const InstructorDashboardPage = () => {
   usePageTitle("Instructor Dashboard");
@@ -29,6 +30,7 @@ const InstructorDashboardPage = () => {
   const [pendingLeaves, setPendingLeaves] = useState<AuthUser[]>([]);
   const [pendingLoading, setPendingLoading] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const { counts: pendingCounts, setCount: setPendingCount } = usePendingCounts(tracks);
 
   // Tracks owned by the signed-in instructor.
   const fetchTracks = useCallback(async () => {
@@ -63,8 +65,11 @@ const InstructorDashboardPage = () => {
     setPendingLoading(true);
     try {
       const res = await api.getTrackPending(trackId);
-      setPendingStudents(res.data?.pendingStudents ?? []);
-      setPendingLeaves(res.data?.pendingLeaves ?? []);
+      const students = res.data?.pendingStudents ?? [];
+      const leaves = res.data?.pendingLeaves ?? [];
+      setPendingStudents(students);
+      setPendingLeaves(leaves);
+      setPendingCount(trackId, students.length + leaves.length);
     } catch {
       setPendingStudents([]);
       setPendingLeaves([]);
@@ -72,7 +77,7 @@ const InstructorDashboardPage = () => {
     } finally {
       setPendingLoading(false);
     }
-  }, []);
+  }, [setPendingCount]);
 
   useEffect(() => {
     if (selectedTrackId) fetchPending(selectedTrackId);
@@ -202,7 +207,7 @@ const InstructorDashboardPage = () => {
                     }`}
                   >
                     {track.title}
-                    {track.pendingStudents.length > 0 && (
+                    {(pendingCounts[track._id] ?? 0) > 0 && (
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                           isActive
@@ -210,7 +215,7 @@ const InstructorDashboardPage = () => {
                             : "bg-primary-light text-primary-dark"
                         }`}
                       >
-                        {track.pendingStudents.length}
+                        {pendingCounts[track._id]}
                       </span>
                     )}
                   </button>

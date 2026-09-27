@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { KeyRound } from "lucide-react";
 
 interface ForgotPasswordData {
   email: string;
@@ -19,7 +20,9 @@ const ForgotPasswordForm = ({ onSubmit }: ForgotPasswordFormProps) => {
   return (
     <div className="w-full max-w-md bg-neutral-light px-8 py-12 rounded-3xl shadow-lg font-family-poppins">
       <div className="flex justify-center mb-6">
-        <div className="text-5xl">🔐</div>
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-light text-primary">
+          <KeyRound size={28} aria-hidden="true" />
+        </div>
       </div>
 
       <h1 className="text-2xl font-bold text-neutral-darker text-center mb-2">

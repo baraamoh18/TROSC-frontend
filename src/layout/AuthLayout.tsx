@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -8,7 +9,14 @@ interface AuthLayoutProps {
 
 const AuthLayout: React.FC<AuthLayoutProps> = ({ children, logo }) => {
   return (
-    <div className="w-full min-h-[calc(100vh-80px)] bg-white">
+    <div className="relative w-full min-h-screen bg-neutral-light lg:bg-white">
+      <Link
+        to="/"
+        className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-neutral-dark transition-colors hover:text-neutral-darker sm:left-6 sm:top-6"
+      >
+        <ArrowLeft size={16} aria-hidden="true" />
+        Back to TROSC
+      </Link>
       <div className="w-full h-full grid grid-cols-1 lg:grid-cols-2">
         <div className="hidden lg:flex flex-col items-center justify-center bg-white px-8 py-12">
           <Link to="/" className="text-center">
@@ -16,15 +24,9 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, logo }) => {
               {logo ? (
                 <img src={logo} alt="TROSC Logo" className="w-1 lg:w-[28rem] mx-auto cursor-pointer" />
               ) : (
-                <>
-                  <h1 className="text-5xl lg:text-6xl font-black text-primary mb-2 cursor-pointer">
-                    TROSC
-                  </h1>
-                  <div className="flex justify-center gap-2 text-sm text-neutral-dark">
-                    <span>⚙️</span>
-                    <span>⚙️</span>
-                  </div>
-                </>
+                <p className="text-5xl lg:text-6xl font-black text-primary mb-2 cursor-pointer">
+                  TROSC
+                </p>
               )}
             </div>
 
@@ -36,7 +38,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, logo }) => {
         </div>
 
         {/* Right Section - Form */}
-        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-6 py-12 lg:py-0 bg-neutral-light lg:bg-white">
+        <div className="flex flex-col items-center justify-center min-h-screen px-6 pt-20 pb-12 lg:py-0 bg-neutral-light lg:bg-white">
           {children}
         </div>
       </div>

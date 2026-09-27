@@ -4,6 +4,7 @@ import ForgotPasswordForm from "../components/ForgotPasswordForm";
 import TroscLogo from "../../assets/Trosc4x1.png";
 import * as api from "../services/api";
 import { Link } from "react-router-dom";
+import { MailCheck } from "lucide-react";
 import toast from "react-hot-toast";
 import usePageTitle from "../hooks/usePageTitle";
 
@@ -30,7 +31,11 @@ const ForgotPasswordPage = () => {
     <AuthLayout logo={TroscLogo}>
       {sent ? (
         <div className="w-full max-w-md bg-neutral-light px-8 py-12 rounded-3xl shadow-lg font-family-poppins text-center">
-          <div className="text-5xl mb-6">📧</div>
+          <div className="mb-6 flex justify-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-light text-primary">
+              <MailCheck size={28} aria-hidden="true" />
+            </div>
+          </div>
           <h1 className="text-2xl font-bold text-neutral-darker mb-2">
             Check Your Email
           </h1>

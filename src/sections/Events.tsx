@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import * as api from "../services/api";
 import type { BackendEvent } from "../services/api";
 import RsvpButton from "../components/RsvpButton";
-
-const PLACEHOLDER_IMAGE = "https://placehold.co/800x400?text=Trosc+Event";
+import EventCover from "../components/EventCover";
 
 const EventCard: React.FC<{ event: BackendEvent }> = ({ event }) => {
   const dateLabel = new Date(event.date).toLocaleDateString(undefined, {
@@ -23,35 +23,27 @@ const EventCard: React.FC<{ event: BackendEvent }> = ({ event }) => {
           {!isUpcoming && "Past event · "}
           {dateLabel}
           {event.locationType === "offline" && event.locationAddress
-            ? ` — ${event.locationAddress}`
+            ? ` · ${event.locationAddress}`
             : event.locationType === "online"
-              ? " — Online"
+              ? " · Online"
               : ""}
         </p>
         <p className="mb-7 whitespace-pre-line text-base leading-8 text-neutral-dark">
           {event.description}
         </p>
         <div className="flex flex-wrap items-center gap-4">
-          {event.locationLink && (
-            <a
-              href={event.locationLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-lg font-bold text-white transition-colors duration-300 hover:bg-primary-hover"
-            >
-              See More
-            </a>
-          )}
+          <Link
+            to={`/events/${event._id}`}
+            className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-lg font-bold text-white transition-colors duration-300 hover:bg-primary-hover"
+          >
+            {isUpcoming ? "View details" : "See what happened"}
+          </Link>
           {isUpcoming && <RsvpButton event={event} />}
         </div>
       </div>
 
       <div className="w-full">
-        <img loading="lazy"
-          src={event.coverImage || PLACEHOLDER_IMAGE}
-          alt={event.title}
-          className="h-[220px] w-full rounded-2xl object-cover shadow-md md:h-[260px]"
-        />
+        <EventCover event={event} className="h-[220px] md:h-[260px]" />
       </div>
     </article>
   );
@@ -100,7 +92,7 @@ const Events: React.FC = () => {
           </div>
         ) : events.length === 0 ? (
           <p className="text-center text-neutral-dark text-lg">
-            No events yet — check back soon!
+            No events yet. Check back soon!
           </p>
         ) : (
           <div className="space-y-14">

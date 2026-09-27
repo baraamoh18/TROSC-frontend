@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import * as api from "../services/api";
 import type { BackendEvent } from "../services/api";
 import RsvpButton from "../components/RsvpButton";
@@ -72,9 +73,11 @@ const UpcomingEventCard = ({ event }: { event: BackendEvent }) => {
     <article className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-neutral-light-active bg-white px-5 py-5 shadow-[0_4px_16px_rgba(0,0,0,0.12)] sm:flex-row sm:items-center sm:px-6">
       <div className="text-left">
         <h3 className="mb-1 text-lg font-bold text-neutral-darker md:text-xl">
-          {event.title}
+          <Link to={`/events/${event._id}`} className="hover:text-primary transition-colors">
+            {event.title}
+          </Link>
           {event.locationType === "offline" && event.locationAddress
-            ? ` — ${event.locationAddress}`
+            ? ` · ${event.locationAddress}`
             : ""}
         </h3>
         <p className="mb-0.5 text-sm font-semibold text-primary">

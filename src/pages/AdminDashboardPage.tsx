@@ -10,6 +10,7 @@ import StatsOverview from "../components/Admin/StatsOverview";
 import UserManagementTable from "../components/Admin/UserManagementTable";
 import ContentManagement from "../components/Admin/ContentManagement";
 import usePageTitle from "../hooks/usePageTitle";
+import usePendingCounts from "../hooks/usePendingCounts";
 
 type Tab = "overview" | "tracks" | "content" | "users";
 
@@ -53,6 +54,7 @@ const AdminDashboardPage = () => {
   const [pendingLeaves, setPendingLeaves] = useState<AuthUser[]>([]);
   const [pendingLoading, setPendingLoading] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const { counts: pendingCounts, setCount: setPendingCount } = usePendingCounts(tracks);
 
   const fetchTracks = useCallback(async () => {
     setTracksLoading(true);
@@ -70,8 +72,11 @@ const AdminDashboardPage = () => {
     setPendingLoading(true);
     try {
       const res = await api.getTrackPending(trackId);
-      setPendingStudents(res.data?.pendingStudents ?? []);
-      setPendingLeaves(res.data?.pendingLeaves ?? []);
+      const students = res.data?.pendingStudents ?? [];
+      const leaves = res.data?.pendingLeaves ?? [];
+      setPendingStudents(students);
+      setPendingLeaves(leaves);
+      setPendingCount(trackId, students.length + leaves.length);
     } catch {
       setPendingStudents([]);
       setPendingLeaves([]);
@@ -79,7 +84,7 @@ const AdminDashboardPage = () => {
     } finally {
       setPendingLoading(false);
     }
-  }, []);
+  }, [setPendingCount]);
 
   // ── Bootstrap ─────────────────────────────────────────────
   useEffect(() => {
@@ -267,7 +272,7 @@ const AdminDashboardPage = () => {
                         }`}
                       >
                         {track.title}
-                        {track.pendingStudents.length > 0 && (
+                        {(pendingCounts[track._id] ?? 0) > 0 && (
                           <span
                             className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                               isActive
@@ -275,7 +280,7 @@ const AdminDashboardPage = () => {
                                 : "bg-primary-light text-primary-dark"
                             }`}
                           >
-                            {track.pendingStudents.length}
+                            {pendingCounts[track._id]}
                           </span>
                         )}
                       </button>

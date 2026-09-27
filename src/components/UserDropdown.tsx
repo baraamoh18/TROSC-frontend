@@ -8,7 +8,7 @@ import { isDefaultPhoto } from "../utils/photoUtils";
 /**
  * Hover dropdown for the navbar's signed-in area, adapted from the
  * pre-styled "tooltip" component and recolored
- * to the TROSC palette: primary red #e83b3b, primary-dark #ae2c2c,
+ * to the TROSC palette: primary red #d32f2f, primary-dark #ae2c2c,
  * neutral greys, Poppins.
  *
  * The pill shows the user's avatar + first name; hovering, focusing or
@@ -123,7 +123,7 @@ const StyledWrapper = styled.div`
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: linear-gradient(135deg, #e83b3b, #ae2c2c);
+    background: linear-gradient(135deg, #d32f2f, #ae2c2c);
     color: white;
     padding: 7px 16px 7px 8px;
     border: none;
@@ -173,7 +173,7 @@ const StyledWrapper = styled.div`
   }
 
   .dropdown-button:hover {
-    background: linear-gradient(135deg, #ae2c2c, #e83b3b);
+    background: linear-gradient(135deg, #ae2c2c, #d32f2f);
     box-shadow: 0 8px 18px rgba(232, 59, 59, 0.35);
     transform: translateY(-2px) scale(1.03);
   }
@@ -197,7 +197,7 @@ const StyledWrapper = styled.div`
     align-items: center;
     justify-content: center;
     background: white;
-    color: #e83b3b;
+    color: #d32f2f;
     flex-shrink: 0;
   }
 
@@ -332,11 +332,11 @@ const StyledWrapper = styled.div`
   }
 
   .icon-profile:hover {
-    background: linear-gradient(135deg, #e83b3b, #d13535);
+    background: linear-gradient(135deg, #d32f2f, #b92828);
   }
 
   .icon-admin:hover {
-    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    background: linear-gradient(135deg, #8b2323, #511515);
   }
 
   .icon-instructor:hover {
@@ -364,7 +364,7 @@ const StyledWrapper = styled.div`
   }
 
   .menu-icon:focus-visible {
-    outline: 2px solid #e83b3b;
+    outline: 2px solid #d32f2f;
     outline-offset: 2px;
   }
 

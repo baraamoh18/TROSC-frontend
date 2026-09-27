@@ -104,7 +104,7 @@ const Navbar: React.FC = () => {
     { name: "Home", href: "/#home" },
     { name: "Tracks", href: "/#tracks" },
     { name: "Events", href: "/#events" },
-    { name: "Up-Coming Events", href: "/#upcoming-events" },
+    { name: "Upcoming Events", href: "/#upcoming-events" },
     { name: "Contact us", href: "/contact" },
   ];
 
@@ -113,7 +113,9 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative flex items-center justify-between h-16">
           <div className="flex-shrink-0">
-            <img src={TroscLogo} alt="Trosc Logo" className="h-30 w-auto" />
+            <Link to="/" onClick={(e) => handleNavClick(e, "/#home")} aria-label="TROSC home">
+              <img src={TroscLogo} alt="" className="h-30 w-auto" />
+            </Link>
           </div>
           <div className="absolute left-1/2 transform -translate-x-1/2 hidden lg:flex space-x-8 xl:space-x-10">
             {navLinks.map((link) => (
@@ -176,6 +178,8 @@ const Navbar: React.FC = () => {
               onClick={() => setIsOpen(!isOpen)}
               className="lg:hidden text-gray-600 hover:text-gray-900 transition-colors duration-300"
               aria-label={isOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isOpen}
+              aria-controls="mobile-menu"
             >
               {isOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
@@ -183,7 +187,8 @@ const Navbar: React.FC = () => {
         </div>
       </div>
       <div
-        className={`lg:hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+        id="mobile-menu"
+        className={`lg:hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-screen opacity-100" : "invisible max-h-0 opacity-0 overflow-hidden"
           }`}
       >
         <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-100">

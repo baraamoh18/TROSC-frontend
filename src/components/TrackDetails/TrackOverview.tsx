@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, BookOpen, GraduationCap, BarChart3, Users, Layers, LogOut } from "lucide-react";
+import { Calendar, GraduationCap, BarChart3, Users, Layers, LogOut, Settings } from "lucide-react";
 import toast from "react-hot-toast";
 import * as api from "../../services/api";
 import type { BackendTrack } from "../../services/api";
@@ -17,7 +17,8 @@ interface TrackOverviewProps {
   track: BackendTrack | null;
   overview: string;
   scheduleSummary: ScheduleSummary;
-  resourcesSummary: string[];
+  /** Number of courses actually listed on the page; track.courseCount can lag. */
+  courseCount?: number;
 }
 
 const TrackOverview = ({
@@ -25,7 +26,7 @@ const TrackOverview = ({
   track,
   overview,
   scheduleSummary,
-  resourcesSummary,
+  courseCount,
 }: TrackOverviewProps) => {
   const { user, loading: authLoading, refreshUser } = useAuth();
   const location = useLocation();
@@ -80,6 +81,8 @@ const TrackOverview = ({
   const isLeavePending =
     isEnrolled && (leaveRequested || (!!user && !!track?.pendingLeaves?.includes(user._id)));
 
+  const hasSchedule = Object.values(scheduleSummary).some((v) => v && v !== "TBA");
+
   const renderEnrollAction = () => {
     if (authLoading) {
       return (
@@ -100,6 +103,19 @@ const TrackOverview = ({
           className="block w-full text-center bg-primary hover:bg-primary-hover text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-md"
         >
           Sign in to enroll
+        </Link>
+      );
+    }
+
+    // ── Staff: manage, never join or leave ─────────────────────
+    if (user.role === "admin" || user.role === "instructor") {
+      return (
+        <Link
+          to={user.role === "admin" ? "/admin" : "/instructor"}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-neutral-darker px-4 py-3 font-bold text-white shadow-md transition-colors hover:bg-black"
+        >
+          <Settings size={17} aria-hidden="true" />
+          Manage track
         </Link>
       );
     }
@@ -127,7 +143,7 @@ const TrackOverview = ({
           </div>
           {isLeavePending ? (
             <p className="rounded-xl bg-amber-50 px-3 py-2 text-center text-sm font-medium text-amber-800">
-              Leave requested — waiting for approval
+              Leave requested, waiting for approval
             </p>
           ) : !showLeaveConfirm ? (
             <button
@@ -227,7 +243,7 @@ const TrackOverview = ({
               </li>
               <li className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-primary shrink-0" />
-                <span>Courses: {track.courseCount}</span>
+                <span>Courses: {courseCount ?? track.courseCount}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-primary shrink-0" />
@@ -237,6 +253,7 @@ const TrackOverview = ({
           </div>
         )}
 
+        {hasSchedule && (
         <div className="bg-gray-100 rounded-xl p-5 border border-gray-200">
           <h3 className="text-lg font-bold flex items-center gap-2 mb-4">
             <Calendar className="w-5 h-5 text-gray-700" />
@@ -269,21 +286,7 @@ const TrackOverview = ({
             </div>
           </div>
         </div>
-
-        <div className="bg-gray-100 rounded-xl p-5 border border-gray-200">
-          <h3 className="text-lg font-bold flex items-center gap-2 mb-4">
-            <BookOpen className="w-5 h-5 text-gray-700" />
-            Resources
-          </h3>
-          <ul className="space-y-2 text-sm text-gray-800">
-            {resourcesSummary.map((res, index) => (
-              <li key={index} className="flex items-start gap-2">
-                <span className="text-primary mt-1">•</span>
-                <span>{res}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -9,9 +9,11 @@
   --color-primary-light: #fce8eb;
   --color-primary-light-hover: #fce2e2;
   --color-primary-light-active: #f8c2c2;
-  --color-primary: #e83b3b;
-  --color-primary-hover: #d13535;
-  --color-primary-active: #ba2f2f;
+  /* Darker than the logo red (#e83b3b) so white text on buttons passes
+     WCAG AA (5.0:1); the logo artwork keeps the original red. */
+  --color-primary: #d32f2f;
+  --color-primary-hover: #b92828;
+  --color-primary-active: #a02222;
   --color-primary-dark: #ae2c2c;
   --color-primary-dark-hover: #8b2323;
   --color-primary-dark-active: #681b1b;
@@ -24,8 +26,16 @@
   --color-neutral: #b6b6b6;
   --color-neutral-hover: #a4a4a4;
   --color-neutral-active: #929292;
-  --color-neutral-dark: #898989;
-  --color-neutral-dark-hover: #6d6d6d;
-  --color-neutral-dark-active: #525252;
+  /* Secondary text colour: 5.3:1 on white (was #898989, 3.5:1) */
+  --color-neutral-dark: #6b6b6b;
+  --color-neutral-dark-hover: #595959;
+  --color-neutral-dark-active: #474747;
   --color-neutral-darker: #404040;
+}
+
+/* One typeface everywhere; pages used to opt in one by one. */
+@layer base {
+  html {
+    font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  }
 }
