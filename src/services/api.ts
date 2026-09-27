@@ -167,6 +167,8 @@ export interface BackendSession {
     status: "not_started" | "watched";
     watchedAt?: string | null;
   };
+  /** GET /sessions/track/:id returns raw progress entries instead of myProgress. */
+  progress?: { student: string; status: "not_started" | "watched"; watchedAt?: string | null }[];
   createdAt?: string;
   updatedAt?: string;
 }
