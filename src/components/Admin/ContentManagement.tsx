@@ -17,6 +17,7 @@ import {
 import * as api from "../../services/api";
 import SharedModal from "../Modal";
 import type {
+  AuthUser,
   BackendTrack,
   BackendCourse,
   BackendEvent,
@@ -180,6 +181,18 @@ const TracksPanel: React.FC<{
     level: "all",
     published: false,
   });
+  // Instructors and admins the track can be assigned to (admin-only field).
+  const [staff, setStaff] = useState<AuthUser[]>([]);
+  useEffect(() => {
+    if (!showForm || staff.length > 0) return;
+    Promise.all([
+      api.getAllUsers("role=instructor&limit=100&sort=name"),
+      api.getAllUsers("role=admin&limit=100&sort=name"),
+    ])
+      .then(([i, a]) => setStaff([...(i.data?.users ?? []), ...(a.data?.users ?? [])]))
+      .catch(() => setStaff([]));
+  }, [showForm, staff.length]);
+
   const openCreate = () => {
     setEditingTrack(null);
     setForm({ title: "", description: "", level: "all", published: false });
@@ -193,6 +206,7 @@ const TracksPanel: React.FC<{
       description: t.description ?? "",
       level: (t.level as TrackPayload["level"]) ?? "all",
       published: t.published ?? false,
+      instructor: t.instructor?._id,
     });
     setShowForm(true);
   };
@@ -274,7 +288,7 @@ const TracksPanel: React.FC<{
         >
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="mb-1 block text-sm font-semibold text-neutral-darker">Title *</label>
+              <label htmlFor="track-title" className="mb-1 block text-sm font-semibold text-neutral-darker">Title *</label>
               <input
                 id="track-title"
                 type="text"
@@ -285,7 +299,7 @@ const TracksPanel: React.FC<{
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-semibold text-neutral-darker">Description *</label>
+              <label htmlFor="track-desc" className="mb-1 block text-sm font-semibold text-neutral-darker">Description *</label>
               <textarea
                 id="track-desc"
                 rows={3}
@@ -296,7 +310,7 @@ const TracksPanel: React.FC<{
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-semibold text-neutral-darker">Level</label>
+              <label htmlFor="track-level" className="mb-1 block text-sm font-semibold text-neutral-darker">Level</label>
               <select
                 id="track-level"
                 className={selectCls}
@@ -309,6 +323,22 @@ const TracksPanel: React.FC<{
                 <option value="advanced">Advanced</option>
               </select>
             </div>
+            <div>
+              <label htmlFor="track-instructor" className="mb-1 block text-sm font-semibold text-neutral-darker">Instructor</label>
+              <select
+                id="track-instructor"
+                className={selectCls}
+                value={form.instructor ?? ""}
+                onChange={(e) => setForm((f) => ({ ...f, instructor: e.target.value || undefined }))}
+              >
+                <option value="">{editingTrack ? "Keep current instructor" : "Me (default)"}</option>
+                {staff.map((u) => (
+                  <option key={u._id} value={u._id}>
+                    {u.name} · {u.role === "admin" ? "Admin" : "Instructor"}
+                  </option>
+                ))}
+              </select>
+            </div>
             <label className="flex items-center gap-2 text-sm font-semibold text-neutral-darker cursor-pointer">
               <input
                 type="checkbox"
@@ -316,7 +346,7 @@ const TracksPanel: React.FC<{
                 onChange={(e) => setForm((f) => ({ ...f, published: e.target.checked }))}
                 className="h-4 w-4 rounded accent-primary"
               />
-              Publish immediately
+              {editingTrack ? "Published" : "Publish immediately"}
             </label>
             <div className="flex gap-3 pt-2">
               <button
@@ -501,7 +531,7 @@ const CoursesPanel: React.FC<{
               <input type="checkbox" checked={form.published}
                 onChange={(e) => setForm((f) => ({ ...f, published: e.target.checked }))}
                 className="h-4 w-4 rounded accent-primary" />
-              Publish immediately
+              {editingCourse ? "Published" : "Publish immediately"}
             </label>
             <div className="flex gap-3 pt-2">
               <button type="submit" disabled={saving}

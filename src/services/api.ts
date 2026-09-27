@@ -165,7 +165,7 @@ export interface BackendSession {
   /** Present only for an enrolled requester. The server remains authoritative. */
   myProgress?: {
     status: "not_started" | "watched";
-    watchedAt?: string;
+    watchedAt?: string | null;
   };
   createdAt?: string;
   updatedAt?: string;
@@ -178,6 +178,7 @@ export interface SessionCatalogItem {
   description?: string;
   startDate?: string;
   duration?: number;
+  instructor?: { _id: string; name: string };
 }
 
 export interface SyllabusItem {
@@ -253,13 +254,18 @@ export interface BackendAnnouncement {
 }
 
 export interface Submission {
-  student: string;
+  /** Bare id on learner endpoints; populated on GET /assignments/:id (staff) */
+  student: string | { _id: string; name: string; email?: string; photo?: string };
   /** Safe learner-facing metadata. Never expose a Drive file ID or URL. */
-  fileName: string;
+  fileName?: string;
   fileSize?: number;
   mimeType?: string;
+  /** Staff view only: open the file through submissionFileUrl() */
+  hasFile?: boolean;
   submittedAt: string;
-  grade?: number;
+  /** Cleared by the API when the student resubmits */
+  grade?: number | null;
+  feedback?: string | null;
 }
 
 export interface BackendAssignment {
@@ -438,8 +444,8 @@ export interface TrackPayload {
   description: string;
   level?: "beginner" | "intermediate" | "advanced" | "all";
   published?: boolean;
-  // No `instructor` field: the deployed backend rejects it with
-  // 400 "instructor" is not allowed, on both create and update.
+  /** Admin only: user id of an instructor or admin. Ignored for other roles. */
+  instructor?: string;
 }
 
 export function createTrack(
@@ -578,13 +584,12 @@ export function getSessionCatalogByTrack(
 
 export async function markSessionWatched(
   sessionId: string,
-): Promise<{ status: string; data: { progress: BackendSession["myProgress"] } }> {
+): Promise<{ status: string; data: { myProgress: NonNullable<BackendSession["myProgress"]> } }> {
   try {
     return await request("PUT", `/sessions/${sessionId}/progress`, { status: "watched" });
   } catch (err) {
-    // The deployed API doesn't expose this route yet (404 for every method).
-    if (err instanceof ApiError && err.status === 404) {
-      throw new ApiError("Progress tracking isn't available yet.", 404);
+    if (err instanceof ApiError && err.status === 403) {
+      throw new ApiError("Join this session's track to track your progress.", 403);
     }
     throw err;
   }
@@ -826,18 +831,14 @@ export interface WeeklyTasksResponse {
   data: { weeklyTasks: WeeklyTask[] };
 }
 
-// The deployed API returns the list as `data.tasks`; older builds used
-// `data.weeklyTasks`. Normalise so callers always get `data.weeklyTasks`.
+// The API returns the list as `data.tasks`; callers read `data.weeklyTasks`.
 async function getWeeklyTasks(path: string): Promise<WeeklyTasksResponse> {
   const res = await request<{
     status: string;
     results: number;
-    data?: { weeklyTasks?: WeeklyTask[]; tasks?: WeeklyTask[] };
+    data?: { tasks?: WeeklyTask[] };
   }>("GET", path);
-  return {
-    ...res,
-    data: { weeklyTasks: res.data?.weeklyTasks ?? res.data?.tasks ?? [] },
-  };
+  return { ...res, data: { weeklyTasks: res.data?.tasks ?? [] } };
 }
 
 export function getWeeklyTasksByTrack(
@@ -903,6 +904,28 @@ export function getAssignmentsBySession(
     "GET",
     `/sessions/${sessionId}/assignments`,
   );
+}
+
+/** Staff only: one assignment with populated submissions. */
+export function getAssignment(assignmentId: string): Promise<AssignmentResponse> {
+  return request<AssignmentResponse>("GET", `/assignments/${assignmentId}`);
+}
+
+/** Staff only. `studentId` is the student's user id. Feedback is up to 2000 chars. */
+export function gradeSubmission(
+  assignmentId: string,
+  studentId: string,
+  payload: { grade: number; feedback?: string },
+): Promise<{ status: string }> {
+  return request("PATCH", `/assignments/${assignmentId}/submissions/${studentId}/grade`, payload);
+}
+
+/**
+ * Staff only. The endpoint answers with a 302 to the stored file, so use the
+ * URL as a link target (new tab) and never fetch() it.
+ */
+export function submissionFileUrl(assignmentId: string, studentId: string): string {
+  return `${API_BASE}/assignments/${assignmentId}/submissions/${studentId}/file`;
 }
 
 export interface AssignmentUploadResponse {

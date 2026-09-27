@@ -51,7 +51,7 @@ const SubmissionBadge = ({
   return (
     <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700">
       <CheckSquare className="w-3 h-3" />
-      Submitted
+      Submitted · awaiting grade
     </span>
   );
 };
@@ -137,6 +137,12 @@ const SubmitModal = ({
             day: "numeric",
           })}
         </p>
+        {assignment.mySubmission?.grade != null && (
+          <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            Resubmitting clears your current grade and feedback until your
+            instructor grades the new file.
+          </p>
+        )}
 
         <input
           ref={inputRef}
@@ -290,6 +296,15 @@ const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
                     <p className="mt-2 text-xs text-gray-500">
                       Submitted file: {assignment.mySubmission.fileName}
                     </p>
+                  )}
+
+                  {assignment.mySubmission?.feedback && (
+                    <div className="mt-3 rounded-lg border-l-4 border-primary bg-neutral-light px-3 py-2">
+                      <p className="text-xs font-semibold text-neutral-darker">Instructor feedback</p>
+                      <p className="mt-0.5 whitespace-pre-line text-sm text-neutral-dark">
+                        {assignment.mySubmission.feedback}
+                      </p>
+                    </div>
                   )}
                 </div>
 

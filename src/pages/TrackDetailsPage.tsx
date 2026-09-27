@@ -205,10 +205,17 @@ const TrackDetailsPage = () => {
     });
   }, [sessions]);
 
+  // Members and staff get the full session list with watch links; everyone
+  // else sees the public catalog with a "members only" note.
+  const canWatchSessions =
+    !!user &&
+    (user.enrolledTrack === trackId || user.role === "admin" || user.role === "instructor");
+
   // PDFs come from each session's resources[] attachments;
   // Recordings are sessions that have a primary URL (video/embed) and link
   // to the session viewer, which handles access checks and progress.
   const trackResources = useMemo(() => {
+    if (!canWatchSessions) return { pdfs: [], recordings: [] };
     const pdfs = sortedSessions.flatMap((s) =>
       (s.resources ?? [])
         .filter((r) => !!r.url)
@@ -218,7 +225,7 @@ const TrackDetailsPage = () => {
       .filter((s) => !!s.url)
       .map((s) => ({ sessionId: s._id, title: s.title }));
     return { pdfs, recordings };
-  }, [sortedSessions]);
+  }, [sortedSessions, canWatchSessions]);
 
   // Derive schedule from sessions with a startDate
   const scheduleItems = useMemo(() => {
@@ -366,24 +373,21 @@ const TrackDetailsPage = () => {
 
           {/* Sessions */}
           <section id="sessions" className="scroll-mt-32">
-            {!user && !authLoading ? (
+            {authLoading ? null : canWatchSessions && !sessionsUnauthorized ? (
+              <TrackSessionsTable
+                sessions={sortedSessions}
+                canWatch
+                signedIn
+                isEnrolled={isEnrolled}
+                onWatched={handleSessionWatched}
+              />
+            ) : (
               <TrackSessionsTable
                 sessions={[]}
                 catalogSessions={sessionCatalog}
                 canWatch={false}
+                signedIn={!!user}
                 isEnrolled={false}
-              />
-            ) : sessionsUnauthorized ? (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Sessions</h2>
-                <ComingSoonNotice message="Sign in to view this track's sessions." />
-              </div>
-            ) : (
-              <TrackSessionsTable
-                sessions={sortedSessions}
-                canWatch={!!user}
-                isEnrolled={isEnrolled}
-                onWatched={handleSessionWatched}
               />
             )}
           </section>
@@ -395,7 +399,15 @@ const TrackDetailsPage = () => {
             {trackResources.pdfs.length === 0 && trackResources.recordings.length === 0 ? (
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">{heroTitle} Resources</h2>
-                <ComingSoonNotice message="Track resources will appear here once sessions have attached materials." />
+                <ComingSoonNotice
+                  message={
+                    canWatchSessions
+                      ? "Track resources will appear here once sessions have attached materials."
+                      : user
+                        ? "Join this track to see its recordings and materials."
+                        : "Sign in and join this track to see its recordings and materials."
+                  }
+                />
               </div>
             ) : (
               <TrackResources resources={trackResources} trackTitle={heroTitle} />

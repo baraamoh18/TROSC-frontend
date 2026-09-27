@@ -6,6 +6,7 @@ import {
   CalendarDays,
   Clock,
   FileText,
+  Lock,
   UserCircle,
   Video,
 } from "lucide-react";
@@ -97,12 +98,18 @@ const SessionViewerPage = () => {
   // The API may return a bare id or a populated track doc here.
   const firstTrack = session.tracks?.[0];
   const trackId = typeof firstTrack === "string" ? firstTrack : firstTrack?._id;
-  // GET /sessions/:id omits myProgress when there's no progress record yet,
-  // so also treat members of any of the session's tracks as enrolled —
-  // the same rule the track page uses.
+  // The API returns myProgress only to enrolled callers; track and direct
+  // session membership are checked too in case it's missing.
   const sessionTrackIds = (session.tracks ?? []).map((t) => (typeof t === "string" ? t : t._id));
   const canTrackProgress =
-    !!session.myProgress || (!!user?.enrolledTrack && sessionTrackIds.includes(user.enrolledTrack));
+    !!session.myProgress ||
+    (!!user?.enrolledTrack && sessionTrackIds.includes(user.enrolledTrack)) ||
+    !!user?.enrolledSessions?.includes(session._id);
+  const isStaff = user?.role === "admin" || user?.role === "instructor";
+  // The API strips url/embedUrl for callers without access, so no link here
+  // means "members only" unless the session is public or the caller is staff.
+  const isLocked =
+    !session.embedUrl && !session.url && session.access !== "public" && !canTrackProgress && !isStaff;
   const dateLabel = session.startDate
     ? new Date(session.startDate).toLocaleString(undefined, {
         dateStyle: "medium",
@@ -149,6 +156,34 @@ const SessionViewerPage = () => {
             >
               Open session content
             </a>
+          </div>
+        ) : isLocked ? (
+          <div className="flex aspect-video w-full flex-col items-center justify-center gap-3 rounded-2xl bg-neutral-light-active px-6 text-center">
+            <Lock size={28} className="text-neutral-dark" aria-hidden="true" />
+            <p className="font-bold text-neutral-darker">This session is for track members</p>
+            <p className="max-w-sm text-sm text-neutral-dark">
+              {user
+                ? "Join the track to watch the recording and track your progress."
+                : "Sign in and join the track to watch the recording."}
+            </p>
+            {user ? (
+              trackId && (
+                <Link
+                  to={`/track/${trackId}`}
+                  className="rounded-lg bg-primary-dark px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark-hover"
+                >
+                  View the track
+                </Link>
+              )
+            ) : (
+              <Link
+                to="/signin"
+                state={{ from: { pathname: `/sessions/${session._id}` } }}
+                className="rounded-lg bg-primary-dark px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark-hover"
+              >
+                Sign in
+              </Link>
+            )}
           </div>
         ) : (
           <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-neutral-light-active text-neutral-dark">
@@ -205,17 +240,10 @@ const SessionViewerPage = () => {
                 <ProgressToggle
                   sessionId={session._id}
                   initialWatched={session.myProgress?.status === "watched"}
-                  onWatched={() =>
+                  watchedAt={session.myProgress?.watchedAt}
+                  onWatched={(watchedAt) =>
                     setSession((prev) =>
-                      prev
-                        ? {
-                            ...prev,
-                            myProgress: {
-                              status: "watched",
-                              watchedAt: new Date().toISOString(),
-                            },
-                          }
-                        : prev,
+                      prev ? { ...prev, myProgress: { status: "watched", watchedAt } } : prev,
                     )
                   }
                 />

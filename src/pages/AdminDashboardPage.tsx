@@ -352,7 +352,7 @@ const AdminDashboardPage = () => {
           />
         )}
 
-        {activeTab === "users" && <UserManagementTable />}
+        {activeTab === "users" && <UserManagementTable currentUserId={user?._id} />}
       </div>
     </div>
   );

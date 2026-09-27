@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Check, Circle, Loader2, PlayCircle } from "lucide-react";
+import { Check, Circle, Loader2, Lock, PlayCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import * as api from "../../services/api";
 import type { BackendSession, SessionCatalogItem } from "../../services/api";
@@ -8,7 +8,9 @@ import type { BackendSession, SessionCatalogItem } from "../../services/api";
 interface TrackSessionsTableProps {
   sessions: BackendSession[];
   catalogSessions?: SessionCatalogItem[];
+  /** Members and staff: full sessions with watch links */
   canWatch: boolean;
+  signedIn: boolean;
   isEnrolled: boolean;
   onWatched?: (sessionId: string) => void;
 }
@@ -21,12 +23,13 @@ const formatDuration = (duration?: number): string =>
 
 const isFullSession = (
   session: BackendSession | SessionCatalogItem,
-): session is BackendSession => "instructor" in session;
+): session is BackendSession => "access" in session;
 
 const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
   sessions,
   catalogSessions = [],
   canWatch,
+  signedIn,
   isEnrolled,
   onWatched,
 }) => {
@@ -70,7 +73,10 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
         </Link>
       )}
       {!canWatch && (
-        <p className="mt-2 text-xs font-medium text-gray-500">Sign in to watch</p>
+        <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-gray-500">
+          <Lock className="h-3 w-3" aria-hidden="true" />
+          {signedIn ? "Members only" : "Sign in to watch"}
+        </p>
       )}
       {isEnrolled && isFullSession(session) && (
         <button
@@ -93,7 +99,7 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
   );
 
   const instructorName = (session: BackendSession | SessionCatalogItem) =>
-    isFullSession(session) ? session.instructor?.name ?? "TBA" : "—";
+    ("instructor" in session ? session.instructor?.name : undefined) ?? "TBA";
 
   return (
     <div>

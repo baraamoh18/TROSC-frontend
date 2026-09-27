@@ -6,8 +6,10 @@ import * as api from "../../services/api";
 interface ProgressToggleProps {
   sessionId: string;
   initialWatched: boolean;
-  /** Notifies the parent so it can sync its own session list state. */
-  onWatched?: () => void;
+  /** ISO date from myProgress.watchedAt, shown next to "Watched" */
+  watchedAt?: string | null;
+  /** Notifies the parent with the server's watchedAt. */
+  onWatched?: (watchedAt: string) => void;
 }
 
 /**
@@ -18,6 +20,7 @@ interface ProgressToggleProps {
 const ProgressToggle = ({
   sessionId,
   initialWatched,
+  watchedAt,
   onWatched,
 }: ProgressToggleProps) => {
   const [watched, setWatched] = useState(initialWatched);
@@ -27,9 +30,9 @@ const ProgressToggle = ({
     if (watched || marking) return;
     setMarking(true);
     try {
-      await api.markSessionWatched(sessionId);
+      const res = await api.markSessionWatched(sessionId);
       setWatched(true);
-      onWatched?.();
+      onWatched?.(res.data?.myProgress?.watchedAt ?? new Date().toISOString());
       toast.success("Session marked as watched.");
     } catch (err) {
       toast.error(
@@ -58,7 +61,13 @@ const ProgressToggle = ({
       ) : (
         <Circle size={16} />
       )}
-      {watched ? "Watched" : marking ? "Marking..." : "Mark as watched"}
+      {watched
+        ? watchedAt
+          ? `Watched · ${new Date(watchedAt).toLocaleDateString(undefined, { dateStyle: "medium" })}`
+          : "Watched"
+        : marking
+          ? "Marking..."
+          : "Mark as watched"}
     </button>
   );
 };

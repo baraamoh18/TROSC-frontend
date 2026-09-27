@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import {
   UserCircle,
@@ -9,6 +9,8 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  UserX,
+  UserCheck,
 } from "lucide-react";
 import * as api from "../../services/api";
 import { isDefaultPhoto } from "../../utils/photoUtils";
@@ -43,21 +45,80 @@ const RoleBadge: React.FC<{ role: AuthUser["role"] }> = ({ role }) => {
   );
 };
 
+/** Two-step button: the first click arms it, a second within 4 s confirms. */
+const ConfirmButton: React.FC<{
+  label: string;
+  confirmLabel: string;
+  icon: React.ReactNode;
+  disabled: boolean;
+  busy: boolean;
+  danger?: boolean;
+  onConfirm: () => void;
+}> = ({ label, confirmLabel, icon, disabled, busy, danger, onConfirm }) => {
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    if (!armed) return;
+    const t = setTimeout(() => setArmed(false), 4000);
+    return () => clearTimeout(t);
+  }, [armed]);
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={() => {
+        if (armed) {
+          setArmed(false);
+          onConfirm();
+        } else setArmed(true);
+      }}
+      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+        armed && danger
+          ? "border-primary-dark bg-primary-dark text-white"
+          : armed
+            ? "border-neutral-darker bg-neutral-darker text-white"
+            : "border-neutral-light-active bg-white text-neutral-dark hover:bg-neutral-light"
+      }`}
+    >
+      {busy ? <Loader2 size={12} className="animate-spin" /> : icon}
+      {armed ? confirmLabel : label}
+    </button>
+  );
+};
+
 const PAGE_SIZE = 15;
 
-const UserManagementTable: React.FC = () => {
+type StatusFilter = "active" | "inactive";
+
+const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUserId }) => {
   const [users, setUsers] = useState<AuthUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState<StatusFilter>("active");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
 
-  const fetchUsers = async (pg = 1) => {
+  // Wait for a pause in typing before asking the server.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setQuery(search.trim());
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const q = `limit=${PAGE_SIZE}&page=${pg}&sort=-createdAt`;
-      const res = await api.getAllUsers(q);
+      const params = new URLSearchParams({
+        limit: String(PAGE_SIZE),
+        page: String(page),
+        sort: "-createdAt",
+      });
+      if (query) params.set("search", query);
+      if (status === "inactive") params.set("active", "false");
+      const res = await api.getAllUsers(params.toString());
       setUsers(res.data?.users ?? []);
       setTotal(res.total ?? 0);
     } catch {
@@ -66,11 +127,24 @@ const UserManagementTable: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, query, status]);
 
   useEffect(() => {
-    void fetchUsers(page);
-  }, [page]);
+    void fetchUsers();
+  }, [fetchUsers]);
+
+  const handleSetActive = async (userId: string, name: string, active: boolean) => {
+    setBusyId(userId);
+    try {
+      await api.updateUserAdmin(userId, { active });
+      toast.success(active ? `${name} was reactivated.` : `${name} was deactivated.`);
+      await fetchUsers();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Update failed.");
+    } finally {
+      setBusyId(null);
+    }
+  };
 
   const handleChangeRole = async (
     userId: string,
@@ -81,22 +155,13 @@ const UserManagementTable: React.FC = () => {
     try {
       await api.updateUserAdmin(userId, { role });
       toast.success(`${name} is now ${role === "instructor" ? "an instructor" : "a student"}.`);
-      await fetchUsers(page);
+      await fetchUsers();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Role change failed.");
     } finally {
       setBusyId(null);
     }
   };
-
-  // Client-side name/email filter over the current page only: the backend's
-  // GET /users doesn't apply ?search= yet, so server-side search needs a
-  // backend change first.
-  const filtered = users.filter(
-    (u) =>
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase()),
-  );
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
@@ -118,7 +183,20 @@ const UserManagementTable: React.FC = () => {
             className="w-full rounded-full border border-neutral-light-active bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>
-        <span className="shrink-0 text-sm text-neutral-dark">
+        <label htmlFor="user-status" className="sr-only">Show</label>
+        <select
+          id="user-status"
+          value={status}
+          onChange={(e) => {
+            setStatus(e.target.value as StatusFilter);
+            setPage(1);
+          }}
+          className="shrink-0 rounded-full border border-neutral-light-active bg-white px-3 py-2.5 text-sm font-semibold text-neutral-darker focus:border-primary focus:outline-none"
+        >
+          <option value="active">Active</option>
+          <option value="inactive">Deactivated</option>
+        </select>
+        <span className="hidden shrink-0 text-sm text-neutral-dark sm:inline">
           {total} user{total !== 1 ? "s" : ""}
         </span>
       </div>
@@ -130,9 +208,13 @@ const UserManagementTable: React.FC = () => {
             <div key={i} className="h-14 animate-pulse rounded-xl bg-gray-200" />
           ))}
         </div>
-      ) : filtered.length === 0 ? (
+      ) : users.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-10 text-center text-sm text-neutral-dark">
-          No users found.
+          {query
+            ? `No ${status === "inactive" ? "deactivated " : ""}users match "${query}".`
+            : status === "inactive"
+              ? "No deactivated users."
+              : "No users found."}
         </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-neutral-light-active bg-white shadow-sm">
@@ -148,7 +230,7 @@ const UserManagementTable: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filtered.map((user) => (
+              {users.map((user) => (
                 <tr key={user._id} className="transition-colors hover:bg-neutral-light/50">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
@@ -180,6 +262,17 @@ const UserManagementTable: React.FC = () => {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="inline-flex flex-wrap items-center justify-end gap-2">
+                    {status === "inactive" ? (
+                      <ConfirmButton
+                        label="Reactivate"
+                        confirmLabel="Confirm reactivate"
+                        icon={<UserCheck size={12} />}
+                        disabled={busyId !== null}
+                        busy={busyId === user._id}
+                        onConfirm={() => handleSetActive(user._id, user.name, true)}
+                      />
+                    ) : (
+                    <>
                     {user.role === "student" && (
                       <button
                         type="button"
@@ -210,11 +303,22 @@ const UserManagementTable: React.FC = () => {
                         Make Student
                       </button>
                     )}
+                    {user.role !== "admin" && user._id !== currentUserId && (
+                      <ConfirmButton
+                        label="Deactivate"
+                        confirmLabel="Confirm deactivate"
+                        icon={<UserX size={12} />}
+                        danger
+                        disabled={busyId !== null}
+                        busy={false}
+                        onConfirm={() => handleSetActive(user._id, user.name, false)}
+                      />
+                    )}
                     {user.role === "admin" && (
                       <span className="text-xs text-neutral">—</span>
                     )}
-                    {/* No Deactivate action: the API hides inactive users from
-                        GET /users, so they could never be reactivated here. */}
+                    </>
+                    )}
                     </div>
                   </td>
                 </tr>
