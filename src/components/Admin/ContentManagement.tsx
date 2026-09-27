@@ -120,6 +120,7 @@ const Section: React.FC<{
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
         className="flex w-full items-center justify-between px-6 py-4 text-left"
       >
         <span className="flex items-center gap-3 font-bold text-neutral-darker">
@@ -945,17 +946,25 @@ const AnnouncementsPanel: React.FC<{
 
 // ── Main export ───────────────────────────────────────────────
 
+export type ContentPanel = "tracks" | "courses" | "events" | "announcements";
+
 interface ContentManagementProps {
   tracks: BackendTrack[];
   tracksLoading: boolean;
   onRefreshTracks: () => void;
+  /** Which panels to show; the Studio gives each group its own section. */
+  panels?: ContentPanel[];
 }
 
 const ContentManagement: React.FC<ContentManagementProps> = ({
   tracks,
   tracksLoading,
   onRefreshTracks,
+  panels = ["tracks", "courses", "announcements", "events"],
 }) => {
+  const show = (panel: ContentPanel) => panels.includes(panel);
+  // Announcements can target a course, so they need the course list too.
+  const needCourses = show("courses") || show("announcements");
   // ── Courses state ──────────────────────────────────────────
   const [courses, setCourses] = useState<BackendCourse[]>([]);
   const [coursesLoading, setCoursesLoading] = useState(true);
@@ -1004,49 +1013,50 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
     }
   }, []);
 
+  const showEvents = show("events");
+  const showAnnouncements = show("announcements");
   useEffect(() => {
-    void fetchCourses();
-    void fetchEvents();
-    void fetchAnnouncements();
-  }, [fetchCourses, fetchEvents, fetchAnnouncements]);
+    if (needCourses) void fetchCourses();
+    if (showEvents) void fetchEvents();
+    if (showAnnouncements) void fetchAnnouncements();
+  }, [needCourses, showEvents, showAnnouncements, fetchCourses, fetchEvents, fetchAnnouncements]);
 
   return (
     <div className="space-y-5">
-      <Section
-        icon={<GitBranch size={18} />}
-        title="Tracks"
-        count={tracks.length}
-        defaultOpen
-      >
-        <TracksPanel tracks={tracks} loading={tracksLoading} onRefresh={onRefreshTracks} />
-      </Section>
+      {show("tracks") && (
+        <Section icon={<GitBranch size={18} />} title="Tracks" count={tracks.length} defaultOpen>
+          <TracksPanel tracks={tracks} loading={tracksLoading} onRefresh={onRefreshTracks} />
+        </Section>
+      )}
 
-      <Section icon={<BookOpen size={18} />} title="Courses" count={courses.length}>
-        <CoursesPanel
-          tracks={tracks}
-          courses={courses}
-          loading={coursesLoading}
-          onRefresh={fetchCourses}
-        />
-      </Section>
+      {show("courses") && (
+        <Section icon={<BookOpen size={18} />} title="Courses" count={courses.length} defaultOpen>
+          <CoursesPanel
+            tracks={tracks}
+            courses={courses}
+            loading={coursesLoading}
+            onRefresh={fetchCourses}
+          />
+        </Section>
+      )}
 
-      <Section icon={<Megaphone size={18} />} title="Announcements" count={announcements.length}>
-        <AnnouncementsPanel
-          announcements={announcements}
-          tracks={tracks}
-          courses={courses}
-          loading={announcementsLoading}
-          onRefresh={fetchAnnouncements}
-        />
-      </Section>
+      {showAnnouncements && (
+        <Section icon={<Megaphone size={18} />} title="Announcements" count={announcements.length} defaultOpen={panels.length === 1}>
+          <AnnouncementsPanel
+            announcements={announcements}
+            tracks={tracks}
+            courses={courses}
+            loading={announcementsLoading}
+            onRefresh={fetchAnnouncements}
+          />
+        </Section>
+      )}
 
-      <Section icon={<CalendarDays size={18} />} title="Events" count={events.length}>
-        <EventsPanel
-          events={events}
-          loading={eventsLoading}
-          onRefresh={fetchEvents}
-        />
-      </Section>
+      {showEvents && (
+        <Section icon={<CalendarDays size={18} />} title="Events" count={events.length} defaultOpen={panels.length === 1}>
+          <EventsPanel events={events} loading={eventsLoading} onRefresh={fetchEvents} />
+        </Section>
+      )}
     </div>
   );
 };

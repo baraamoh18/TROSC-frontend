@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Menu, X, LogOut, UserCircle, Settings, LayoutGrid, Shield } from "lucide-react";
+import { Menu, X, LogOut, UserCircle, Settings, LayoutGrid } from "lucide-react";
 import TroscLogo from "../../assets/Trosc4x.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { smoothScrollToId } from "../utils/smoothScroll";
@@ -144,16 +144,6 @@ const Navbar: React.FC = () => {
               />
             ) : user ? (
               <div className="hidden sm:flex items-center gap-3">
-                {user.role === "admin" && (
-                  <Link
-                    to="/admin"
-                    title="Admin dashboard"
-                    aria-label="Admin dashboard"
-                    className="flex min-h-10 min-w-10 items-center justify-center text-gray-800 hover:text-primary transition-colors"
-                  >
-                    <Shield size={22} />
-                  </Link>
-                )}
                 {(user.role === "admin" || user.role === "instructor") && (
                   <Link
                     to="/studio"
@@ -224,16 +214,6 @@ const Navbar: React.FC = () => {
                   Log Out
                 </button>
               </div>
-              {user.role === "admin" && (
-                <Link
-                  to="/admin"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                >
-                  <Shield size={18} />
-                  Admin Dashboard
-                </Link>
-              )}
               {(user.role === "admin" || user.role === "instructor") && (
                 <Link
                   to="/studio"

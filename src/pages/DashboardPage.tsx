@@ -15,7 +15,6 @@ import {
   ClipboardList,
   Star,
   UploadCloud,
-  Shield,
   AlertCircle,
   RotateCw,
   LayoutGrid,
@@ -421,7 +420,7 @@ const DashboardPage = () => {
             <div className="flex flex-col gap-4 rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-neutral-dark">
                 {user.role === "admin"
-                  ? "Use the Studio for sessions, assignments, grading and weekly tasks, and the admin dashboard for users, tracks and statistics."
+                  ? "The Studio has track content and grading, plus users, the catalog, events, announcements and statistics."
                   : "Use the Studio for join requests, sessions, assignments, grading and weekly tasks."}
               </p>
               <div className="flex shrink-0 flex-wrap gap-2">
@@ -432,15 +431,6 @@ const DashboardPage = () => {
                   <LayoutGrid size={18} aria-hidden="true" />
                   Open Studio
                 </Link>
-                {user.role === "admin" && (
-                  <Link
-                    to="/admin"
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-6 py-2.5 text-base font-bold text-gray-800 transition-colors hover:bg-gray-50"
-                  >
-                    <Shield size={18} aria-hidden="true" />
-                    Admin dashboard
-                  </Link>
-                )}
               </div>
             </div>
           </section>

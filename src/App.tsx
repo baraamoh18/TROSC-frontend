@@ -25,7 +25,6 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const SessionViewerPage = lazy(() => import("./pages/SessionViewerPage"));
 const CourseDetailsPage = lazy(() => import("./pages/CourseDetailsPage"));
 const StudioPage = lazy(() => import("./pages/StudioPage"));
-const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
 const EventDetailsPage = lazy(() => import("./pages/EventDetailsPage"));
 
 /** Old or guessed links: /tracks/:id → /track/:id */
@@ -93,14 +92,8 @@ function App() {
         />
         {/* The Studio replaced the instructor dashboard. */}
         <Route path="/instructor" element={<Navigate to="/studio" replace />} />
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute>
-              <AdminDashboardPage />
-            </ProtectedRoute>
-          }
-        />
+        {/* The admin dashboard is now the Studio's Platform sections. */}
+        <Route path="/admin" element={<Navigate to="/studio?section=overview" replace />} />
       </Route>
 
       <Route path="/signin" element={<RedirectIfAuthenticated><SignInPage /></RedirectIfAuthenticated>} />

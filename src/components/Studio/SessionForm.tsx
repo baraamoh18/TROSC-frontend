@@ -240,6 +240,9 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
 
           <fieldset>
             <legend className={labelCls}>Materials</legend>
+            <p className="mb-2 text-xs text-gray-600">
+              Links must be on a trusted host such as YouTube, Google Drive, GitHub or Cloudinary.
+            </p>
             <div className="space-y-3">
               {resources.map((r, i) => (
                 <div key={i} className="flex flex-col gap-2 rounded-lg border border-gray-200 p-3 sm:flex-row sm:items-start">
