@@ -5,11 +5,13 @@ import * as api from "../../services/api";
 import type { BackendAssignment, BackendCourse, BackendSession, Submission } from "../../services/api";
 import EmptyState from "../EmptyState";
 import { assignmentTarget, cardCls, errorMessage, formatDateTime, inputCls, labelCls, primaryBtn, refId } from "./studioUi";
+import type { CanManage } from "./studioUi";
 
 interface StudioGradingProps {
   assignments: BackendAssignment[];
   courses: BackendCourse[];
   sessions: BackendSession[];
+  canManage: CanManage;
   selectedId: string | null;
   onSelect: (id: string) => void;
   /** Refresh track-level counts after a grade is saved. */
@@ -131,9 +133,12 @@ const GradeRow = ({ assignmentId, submission, onSaved }: { assignmentId: string;
   );
 };
 
-const StudioGrading = ({ assignments, courses, sessions, selectedId, onSelect, onGraded }: StudioGradingProps) => {
+const StudioGrading = ({ assignments: all, courses, sessions, canManage, selectedId, onSelect, onGraded }: StudioGradingProps) => {
+  // Only the assignment's creator (or an admin) can read and grade submissions.
+  const assignments = all.filter((a) => canManage(a.instructor));
   const [detail, setDetail] = useState<BackendAssignment | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState("");
   const [filter, setFilter] = useState<Filter>("ungraded");
   const activeId = selectedId && assignments.some((a) => a._id === selectedId) ? selectedId : assignments[0]?._id;
 
@@ -141,6 +146,7 @@ const StudioGrading = ({ assignments, courses, sessions, selectedId, onSelect, o
     if (!activeId) return;
     let cancelled = false;
     setLoading(true);
+    setLoadError("");
     api
       .getAssignment(activeId)
       .then((res) => {
@@ -149,7 +155,7 @@ const StudioGrading = ({ assignments, courses, sessions, selectedId, onSelect, o
       .catch((err) => {
         if (cancelled) return;
         setDetail(null);
-        toast.error(errorMessage(err, "Couldn't load submissions."));
+        setLoadError(errorMessage(err, "Couldn't load submissions."));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -160,7 +166,16 @@ const StudioGrading = ({ assignments, courses, sessions, selectedId, onSelect, o
   }, [activeId]);
 
   if (assignments.length === 0) {
-    return <EmptyState icon={ClipboardCheck} message="There's nothing to grade yet. Create an assignment first." />;
+    return (
+      <EmptyState
+        icon={ClipboardCheck}
+        message={
+          all.length > 0
+            ? "You can grade assignments you created. The assignments in this track were created by someone else."
+            : "There's nothing to grade yet. Create an assignment first."
+        }
+      />
+    );
   }
 
   const submissions = detail?._id === activeId ? detail.submissions ?? [] : [];
@@ -234,6 +249,10 @@ const StudioGrading = ({ assignments, courses, sessions, selectedId, onSelect, o
             <div key={n} className="h-32 animate-pulse rounded-xl bg-gray-200" />
           ))}
         </div>
+      ) : loadError ? (
+        <p role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
+          Couldn't load submissions: {loadError}
+        </p>
       ) : submissions.length === 0 ? (
         <EmptyState icon={ClipboardCheck} message="No one has submitted this assignment yet." />
       ) : shown.length === 0 ? (

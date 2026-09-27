@@ -7,7 +7,8 @@ import type { BackendCourse, BackendSession } from "../../services/api";
 import EmptyState from "../EmptyState";
 import ConfirmAction from "./ConfirmAction";
 import SessionForm from "./SessionForm";
-import { cardCls, errorMessage, formatDateTime, primaryBtn, smallBtn } from "./studioUi";
+import { cardCls, errorMessage, formatDateTime, ownerName, primaryBtn, smallBtn } from "./studioUi";
+import type { CanManage } from "./studioUi";
 
 interface StudioSessionsProps {
   trackId: string;
@@ -15,13 +16,16 @@ interface StudioSessionsProps {
   /** Sessions the current user owns that aren't in any track. */
   looseSessions: BackendSession[];
   courses: BackendCourse[];
+  canManage: CanManage;
   onChanged: () => void;
 }
 
 const byDate = (a: BackendSession, b: BackendSession) =>
   (a.startDate ? Date.parse(a.startDate) : Infinity) - (b.startDate ? Date.parse(b.startDate) : Infinity);
 
-const StudioSessions = ({ trackId, sessions, looseSessions, courses, onChanged }: StudioSessionsProps) => {
+const StudioSessions = ({ trackId, sessions, looseSessions, courses, canManage, onChanged }: StudioSessionsProps) => {
+  // A session can only join a course its owner may change.
+  const ownCourses = courses.filter((c) => canManage(c.instructor));
   const [editing, setEditing] = useState<BackendSession | "new" | null>(null);
   const sorted = useMemo(() => [...sessions].sort(byDate), [sessions]);
   const courseTitle = (id?: string) => courses.find((c) => c._id === id)?.title;
@@ -82,6 +86,7 @@ const StudioSessions = ({ trackId, sessions, looseSessions, courses, onChanged }
                     ) : (
                       <span className="font-semibold text-amber-800">No video link yet</span>
                     )}
+                    {!canManage(s.instructor) && <span>Created by {ownerName(s.instructor)}</span>}
                     {(s.resources?.length ?? 0) > 0 && (
                       <span className="inline-flex items-center gap-1">
                         <Paperclip size={12} aria-hidden="true" />
@@ -91,10 +96,12 @@ const StudioSessions = ({ trackId, sessions, looseSessions, courses, onChanged }
                   </div>
                 </div>
                 <div className="flex shrink-0 flex-wrap gap-1">
-                  <button type="button" className={`${smallBtn} text-gray-800 hover:bg-gray-100`} onClick={() => setEditing(s)}>
-                    <Pencil size={13} aria-hidden="true" />
-                    Edit
-                  </button>
+                  {canManage(s.instructor) && (
+                    <button type="button" className={`${smallBtn} text-gray-800 hover:bg-gray-100`} onClick={() => setEditing(s)}>
+                      <Pencil size={13} aria-hidden="true" />
+                      Edit
+                    </button>
+                  )}
                   <ConfirmAction
                     label="Remove from track"
                     confirmLabel="Click to remove"
@@ -103,11 +110,13 @@ const StudioSessions = ({ trackId, sessions, looseSessions, courses, onChanged }
                       run(() => api.detachSessionFromTrack(trackId, s._id), "Session removed from the track.", "Couldn't remove it.")
                     }
                   />
-                  <ConfirmAction
-                    label="Delete"
-                    confirmLabel="Click to delete"
-                    onConfirm={() => run(() => api.deleteSession(s._id), "Session deleted.", "Couldn't delete it.")}
-                  />
+                  {canManage(s.instructor) && (
+                    <ConfirmAction
+                      label="Delete"
+                      confirmLabel="Click to delete"
+                      onConfirm={() => run(() => api.deleteSession(s._id), "Session deleted.", "Couldn't delete it.")}
+                    />
+                  )}
                 </div>
               </div>
             </li>
@@ -149,7 +158,7 @@ const StudioSessions = ({ trackId, sessions, looseSessions, courses, onChanged }
       {editing && (
         <SessionForm
           trackId={trackId}
-          courses={courses}
+          courses={ownCourses}
           session={editing === "new" ? undefined : editing}
           onClose={() => setEditing(null)}
           onSaved={onChanged}

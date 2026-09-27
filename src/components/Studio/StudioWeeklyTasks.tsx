@@ -6,9 +6,12 @@ import type { BackendCourse, WeeklyTask } from "../../services/api";
 import EmptyState from "../EmptyState";
 import ConfirmAction from "./ConfirmAction";
 import WeeklyTaskForm from "./WeeklyTaskForm";
-import { cardCls, errorMessage, inputCls, labelCls, primaryBtn, smallBtn } from "./studioUi";
+import { cardCls, errorMessage, inputCls, labelCls, ownerName, primaryBtn, smallBtn } from "./studioUi";
+import type { CanManage } from "./studioUi";
 
-const StudioWeeklyTasks = ({ courses }: { courses: BackendCourse[] }) => {
+const StudioWeeklyTasks = ({ courses: all, canManage }: { courses: BackendCourse[]; canManage: CanManage }) => {
+  // Weekly tasks live on a course, and only its owner (or an admin) can change them.
+  const courses = all.filter((c) => canManage(c.instructor));
   const [courseId, setCourseId] = useState(courses[0]?._id ?? "");
   const [tasks, setTasks] = useState<WeeklyTask[]>([]);
   const [loading, setLoading] = useState(false);
@@ -34,7 +37,16 @@ const StudioWeeklyTasks = ({ courses }: { courses: BackendCourse[] }) => {
   }, [load]);
 
   if (courses.length === 0) {
-    return <EmptyState icon={ListChecks} message="Weekly tasks belong to a course. Add a course to this track first." />;
+    return (
+      <EmptyState
+        icon={ListChecks}
+        message={
+          all.length > 0
+            ? `Weekly tasks belong to a course, and you can only edit courses you own. This track's courses belong to ${ownerName(all[0].instructor)}.`
+            : "Weekly tasks belong to a course. Add a course to this track first."
+        }
+      />
+    );
   }
 
   const remove = async (id: string) => {

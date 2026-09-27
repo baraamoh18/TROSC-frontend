@@ -55,3 +55,12 @@ export const assignmentTarget = (
   if (sessionId) return `Session: ${a.session?.title ?? sessions.find((s) => s._id === sessionId)?.title ?? "unknown"}`;
   return "";
 };
+
+/**
+ * The API only lets people change content they created (admins change
+ * anything): "You can only modify your own content".
+ */
+export type CanManage = (owner: unknown) => boolean;
+
+export const ownerName = (owner: unknown): string =>
+  (owner as { name?: string } | null | undefined)?.name ?? "another instructor";

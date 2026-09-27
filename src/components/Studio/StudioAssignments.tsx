@@ -6,20 +6,25 @@ import type { BackendAssignment, BackendCourse, BackendSession } from "../../ser
 import EmptyState from "../EmptyState";
 import AssignmentForm from "./AssignmentForm";
 import ConfirmAction from "./ConfirmAction";
-import { assignmentTarget, cardCls, errorMessage, formatDateTime, primaryBtn, smallBtn } from "./studioUi";
+import { assignmentTarget, cardCls, errorMessage, formatDateTime, ownerName, primaryBtn, smallBtn } from "./studioUi";
+import type { CanManage } from "./studioUi";
 
 interface StudioAssignmentsProps {
   assignments: BackendAssignment[];
   courses: BackendCourse[];
   sessions: BackendSession[];
+  canManage: CanManage;
   onChanged: () => void;
   onGrade: (assignmentId: string) => void;
 }
 
-const StudioAssignments = ({ assignments, courses, sessions, onChanged, onGrade }: StudioAssignmentsProps) => {
+const StudioAssignments = ({ assignments, courses, sessions, canManage, onChanged, onGrade }: StudioAssignmentsProps) => {
   const [editing, setEditing] = useState<BackendAssignment | "new" | null>(null);
   const sorted = [...assignments].sort((a, b) => Date.parse(a.deadline) - Date.parse(b.deadline));
-  const canCreate = courses.length > 0 || sessions.length > 0;
+  // Assignments can only be added to courses and sessions the person owns.
+  const ownCourses = courses.filter((c) => canManage(c.instructor));
+  const ownSessions = sessions.filter((s) => canManage(s.instructor));
+  const canCreate = ownCourses.length > 0 || ownSessions.length > 0;
 
   const remove = async (id: string) => {
     try {
@@ -42,7 +47,7 @@ const StudioAssignments = ({ assignments, courses, sessions, onChanged, onGrade 
           className={primaryBtn}
           onClick={() => setEditing("new")}
           disabled={!canCreate}
-          title={canCreate ? undefined : "Add a course or session first"}
+          title={canCreate ? undefined : "Create a session first"}
         >
           <Plus size={16} aria-hidden="true" />
           New assignment
@@ -51,7 +56,7 @@ const StudioAssignments = ({ assignments, courses, sessions, onChanged, onGrade 
 
       {!canCreate && (
         <p className="mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Assignments belong to a course or a session. Add one to this track first.
+          Assignments belong to a course or a session you created. Create a session in this track first, then add assignments to it.
         </p>
       )}
 
@@ -73,11 +78,18 @@ const StudioAssignments = ({ assignments, courses, sessions, onChanged, onGrade 
                         .filter(Boolean)
                         .join(" · ")}
                     </p>
-                    <p className="mt-1 text-xs font-semibold text-gray-700">
-                      {submitted} submission{submitted === 1 ? "" : "s"}
-                      {ungraded > 0 && <span className="text-primary"> · {ungraded} to grade</span>}
-                    </p>
+                    {canManage(a.instructor) ? (
+                      <p className="mt-1 text-xs font-semibold text-gray-700">
+                        {submitted} submission{submitted === 1 ? "" : "s"}
+                        {ungraded > 0 && <span className="text-primary"> · {ungraded} to grade</span>}
+                      </p>
+                    ) : (
+                      <p className="mt-1 text-xs text-gray-600">
+                        Created by {ownerName(a.instructor)}. Only they or an admin can grade or change it.
+                      </p>
+                    )}
                   </div>
+                  {canManage(a.instructor) && (
                   <div className="flex shrink-0 flex-wrap gap-1">
                     <button type="button" className={`${smallBtn} text-primary hover:bg-primary-light`} onClick={() => onGrade(a._id)}>
                       <ClipboardCheck size={13} aria-hidden="true" />
@@ -89,6 +101,7 @@ const StudioAssignments = ({ assignments, courses, sessions, onChanged, onGrade 
                     </button>
                     <ConfirmAction label="Delete" confirmLabel="Click to delete" onConfirm={() => remove(a._id)} />
                   </div>
+                  )}
                 </div>
               </li>
             );
@@ -98,8 +111,8 @@ const StudioAssignments = ({ assignments, courses, sessions, onChanged, onGrade 
 
       {editing && (
         <AssignmentForm
-          courses={courses}
-          sessions={sessions}
+          courses={ownCourses}
+          sessions={ownSessions}
           assignment={editing === "new" ? undefined : editing}
           onClose={() => setEditing(null)}
           onSaved={onChanged}

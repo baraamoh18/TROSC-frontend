@@ -30,6 +30,7 @@ import StudioOverview from "../components/Studio/StudioOverview";
 import UserManagementTable from "../components/Admin/UserManagementTable";
 import ContentManagement from "../components/Admin/ContentManagement";
 import { inputCls, refId } from "../components/Studio/studioUi";
+import type { CanManage } from "../components/Studio/studioUi";
 
 type SectionId =
   | "requests"
@@ -135,6 +136,7 @@ const StudioPage = () => {
   const active = requested ?? available.find((s) => s.id === (isAdmin ? "overview" : "requests"))!;
   const section = active.id;
   const isTrackSection = active.group === "track";
+  const canManage: CanManage = (owner) => isAdmin || (!!user && refId(owner) === user._id);
 
   const setParam = (changes: Record<string, string | null>) =>
     setParams(
@@ -284,6 +286,7 @@ const StudioPage = () => {
             sessions={sessions}
             looseSessions={looseSessions}
             courses={courses}
+            canManage={canManage}
             onChanged={fetchContent}
           />
         );
@@ -293,6 +296,7 @@ const StudioPage = () => {
             assignments={assignments}
             courses={courses}
             sessions={sessions}
+            canManage={canManage}
             onChanged={fetchContent}
             onGrade={(id) => setParam({ section: "grading", assignment: id })}
           />
@@ -303,13 +307,14 @@ const StudioPage = () => {
             assignments={assignments}
             courses={courses}
             sessions={sessions}
+            canManage={canManage}
             selectedId={params.get("assignment")}
             onSelect={(id) => setParam({ assignment: id })}
             onGraded={fetchContent}
           />
         );
       case "weekly-tasks":
-        return <StudioWeeklyTasks key={trackId} courses={courses} />;
+        return <StudioWeeklyTasks key={trackId} courses={courses} canManage={canManage} />;
       default:
         return (
           <StudioRequests
