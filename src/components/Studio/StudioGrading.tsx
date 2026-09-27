@@ -62,18 +62,18 @@ const GradeRow = ({ assignmentId, submission, onSaved }: { assignmentId: string;
             <p className="truncate font-bold text-gray-900">{student.name}</p>
             {student.email && <p className="truncate text-xs text-gray-600">{student.email}</p>}
             <p className="mt-1 text-xs text-gray-600">Submitted {formatDateTime(submission.submittedAt)}</p>
-            {submission.hasFile !== false ? (
+            {submission.file || submission.hasFile ? (
               <a
-                href={api.submissionFileUrl(assignmentId, student._id)}
+                href={submission.file ?? api.submissionFileUrl(assignmentId, student._id)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-2 inline-flex min-h-8 items-center gap-1.5 text-sm font-bold text-primary hover:text-primary-hover"
               >
                 <ExternalLink size={14} aria-hidden="true" />
-                Open {submission.fileName ?? "file"}
+                Open submission
               </a>
             ) : (
-              <p className="mt-2 text-xs font-semibold text-amber-800">No file attached</p>
+              <p className="mt-2 text-xs font-semibold text-amber-800">No link attached</p>
             )}
             <span
               className={`mt-2 block w-fit rounded-full px-2 py-0.5 text-xs font-bold ${

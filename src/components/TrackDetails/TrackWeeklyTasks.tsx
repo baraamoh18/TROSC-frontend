@@ -59,39 +59,37 @@ const TaskItemRow = ({
   };
 
   return (
-    <div className="flex items-start gap-3 py-2.5 px-1 group">
-      <button
-        type="button"
-        onClick={handleToggle}
-        disabled={toggling}
-        aria-label={item.done ? "Mark as incomplete" : "Mark as complete"}
-        className="mt-0.5 shrink-0 transition-opacity disabled:opacity-50"
-      >
+    <button
+      type="button"
+      onClick={handleToggle}
+      disabled={toggling}
+      aria-pressed={item.done}
+      className="group flex min-h-11 w-full items-center gap-3 rounded-lg px-1 py-2 text-left transition-colors hover:bg-gray-100 disabled:opacity-60"
+    >
+      <span className="shrink-0" aria-hidden="true">
         {toggling ? (
           <Loader2 className="w-5 h-5 text-primary animate-spin" />
         ) : item.done ? (
           <CheckSquare className="w-5 h-5 text-primary" />
         ) : (
-          <Square className="w-5 h-5 text-gray-500 group-hover:text-gray-600 transition-colors" />
+          <Square className="w-5 h-5 text-gray-500 group-hover:text-gray-700 transition-colors" />
         )}
-      </button>
+      </span>
 
-      <div className="flex items-center gap-2 flex-1 min-w-0">
-        <span className={`text-gray-500 ${item.done ? "opacity-50" : ""}`}>
-          <ItemTypeIcon type={item.type} />
-        </span>
-        <p
-          className={`text-sm text-gray-800 leading-snug transition-colors ${
-            item.done ? "line-through text-gray-500" : ""
-          }`}
-        >
-          {item.title}
-        </p>
-        <span className="ml-auto shrink-0 text-xs capitalize text-gray-500 hidden sm:block">
-          {item.type}
-        </span>
-      </div>
-    </div>
+      <span className={`text-gray-500 ${item.done ? "opacity-50" : ""}`} aria-hidden="true">
+        <ItemTypeIcon type={item.type} />
+      </span>
+      <span
+        className={`flex-1 min-w-0 text-sm leading-snug transition-colors ${
+          item.done ? "line-through text-gray-500" : "text-gray-800"
+        }`}
+      >
+        {item.title}
+      </span>
+      <span className="ml-auto shrink-0 text-xs capitalize text-gray-500 hidden sm:block">
+        {item.type}
+      </span>
+    </button>
   );
 };
 

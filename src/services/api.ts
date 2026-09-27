@@ -256,6 +256,8 @@ export interface BackendAnnouncement {
 }
 
 export interface Submission {
+  /** Link to the submitted work (the live API stores a URL here). */
+  file?: string;
   /** Bare id on learner endpoints; populated on GET /assignments/:id (staff) */
   student: string | { _id: string; name: string; email?: string; photo?: string };
   /** Safe learner-facing metadata. Never expose a Drive file ID or URL. */
@@ -1045,34 +1047,14 @@ export interface AssignmentUploadResponse {
 }
 
 /**
- * Sends file bytes to our API. The API owns the Google service-account
- * credential and is the only party that talks to Drive.
+ * The live API stores a link to the student's work: POST { file: url }.
+ * (A multipart upload is rejected with '"file" is required'.)
  */
-export async function uploadAssignmentSubmission(
+export function submitAssignmentLink(
   assignmentId: string,
-  file: File,
+  url: string,
 ): Promise<AssignmentUploadResponse> {
-  const formData = new FormData();
-  formData.append("file", file, file.name);
-
-  const path = `/assignments/${assignmentId}/submissions`;
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: "POST",
-    credentials: "include",
-    // The browser supplies the multipart boundary; do not set Content-Type.
-    body: formData,
-  });
-
-  if (!res.ok) {
-    notifyIfUnauthorized(res.status, path);
-    const json = await res.json().catch(() => ({}));
-    throw new ApiError(
-      (json as { message?: string }).message ?? `Upload failed (${res.status})`,
-      res.status,
-    );
-  }
-
-  return res.json() as Promise<AssignmentUploadResponse>;
+  return request<AssignmentUploadResponse>("POST", `/assignments/${assignmentId}/submissions`, { file: url });
 }
 
 // ── Contact ───────────────────────────────────────────────────

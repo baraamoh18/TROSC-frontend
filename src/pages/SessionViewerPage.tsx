@@ -70,7 +70,11 @@ const SessionViewerPage = () => {
     );
   }
 
-  if (!session) {
+  // The API returns drafts to members too; only staff should see them.
+  const hiddenDraft =
+    !!session && session.published === false && user?.role !== "admin" && user?.role !== "instructor";
+
+  if (!session || hiddenDraft) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-neutral-light pt-16">
         <div className="px-4 text-center">

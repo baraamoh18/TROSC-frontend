@@ -1,8 +1,9 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   CheckSquare,
   Clock,
   Upload,
+  Send,
   X,
   Loader2,
   Star,
@@ -69,39 +70,32 @@ const SubmitModal = ({
   onClose: () => void;
   onSuccess: (assignmentId: string, submission: Submission) => void;
 }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [dragging, setDragging] = useState(false);
+  const [url, setUrl] = useState(assignment.mySubmission?.file ?? "");
+  const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const MAX_FILE_SIZE = 20 * 1024 * 1024;
-  const ACCEPTED_FILES = ".pdf,.doc,.docx,.zip,.png,.jpg,.jpeg";
-
-  const selectFile = (candidate?: File) => {
-    if (!candidate) return;
-    if (candidate.size > MAX_FILE_SIZE) {
-      toast.error("Choose a file smaller than 20 MB.");
-      return;
-    }
-    setFile(candidate);
-  };
-
   const handleSubmit = async () => {
-    if (!file) {
-      toast.error("Choose a file to submit.");
+    const value = url.trim();
+    let valid = false;
+    try {
+      valid = ["http:", "https:"].includes(new URL(value).protocol);
+    } catch {
+      valid = false;
+    }
+    if (!valid) {
+      setError("Paste the full link to your work, starting with https://");
       return;
     }
-
+    setError("");
     setSubmitting(true);
     try {
-      const response = await api.uploadAssignmentSubmission(assignment._id, file);
-      toast.success("Assignment submitted!");
+      const response = await api.submitAssignmentLink(assignment._id, value);
+      toast.success("Assignment submitted.");
       onSuccess(assignment._id, response.data.submission);
       onClose();
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Failed to submit. Try again.",
-      );
+      // Shown in the dialog so it doesn't vanish like a toast.
+      setError(err instanceof Error ? err.message : "Failed to submit. Try again.");
     } finally {
       setSubmitting(false);
     }
@@ -117,7 +111,7 @@ const SubmitModal = ({
     >
         <div className="flex items-center justify-between mb-4">
           <h3 id="submit-assignment-title" className="text-lg font-bold text-gray-900">
-            {assignment.mySubmission ? "Resubmit Assignment" : "Submit Assignment"}
+            {assignment.mySubmission ? "Resubmit assignment" : "Submit assignment"}
           </h3>
           <button
             onClick={onClose}
@@ -131,7 +125,7 @@ const SubmitModal = ({
         <p className="text-sm text-gray-700 mb-1 font-medium">
           {assignment.title}
         </p>
-        <p className="text-xs text-gray-500 mb-4">
+        <p className="text-xs text-gray-600 mb-4">
           Deadline:{" "}
           {new Date(assignment.deadline).toLocaleDateString(undefined, {
             year: "numeric",
@@ -142,54 +136,35 @@ const SubmitModal = ({
         {assignment.mySubmission?.grade != null && (
           <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
             Resubmitting clears your current grade and feedback until your
-            instructor grades the new file.
+            instructor grades the new work.
           </p>
         )}
 
+        <label htmlFor="submission-link" className="mb-1 block text-sm font-semibold text-gray-800">
+          Link to your work
+        </label>
         <input
-          ref={inputRef}
-          type="file"
-          accept={ACCEPTED_FILES}
-          className="sr-only"
-          onChange={(event) => selectFile(event.target.files?.[0])}
+          id="submission-link"
+          type="url"
+          inputMode="url"
+          placeholder="https://drive.google.com/..."
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") void handleSubmit();
+          }}
+          aria-invalid={!!error}
+          aria-describedby={error ? "submission-link-hint submission-link-error" : "submission-link-hint"}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
-        <div
-          role="button"
-          tabIndex={0}
-          onClick={() => inputRef.current?.click()}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") inputRef.current?.click();
-          }}
-          onDragOver={(event) => {
-            event.preventDefault();
-            setDragging(true);
-          }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={(event) => {
-            event.preventDefault();
-            setDragging(false);
-            selectFile(event.dataTransfer.files?.[0]);
-          }}
-          className={`mb-4 cursor-pointer rounded-xl border-2 border-dashed p-5 text-center transition-colors ${
-            dragging ? "border-primary bg-primary/5" : "border-gray-300 hover:border-primary"
-          }`}
-        >
-          <Upload className="mx-auto mb-2 h-5 w-5 text-primary" />
-          {file ? (
-            <>
-              <p className="text-sm font-semibold text-gray-900 break-all">{file.name}</p>
-              <p className="mt-1 text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB · Click to replace</p>
-            </>
-          ) : (
-            <>
-              <p className="text-sm font-medium text-gray-700">Drop a file here or click to browse</p>
-              <p className="mt-1 text-xs text-gray-500">PDF, Word, ZIP, PNG, or JPG · Maximum 20 MB</p>
-            </>
-          )}
-        </div>
-        <p className="mb-4 text-xs text-gray-500">
-          Your file is uploaded securely. You will not be sent to Google Drive.
+        <p id="submission-link-hint" className="mt-1 mb-4 text-xs text-gray-600">
+          Use Google Drive, GitHub or a similar service, and make sure anyone with the link can view it.
         </p>
+        {error && (
+          <p id="submission-link-error" role="alert" className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-800">
+            {error}
+          </p>
+        )}
 
         <div className="flex gap-3">
           <button
@@ -204,7 +179,7 @@ const SubmitModal = ({
               </>
             ) : (
               <>
-                <Upload size={16} />
+                <Send size={16} />
                 Submit
               </>
             )}
@@ -292,9 +267,17 @@ const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
                     </span>
                   </div>
 
-                  {hasSub && assignment.mySubmission?.fileName && (
-                    <p className="mt-2 text-xs text-gray-500">
-                      Submitted file: {assignment.mySubmission.fileName}
+                  {hasSub && assignment.mySubmission?.file && (
+                    <p className="mt-2 text-xs text-gray-600">
+                      Your submission:{" "}
+                      <a
+                        href={assignment.mySubmission.file}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="break-all font-semibold text-primary hover:text-primary-hover"
+                      >
+                        {assignment.mySubmission.file}
+                      </a>
                     </p>
                   )}
 

@@ -104,12 +104,16 @@ const TrackDetailsPage = () => {
       .then((res) => {
         if (cancelled) return;
         // The track list sends raw progress entries; pick out the caller's own.
+        // It also includes drafts, which only staff should see.
+        const isStaffUser = user.role === "admin" || user.role === "instructor";
         setSessions(
-          res.data.sessions.map((s) => {
+          res.data.sessions
+            .filter((s) => isStaffUser || s.published !== false)
+            .map((s) => {
             if (s.myProgress) return s;
             const mine = s.progress?.find((p) => p.student === user._id);
             return mine ? { ...s, myProgress: { status: mine.status, watchedAt: mine.watchedAt } } : s;
-          }),
+            }),
         );
       })
       .catch((err) => {
