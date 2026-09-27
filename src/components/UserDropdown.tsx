@@ -20,10 +20,8 @@ const UserDropdown = ({ user, onLogout }: { user: AuthUser; onLogout: () => void
   const navigate = useNavigate();
   const firstName = user.name.trim().split(/\s+/)[0];
   const isStaff = user.role === "admin" || user.role === "instructor";
-  // Determine if we should show the photo or fallback icon
-  // If they are staff and it's a default/generated photo, show fallback
-  const isDefault = isDefaultPhoto(user.photo);
-  const showPhoto = user.photo && (!isStaff || !isDefault);
+  // Placeholder photos (placehold.co etc.) get the initials fallback.
+  const showPhoto = !!user.photo && !isDefaultPhoto(user.photo);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 

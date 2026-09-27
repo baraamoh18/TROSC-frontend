@@ -4,6 +4,8 @@
 
 @theme {
   --font-family-poppins: "Poppins", sans-serif;
+  /* Tailwind's default stack, used by preflight and font-sans */
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
 
   /* Primary (Red) palette */
   --color-primary-light: #fce8eb;
