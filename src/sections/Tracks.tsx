@@ -156,7 +156,7 @@ const AllTracksModal = ({
 
               {/* All loaded indicator */}
               {!hasMore && tracks.length > PAGE_SIZE && (
-                <p className="text-center text-sm text-gray-400">
+                <p className="text-center text-sm text-gray-500">
                   All {total} tracks loaded
                 </p>
               )}

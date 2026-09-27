@@ -270,7 +270,7 @@ const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span className="text-xs font-bold text-gray-400">
+                    <span className="text-xs font-bold text-gray-500">
                       #{index + 1}
                     </span>
                     <h3 className="font-semibold text-gray-900 text-sm">

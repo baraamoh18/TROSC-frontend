@@ -315,7 +315,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
                       />
                     )}
                     {user.role === "admin" && (
-                      <span className="text-xs text-neutral">—</span>
+                      <span className="text-xs text-neutral-dark">—</span>
                     )}
                     </>
                     )}

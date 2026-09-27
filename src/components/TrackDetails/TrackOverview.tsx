@@ -114,10 +114,15 @@ const TrackOverview = ({ trackId, track, overview, nextSession, courseCount }: T
             <h3 className="mb-4 text-base font-bold text-gray-900">Track info</h3>
             <dl className="space-y-3 text-sm">
               {infoRows.map(({ icon: Icon, label, value, capitalize }) => (
-                <div key={label} className="flex items-center gap-2">
-                  <Icon className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                  <dt className="text-gray-600">{label}:</dt>
-                  <dd className={`font-medium text-gray-900 ${capitalize ? "capitalize" : ""}`}>{value}</dd>
+                <div key={label} className="flex items-start gap-2">
+                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                  {/* Inline so long values wrap under the label, not into a column. */}
+                  <div className="min-w-0">
+                    <dt className="inline text-gray-600">{label}: </dt>
+                    <dd className={`inline font-medium text-gray-900 ${capitalize ? "capitalize" : ""}`}>
+                      {value}
+                    </dd>
+                  </div>
                 </div>
               ))}
             </dl>

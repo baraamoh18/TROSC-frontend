@@ -38,7 +38,7 @@ const StatCard: React.FC<StatCardProps> = ({ icon, label, value, sub, accent = "
     </div>
     <p className="text-2xl font-extrabold text-neutral-darker">{value}</p>
     <p className="mt-0.5 text-sm font-semibold text-neutral-dark">{label}</p>
-    {sub && <p className="mt-1 text-xs text-neutral">{sub}</p>}
+    {sub && <p className="mt-1 text-xs text-neutral-dark">{sub}</p>}
   </div>
 );
 
@@ -162,7 +162,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
       )}
 
       {(stats.computedAt ?? stats.createdAt) && (
-        <p className="mt-4 text-right text-xs text-neutral">
+        <p className="mt-4 text-right text-xs text-neutral-dark">
           Stats as of{" "}
           {new Date((stats.computedAt ?? stats.createdAt) as string).toLocaleString(undefined, {
             dateStyle: "medium",

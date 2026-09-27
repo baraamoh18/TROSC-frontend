@@ -47,7 +47,7 @@ const AnnouncementCard = ({ ann }: { ann: BackendAnnouncement }) => {
                 Pinned
               </span>
             )}
-            <span className="ml-auto text-xs text-gray-400 shrink-0">
+            <span className="ml-auto text-xs text-gray-500 shrink-0">
               {dateLabel}
             </span>
           </div>

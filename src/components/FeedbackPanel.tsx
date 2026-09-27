@@ -107,7 +107,7 @@ const ReviewCard = ({ review, onDelete }: { review: Review; onDelete?: () => Pro
               />
             ))}
           </div>
-          <span className="text-xs text-gray-400 ml-auto">{date}</span>
+          <span className="text-xs text-gray-500 ml-auto">{date}</span>
         </div>
         <p className="text-sm text-gray-700 leading-relaxed">{review.content}</p>
         {onDelete && (

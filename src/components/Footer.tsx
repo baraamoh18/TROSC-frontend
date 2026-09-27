@@ -42,8 +42,8 @@ const Footer: React.FC = () => {
           <div className="md:col-span-1">
             <h3 className="text-lg font-bold text-white mb-4">About Us</h3>
             <p className="text-sm leading-relaxed text-gray-400">
-              Trosc is a vibrant student team from the Faculty of Computers and
-              Information, dedicated to guiding learners through every track.
+              TROSC is a student team at the Faculty of Computers and Information
+              that runs learning tracks, sessions and events.
             </p>
           </div>
 

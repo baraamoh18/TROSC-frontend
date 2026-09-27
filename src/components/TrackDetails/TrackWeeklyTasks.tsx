@@ -72,7 +72,7 @@ const TaskItemRow = ({
         ) : item.done ? (
           <CheckSquare className="w-5 h-5 text-primary" />
         ) : (
-          <Square className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
+          <Square className="w-5 h-5 text-gray-500 group-hover:text-gray-600 transition-colors" />
         )}
       </button>
 
@@ -82,12 +82,12 @@ const TaskItemRow = ({
         </span>
         <p
           className={`text-sm text-gray-800 leading-snug transition-colors ${
-            item.done ? "line-through text-gray-400" : ""
+            item.done ? "line-through text-gray-500" : ""
           }`}
         >
           {item.title}
         </p>
-        <span className="ml-auto shrink-0 text-xs capitalize text-gray-400 hidden sm:block">
+        <span className="ml-auto shrink-0 text-xs capitalize text-gray-500 hidden sm:block">
           {item.type}
         </span>
       </div>

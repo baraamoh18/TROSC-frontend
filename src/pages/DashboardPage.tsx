@@ -538,7 +538,7 @@ const DashboardPage = () => {
                       {log.action.replace(/_/g, " ")}
                     </p>
                   </div>
-                  <span className="shrink-0 text-xs text-gray-400">
+                  <span className="shrink-0 text-xs text-gray-500">
                     {formatRelative(log.createdAt)}
                   </span>
                 </div>
