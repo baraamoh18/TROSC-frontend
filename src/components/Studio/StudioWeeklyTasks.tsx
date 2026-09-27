@@ -42,7 +42,7 @@ const StudioWeeklyTasks = ({ courses: all, canManage }: { courses: BackendCourse
         icon={ListChecks}
         message={
           all.length > 0
-            ? `Weekly tasks belong to a course, and you can only edit courses you own. This track's courses belong to ${ownerName(all[0].instructor)}.`
+            ? `Weekly tasks belong to a course, and you can only edit courses you own. This track's courses belong to ${[...new Set(all.map((c) => ownerName(c.instructor)))].join(" and ")}.`
             : "Weekly tasks belong to a course. Add a course to this track first."
         }
       />
