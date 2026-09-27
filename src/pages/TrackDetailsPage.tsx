@@ -300,7 +300,7 @@ const TrackDetailsPage = () => {
     <Link to="/signin" state={{ from: location }} className={heroCtaCls}>
       Sign in to enroll
     </Link>
-  ) : !isEnrolled && !isPending ? (
+  ) : user.role === "admin" || user.role === "instructor" ? null : !isEnrolled && !isPending ? (
     <button type="button" onClick={() => smoothScrollToId("overview", 140)} className={heroCtaCls}>
       Join the Track
     </button>
