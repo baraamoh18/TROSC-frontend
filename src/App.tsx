@@ -24,7 +24,7 @@ const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const SessionViewerPage = lazy(() => import("./pages/SessionViewerPage"));
 const CourseDetailsPage = lazy(() => import("./pages/CourseDetailsPage"));
-const InstructorDashboardPage = lazy(() => import("./pages/InstructorDashboardPage"));
+const StudioPage = lazy(() => import("./pages/StudioPage"));
 const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
 const EventDetailsPage = lazy(() => import("./pages/EventDetailsPage"));
 
@@ -84,13 +84,15 @@ function App() {
           }
         />
         <Route
-          path="/instructor"
+          path="/studio"
           element={
             <ProtectedRoute>
-              <InstructorDashboardPage />
+              <StudioPage />
             </ProtectedRoute>
           }
         />
+        {/* The Studio replaced the instructor dashboard. */}
+        <Route path="/instructor" element={<Navigate to="/studio" replace />} />
         <Route
           path="/admin"
           element={

@@ -1,0 +1,342 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { CalendarClock, ClipboardCheck, ExternalLink, FileText, Inbox, LayoutGrid, ListChecks, ShieldAlert } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import * as api from "../services/api";
+import type { AuthUser, BackendAssignment, BackendCourse, BackendSession, BackendTrack } from "../services/api";
+import { useAuth } from "../context/useAuth";
+import usePageTitle from "../hooks/usePageTitle";
+import EmptyState from "../components/EmptyState";
+import StudioRequests from "../components/Studio/StudioRequests";
+import StudioSessions from "../components/Studio/StudioSessions";
+import StudioAssignments from "../components/Studio/StudioAssignments";
+import StudioGrading from "../components/Studio/StudioGrading";
+import StudioWeeklyTasks from "../components/Studio/StudioWeeklyTasks";
+import { inputCls, refId } from "../components/Studio/studioUi";
+
+type SectionId = "requests" | "sessions" | "assignments" | "grading" | "weekly-tasks";
+
+const SECTIONS: { id: SectionId; name: string; icon: LucideIcon }[] = [
+  { id: "requests", name: "Requests", icon: Inbox },
+  { id: "sessions", name: "Sessions", icon: CalendarClock },
+  { id: "assignments", name: "Assignments", icon: FileText },
+  { id: "grading", name: "Grading", icon: ClipboardCheck },
+  { id: "weekly-tasks", name: "Weekly tasks", icon: ListChecks },
+];
+
+/** Assignments across the track. The track route is built for members, so fall
+ *  back to the per-course and per-session lists if staff are refused. */
+async function loadTrackAssignments(
+  trackId: string,
+  courses: BackendCourse[],
+  sessions: BackendSession[],
+): Promise<BackendAssignment[]> {
+  try {
+    return (await api.getAssignmentsByTrack(trackId)).data.assignments;
+  } catch {
+    const lists = await Promise.allSettled([
+      ...courses.map((c) => api.getAssignmentsByCourse(c._id)),
+      ...sessions.map((s) => api.getAssignmentsBySession(s._id)),
+    ]);
+    const byId = new Map<string, BackendAssignment>();
+    lists.forEach((r) => {
+      if (r.status === "fulfilled") r.value.data.assignments.forEach((a) => byId.set(a._id, a));
+    });
+    return [...byId.values()];
+  }
+}
+
+const StudioPage = () => {
+  usePageTitle("Studio");
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const isStaff = !!user && (user.role === "admin" || user.role === "instructor");
+
+  const [tracks, setTracks] = useState<BackendTrack[]>([]);
+  const [tracksLoading, setTracksLoading] = useState(true);
+
+  const [courses, setCourses] = useState<BackendCourse[]>([]);
+  const [sessions, setSessions] = useState<BackendSession[]>([]);
+  const [looseSessions, setLooseSessions] = useState<BackendSession[]>([]);
+  const [assignments, setAssignments] = useState<BackendAssignment[]>([]);
+  const [pendingStudents, setPendingStudents] = useState<AuthUser[]>([]);
+  const [pendingLeaves, setPendingLeaves] = useState<AuthUser[]>([]);
+  const [contentLoading, setContentLoading] = useState(false);
+  const [pendingLoading, setPendingLoading] = useState(false);
+
+  // ── Tracks this person can manage ────────────────────────────
+  const fetchTracks = useCallback(async () => {
+    if (!user || !isStaff) return;
+    setTracksLoading(true);
+    try {
+      const res = await api.getTracks("limit=100&sort=-createdAt");
+      const all = res.data?.tracks ?? [];
+      // Admins manage every track; instructors only the tracks they own.
+      setTracks(user.role === "admin" ? all : all.filter((t) => refId(t.instructor) === user._id));
+    } catch {
+      setTracks([]);
+    } finally {
+      setTracksLoading(false);
+    }
+  }, [user, isStaff]);
+
+  useEffect(() => {
+    if (!authLoading) fetchTracks();
+  }, [authLoading, fetchTracks]);
+
+  const requestedTrack = params.get("track");
+  const trackId = tracks.some((t) => t._id === requestedTrack) ? requestedTrack! : tracks[0]?._id ?? null;
+  const track = tracks.find((t) => t._id === trackId) ?? null;
+  const section = (SECTIONS.some((s) => s.id === params.get("section")) ? params.get("section") : "requests") as SectionId;
+
+  const setParam = (changes: Record<string, string | null>) =>
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        Object.entries(changes).forEach(([k, v]) => (v ? next.set(k, v) : next.delete(k)));
+        return next;
+      },
+      { replace: true },
+    );
+
+  // ── Track content ────────────────────────────────────────────
+  const fetchPending = useCallback(async () => {
+    if (!trackId) return;
+    setPendingLoading(true);
+    try {
+      const res = await api.getTrackPending(trackId);
+      setPendingStudents(res.data?.pendingStudents ?? []);
+      setPendingLeaves(res.data?.pendingLeaves ?? []);
+    } catch {
+      setPendingStudents([]);
+      setPendingLeaves([]);
+    } finally {
+      setPendingLoading(false);
+    }
+  }, [trackId]);
+
+  const fetchContent = useCallback(async () => {
+    if (!trackId || !user) return;
+    setContentLoading(true);
+    const [c, s, mine] = await Promise.allSettled([
+      api.getCoursesByTrack(trackId),
+      api.getSessionsByTrack(trackId),
+      api.getSessionsByInstructor(user._id),
+    ]);
+    const nextCourses = c.status === "fulfilled" ? c.value.data.courses : [];
+    const nextSessions = s.status === "fulfilled" ? s.value.data.sessions : [];
+    setCourses(nextCourses);
+    setSessions(nextSessions);
+    setLooseSessions(
+      mine.status === "fulfilled" ? mine.value.data.sessions.filter((x) => (x.tracks?.length ?? 0) === 0) : [],
+    );
+    setAssignments(await loadTrackAssignments(trackId, nextCourses, nextSessions));
+    setContentLoading(false);
+  }, [trackId, user]);
+
+  useEffect(() => {
+    fetchPending();
+    fetchContent();
+  }, [fetchPending, fetchContent]);
+
+  const counts = useMemo<Partial<Record<SectionId, number>>>(
+    () => ({
+      requests: pendingStudents.length + pendingLeaves.length,
+      grading: assignments.reduce((n, a) => n + (a.submissions?.filter((s) => s.grade == null).length ?? 0), 0),
+    }),
+    [pendingStudents, pendingLeaves, assignments],
+  );
+
+  // ── Gates ────────────────────────────────────────────────────
+  if (authLoading) return null;
+
+  if (!user || !isStaff) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-neutral-light pt-16">
+        <div className="px-4 text-center">
+          <ShieldAlert size={48} className="mx-auto mb-3 text-primary" aria-hidden="true" />
+          <h1 className="mb-3 text-3xl font-bold text-neutral-darker">Restricted area</h1>
+          <p className="text-neutral-dark">The Studio is for instructors and admins.</p>
+          <button
+            type="button"
+            onClick={() => navigate(user ? "/dashboard" : "/signin")}
+            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-hover"
+          >
+            {user ? "Go to my dashboard" : "Sign in"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const renderSection = () => {
+    if (!trackId) return null;
+    if (contentLoading && section !== "requests") {
+      return (
+        <div className="space-y-3">
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="h-20 animate-pulse rounded-xl bg-gray-200" />
+          ))}
+        </div>
+      );
+    }
+    switch (section) {
+      case "sessions":
+        return (
+          <StudioSessions
+            trackId={trackId}
+            sessions={sessions}
+            looseSessions={looseSessions}
+            courses={courses}
+            onChanged={fetchContent}
+          />
+        );
+      case "assignments":
+        return (
+          <StudioAssignments
+            assignments={assignments}
+            courses={courses}
+            sessions={sessions}
+            onChanged={fetchContent}
+            onGrade={(id) => setParam({ section: "grading", assignment: id })}
+          />
+        );
+      case "grading":
+        return (
+          <StudioGrading
+            assignments={assignments}
+            courses={courses}
+            sessions={sessions}
+            selectedId={params.get("assignment")}
+            onSelect={(id) => setParam({ assignment: id })}
+            onGraded={fetchContent}
+          />
+        );
+      case "weekly-tasks":
+        return <StudioWeeklyTasks key={trackId} courses={courses} />;
+      default:
+        return (
+          <StudioRequests
+            trackId={trackId}
+            pendingStudents={pendingStudents}
+            pendingLeaves={pendingLeaves}
+            loading={pendingLoading}
+            onChanged={async () => {
+              await fetchPending();
+              fetchTracks();
+            }}
+          />
+        );
+    }
+  };
+
+  const active = SECTIONS.find((s) => s.id === section)!;
+
+  return (
+    <div className="min-h-screen bg-neutral-light pb-20 pt-24">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="flex items-center gap-3 text-3xl font-extrabold text-primary-darker">
+              <LayoutGrid size={28} aria-hidden="true" />
+              Studio
+            </h1>
+            <p className="mt-1 text-neutral-dark">
+              {user.role === "admin"
+                ? "Manage requests, sessions, assignments, grades and weekly tasks for any track."
+                : "Manage requests, sessions, assignments, grades and weekly tasks for your tracks."}
+            </p>
+          </div>
+          {tracks.length > 0 && (
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="w-72 max-w-full">
+                <label htmlFor="studio-track" className="mb-1 block text-sm font-semibold text-gray-800">Track</label>
+                <select
+                  id="studio-track"
+                  className={inputCls}
+                  value={trackId ?? ""}
+                  onChange={(e) => setParam({ track: e.target.value, assignment: null })}
+                >
+                  {tracks.map((t) => (
+                    <option key={t._id} value={t._id}>
+                      {t.title}
+                      {t.published === false ? " (draft)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {track && (
+                <Link
+                  to={`/track/${track._id}`}
+                  className="inline-flex min-h-10 items-center gap-1.5 text-sm font-bold text-primary hover:text-primary-hover"
+                >
+                  <ExternalLink size={14} aria-hidden="true" />
+                  View track page
+                </Link>
+              )}
+            </div>
+          )}
+        </header>
+
+        {tracksLoading ? (
+          <div className="h-64 animate-pulse rounded-xl bg-gray-200" />
+        ) : tracks.length === 0 ? (
+          <EmptyState
+            message={
+              user.role === "admin"
+                ? "There are no tracks yet. Create one from the admin dashboard."
+                : "You don't own any tracks yet. Once an admin assigns you a track, it shows up here."
+            }
+            action={
+              user.role === "admin" ? (
+                <Link to="/admin" className="rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-white hover:bg-primary-hover">
+                  Open admin dashboard
+                </Link>
+              ) : undefined
+            }
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-[210px_1fr]">
+            <nav aria-label="Studio sections" className="md:sticky md:top-24 md:self-start">
+              <ul className="flex gap-1 overflow-x-auto [scrollbar-width:none] md:flex-col md:overflow-visible">
+                {SECTIONS.map(({ id, name, icon: Icon }) => {
+                  const selected = id === section;
+                  const count = counts[id] ?? 0;
+                  return (
+                    <li key={id} className="shrink-0">
+                      <button
+                        type="button"
+                        aria-current={selected ? "page" : undefined}
+                        onClick={() => setParam({ section: id })}
+                        className={`flex min-h-11 w-full items-center gap-2.5 whitespace-nowrap rounded-lg px-3 text-sm font-semibold transition-colors ${
+                          selected ? "bg-white text-gray-900 shadow-sm ring-1 ring-gray-200" : "text-gray-700 hover:bg-white/70"
+                        }`}
+                      >
+                        <Icon size={17} className={selected ? "text-primary" : "text-gray-500"} aria-hidden="true" />
+                        {name}
+                        {count > 0 && (
+                          <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-white">
+                            {count}
+                            <span className="sr-only"> need attention</span>
+                          </span>
+                        )}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
+
+            <main className="min-w-0">
+              <h2 className="mb-5 text-2xl font-bold text-primary-darker">{active.name}</h2>
+              {renderSection()}
+            </main>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default StudioPage;

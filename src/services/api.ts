@@ -597,6 +597,58 @@ export async function markSessionWatched(
   }
 }
 
+// ── Session CRUD and linking (staff) ─────────────────────────
+// POST /sessions ignores `tracks` and rejects `course`: create first, then
+// attach with the linking routes. Linking to a track requires owning the track.
+
+export interface SessionPayload {
+  title: string;
+  description?: string;
+  url?: string;
+  level?: "beginner" | "intermediate" | "advanced";
+  access?: "public" | "track-only" | "private";
+  duration?: number;
+  startDate?: string | null;
+  endDate?: string | null;
+  published?: boolean;
+  resources?: { title: string; url: string }[];
+}
+
+export function createSession(payload: SessionPayload): Promise<SessionResponse> {
+  return request<SessionResponse>("POST", "/sessions", payload);
+}
+
+export function updateSession(
+  sessionId: string,
+  payload: Partial<SessionPayload>,
+): Promise<SessionResponse> {
+  return request<SessionResponse>("PATCH", `/sessions/${sessionId}`, payload);
+}
+
+export function deleteSession(sessionId: string): Promise<void> {
+  return request("DELETE", `/sessions/${sessionId}`);
+}
+
+export function getSessionsByInstructor(instructorId: string): Promise<SessionsResponse> {
+  return request<SessionsResponse>("GET", `/sessions/instructor/${instructorId}`);
+}
+
+export function attachSessionToTrack(trackId: string, sessionId: string): Promise<unknown> {
+  return request("PATCH", `/tracks/${trackId}/sessions/${sessionId}`);
+}
+
+export function detachSessionFromTrack(trackId: string, sessionId: string): Promise<void> {
+  return request("DELETE", `/tracks/${trackId}/sessions/${sessionId}`);
+}
+
+export function attachSessionToCourse(courseId: string, sessionId: string): Promise<unknown> {
+  return request("PATCH", `/courses/${courseId}/sessions/${sessionId}`);
+}
+
+export function detachSessionFromCourse(courseId: string, sessionId: string): Promise<void> {
+  return request("DELETE", `/courses/${courseId}/sessions/${sessionId}`);
+}
+
 export function enrollInSession(
   sessionId: string,
 ): Promise<{ status: string; message: string }> {
@@ -869,6 +921,31 @@ export function uncompleteWeeklyTaskItem(
   return request("DELETE", `/weekly-tasks/${taskId}/items/${itemId}/complete`);
 }
 
+// ── Weekly task CRUD (staff) ──────────────────────────────────
+// There are no per-item routes: an edit sends the whole item list. Items that
+// keep their `_id` keep students' ticks.
+
+export interface WeeklyTaskPayload {
+  week: number;
+  title: string;
+  items: { _id?: string; title: string; type: WeeklyTaskItem["type"] }[];
+}
+
+export function createWeeklyTask(courseId: string, payload: WeeklyTaskPayload): Promise<unknown> {
+  return request("POST", `/courses/${courseId}/weekly-tasks`, payload);
+}
+
+export function updateWeeklyTask(
+  taskId: string,
+  payload: Partial<WeeklyTaskPayload>,
+): Promise<unknown> {
+  return request("PATCH", `/weekly-tasks/${taskId}`, payload);
+}
+
+export function deleteWeeklyTask(taskId: string): Promise<void> {
+  return request("DELETE", `/weekly-tasks/${taskId}`);
+}
+
 // ── Assignments (protected) ───────────────────────────────────
 
 export interface AssignmentsResponse {
@@ -906,6 +983,37 @@ export function getAssignmentsBySession(
     "GET",
     `/sessions/${sessionId}/assignments`,
   );
+}
+
+// Title at least 3 characters, description at least 10. An assignment can't
+// be moved to another course or session after it's created.
+export interface AssignmentPayload {
+  title: string;
+  description: string;
+  deadline: string;
+  attachments?: string[];
+}
+
+export function createAssignment(
+  target: { course: string } | { session: string },
+  payload: AssignmentPayload,
+): Promise<AssignmentResponse> {
+  const path =
+    "course" in target
+      ? `/courses/${target.course}/assignments`
+      : `/sessions/${target.session}/assignments`;
+  return request<AssignmentResponse>("POST", path, payload);
+}
+
+export function updateAssignment(
+  assignmentId: string,
+  payload: Partial<AssignmentPayload>,
+): Promise<AssignmentResponse> {
+  return request<AssignmentResponse>("PATCH", `/assignments/${assignmentId}`, payload);
+}
+
+export function deleteAssignment(assignmentId: string): Promise<void> {
+  return request("DELETE", `/assignments/${assignmentId}`);
 }
 
 /** Staff only: one assignment with populated submissions. */

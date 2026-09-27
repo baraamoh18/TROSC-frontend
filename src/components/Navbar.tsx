@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Menu, X, LogOut, UserCircle, Settings, GraduationCap, Shield } from "lucide-react";
+import { Menu, X, LogOut, UserCircle, Settings, LayoutGrid, Shield } from "lucide-react";
 import TroscLogo from "../../assets/Trosc4x.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { smoothScrollToId } from "../utils/smoothScroll";
@@ -144,25 +144,26 @@ const Navbar: React.FC = () => {
               />
             ) : user ? (
               <div className="hidden sm:flex items-center gap-3">
-                {user.role === "admin" ? (
+                {user.role === "admin" && (
                   <Link
                     to="/admin"
                     title="Admin dashboard"
                     aria-label="Admin dashboard"
-                    className="flex items-center text-gray-800 hover:text-primary transition-colors"
+                    className="flex min-h-10 min-w-10 items-center justify-center text-gray-800 hover:text-primary transition-colors"
                   >
                     <Shield size={22} />
                   </Link>
-                ) : user.role === "instructor" ? (
+                )}
+                {(user.role === "admin" || user.role === "instructor") && (
                   <Link
-                    to="/instructor"
-                    title="Instructor dashboard"
-                    aria-label="Instructor dashboard"
-                    className="flex items-center text-gray-800 hover:text-primary transition-colors"
+                    to="/studio"
+                    title="Studio"
+                    aria-label="Studio"
+                    className="flex min-h-10 min-w-10 items-center justify-center text-gray-800 hover:text-primary transition-colors"
                   >
-                    <GraduationCap size={22} />
+                    <LayoutGrid size={22} />
                   </Link>
-                ) : null}
+                )}
                 <UserDropdown user={user} onLogout={handleLogout} />
               </div>
             ) : (
@@ -233,14 +234,14 @@ const Navbar: React.FC = () => {
                   Admin Dashboard
                 </Link>
               )}
-              {user.role === "instructor" && (
+              {(user.role === "admin" || user.role === "instructor") && (
                 <Link
-                  to="/instructor"
+                  to="/studio"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                 >
-                  <GraduationCap size={18} />
-                  Instructor Dashboard
+                  <LayoutGrid size={18} />
+                  Studio
                 </Link>
               )}
               <Link

@@ -47,7 +47,7 @@ const TrackJoinAction = ({ trackId }: { trackId: string }) => {
   if (user.role === "admin" || user.role === "instructor") {
     return (
       <Link
-        to={user.role === "admin" ? "/admin" : "/instructor"}
+        to={`/studio?track=${trackId}`}
         className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 font-bold text-gray-900 shadow-lg transition-colors hover:bg-gray-100"
       >
         <Settings size={17} aria-hidden="true" />

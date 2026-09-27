@@ -18,6 +18,7 @@ import {
   Shield,
   AlertCircle,
   RotateCw,
+  LayoutGrid,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { isDefaultPhoto } from "../utils/photoUtils";
@@ -413,31 +414,34 @@ const DashboardPage = () => {
           </section>
         )}
 
-        {/* Role-specific shortcut — instructors & admins */}
+        {/* Role-specific shortcuts: instructors & admins */}
         {(user.role === "instructor" || user.role === "admin") && (
           <section className="mb-10">
-            <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">
-              {user.role === "admin" ? "Admin Dashboard" : "Instructor Dashboard"}
-            </h2>
+            <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">Staff tools</h2>
             <div className="flex flex-col gap-4 rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm text-neutral-dark">
-                  {user.role === "admin"
-                    ? "Manage platform users, review track requests, and monitor live statistics."
-                    : "Review enrollment and leave requests for your tracks."}
-                </p>
-              </div>
-              <Link
-                to={user.role === "admin" ? "/admin" : "/instructor"}
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-base font-bold text-white transition-colors hover:bg-primary-hover"
-              >
-                {user.role === "admin" ? (
-                  <Shield size={18} />
-                ) : (
-                  <GraduationCap size={18} />
+              <p className="text-sm text-neutral-dark">
+                {user.role === "admin"
+                  ? "Use the Studio for sessions, assignments, grading and weekly tasks, and the admin dashboard for users, tracks and statistics."
+                  : "Use the Studio for join requests, sessions, assignments, grading and weekly tasks."}
+              </p>
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <Link
+                  to="/studio"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-base font-bold text-white transition-colors hover:bg-primary-hover"
+                >
+                  <LayoutGrid size={18} aria-hidden="true" />
+                  Open Studio
+                </Link>
+                {user.role === "admin" && (
+                  <Link
+                    to="/admin"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-6 py-2.5 text-base font-bold text-gray-800 transition-colors hover:bg-gray-50"
+                  >
+                    <Shield size={18} aria-hidden="true" />
+                    Admin dashboard
+                  </Link>
                 )}
-                Open Dashboard
-              </Link>
+              </div>
             </div>
           </section>
         )}

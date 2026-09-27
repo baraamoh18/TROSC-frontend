@@ -338,13 +338,13 @@ const TrackDetailsPage = () => {
       return (
         <EmptyState
           icon={Lock}
-          message={`Members see their ${what} here. You can manage them from your dashboard.`}
+          message={`Members see their ${what} here. You can manage them in the Studio.`}
           action={
             <Link
-              to={user.role === "admin" ? "/admin" : "/instructor"}
+              to={`/studio?track=${trackId}&section=${what === "assignments" ? "assignments" : "weekly-tasks"}`}
               className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-bold text-gray-800 transition-colors hover:bg-gray-50"
             >
-              Open dashboard
+              Open Studio
             </Link>
           }
         />
