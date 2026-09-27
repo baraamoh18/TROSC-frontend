@@ -110,8 +110,9 @@ const Announcements = () => {
     };
   }, []);
 
-  // Don't render the section at all if there are no announcements
-  if (!loading && announcements.length === 0) return null;
+  // Render nothing until there is something to show: a skeleton that then
+  // disappears would shift every section below it.
+  if (loading || announcements.length === 0) return null;
 
   return (
     <section
@@ -123,22 +124,11 @@ const Announcements = () => {
           Announcements
         </h2>
 
-        {loading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((n) => (
-              <div
-                key={n}
-                className="h-20 rounded-xl bg-gray-200 animate-pulse"
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {announcements.map((ann) => (
-              <AnnouncementCard key={ann._id} ann={ann} />
-            ))}
-          </div>
-        )}
+        <div className="space-y-4">
+          {announcements.map((ann) => (
+            <AnnouncementCard key={ann._id} ann={ann} />
+          ))}
+        </div>
       </div>
     </section>
   );

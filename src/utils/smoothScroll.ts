@@ -6,7 +6,7 @@
 
 // 64px (h-16 navbar) + 16px breathing room so section headings aren't
 // flush against the navbar bottom edge after scroll.
-const NAVBAR_HEIGHT = 80;
+export const NAVBAR_OFFSET = 80;
 const DURATION = 800; // ms — scroll animation duration
 
 /** Cubic ease-in-out: starts slow, speeds up, ends slow */
@@ -56,7 +56,7 @@ export function smoothScrollToY(targetY: number, duration = DURATION): void {
  * @param offset   Extra offset from the top (default = navbar height)
  * @returns        true if element was found, false otherwise
  */
-export function smoothScrollToId(id: string, offset = NAVBAR_HEIGHT): boolean {
+export function smoothScrollToId(id: string, offset = NAVBAR_OFFSET): boolean {
   const element = document.getElementById(id);
   if (!element) return false;
 
