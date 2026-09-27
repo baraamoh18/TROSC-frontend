@@ -70,6 +70,10 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
   }
 
   const completionPct = `${Math.round(stats.avgCompletionRate ?? 0)}%`;
+  const mostActive = stats.mostActiveTrack;
+  const mostActiveId = typeof mostActive === "string" ? mostActive : mostActive?._id;
+  const mostActiveTitle =
+    (typeof mostActive === "object" ? mostActive?.title : undefined) ?? mostActiveTrackTitle;
 
   return (
     <div>
@@ -126,9 +130,9 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
         />
       </div>
 
-      {stats.mostActiveTrack && (
+      {mostActiveId && (
         <Link
-          to={`/track/${stats.mostActiveTrack}`}
+          to={`/track/${mostActiveId}`}
           className="mt-4 flex items-center gap-3 rounded-2xl border border-neutral-light-active bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
         >
           <span className="rounded-xl bg-primary-light p-2.5 text-primary">
@@ -139,7 +143,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
               Most active track
             </span>
             <span className="font-bold text-neutral-darker">
-              {mostActiveTrackTitle ?? "View track"}
+              {mostActiveTitle ?? "View track"}
             </span>
           </span>
         </Link>

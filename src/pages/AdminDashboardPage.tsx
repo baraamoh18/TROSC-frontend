@@ -229,7 +229,11 @@ const AdminDashboardPage = () => {
             stats={stats}
             loading={statsLoading}
             onRefresh={fetchStats}
-            mostActiveTrackTitle={tracks.find((t) => t._id === stats?.mostActiveTrack)?.title}
+            mostActiveTrackTitle={
+              typeof stats?.mostActiveTrack === "string"
+                ? tracks.find((t) => t._id === stats.mostActiveTrack)?.title
+                : undefined
+            }
           />
         )}
 

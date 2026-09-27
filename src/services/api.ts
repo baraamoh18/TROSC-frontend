@@ -1045,8 +1045,8 @@ export interface DashboardStats {
   avgCompletionRate: number;
   totalEvents: number;
   totalAnnouncements: number;
-  /** Track id */
-  mostActiveTrack?: string;
+  /** Populated on /live and snapshot endpoints; older payloads sent a bare id */
+  mostActiveTrack?: string | { _id: string; title?: string } | null;
   createdAt: string;
   /** Present on /dashboard-stats/live instead of createdAt */
   computedAt?: string;
