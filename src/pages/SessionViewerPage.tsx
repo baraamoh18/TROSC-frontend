@@ -233,7 +233,8 @@ const SessionViewerPage = () => {
             </p>
           )}
 
-          {/* Progress tracking */}
+          {/* Progress tracking (members only; staff don't track progress) */}
+          {(canTrackProgress || !isStaff) && (
           <div className="mt-6 border-t border-neutral-light-active pt-6">
             {canTrackProgress ? (
               <div className="flex flex-wrap items-center gap-4">
@@ -258,6 +259,7 @@ const SessionViewerPage = () => {
               </p>
             )}
           </div>
+          )}
         </div>
 
         {/* Resources */}
