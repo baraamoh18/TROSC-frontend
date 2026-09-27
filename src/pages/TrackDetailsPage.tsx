@@ -274,7 +274,8 @@ const TrackDetailsPage = () => {
   const activeTab = tabs.some((t) => t.id === requestedTab) ? requestedTab : "overview";
   const selectTab = (id: string) =>
     navigate(
-      { search: id === "overview" ? "" : `?tab=${id}`, hash: location.hash },
+      // Keep ?tab=overview while an old #section hash is present, or the hash wins again.
+      { search: id === "overview" && !location.hash ? "" : `?tab=${id}`, hash: location.hash },
       { replace: true, preventScrollReset: true },
     );
 
