@@ -18,22 +18,12 @@ interface StatCardProps {
   label: string;
   value: number | string;
   sub?: string;
-  accent?: string;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ icon, label, value, sub, accent = "#e83b3b" }) => (
-  <div
-    className="relative overflow-hidden rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
-  >
-    {/* Faint accent circle */}
-    <div
-      className="absolute -right-4 -top-4 h-20 w-20 rounded-full opacity-10"
-      style={{ background: accent }}
-    />
-    <div
-      className="mb-4 inline-flex items-center justify-center rounded-xl p-2.5"
-      style={{ background: `${accent}18`, color: accent }}
-    >
+// One brand accent for every card: the label says what it is, not the colour.
+const StatCard: React.FC<StatCardProps> = ({ icon, label, value, sub }) => (
+  <div className="rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm">
+    <div className="mb-4 inline-flex items-center justify-center rounded-lg bg-primary-light p-2.5 text-primary" aria-hidden="true">
       {icon}
     </div>
     <p className="text-2xl font-extrabold text-neutral-darker">{value}</p>
@@ -77,8 +67,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
 
   return (
     <div>
-      <div className="mb-5 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-neutral-darker">Platform Overview</h2>
+      <div className="mb-5 flex items-center justify-end">
         <button
           type="button"
           onClick={onRefresh}
@@ -95,31 +84,26 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
           label="Total Users"
           value={stats.totalUsers}
           sub={`+${stats.newUsers} in last 24 h`}
-          accent="#e83b3b"
         />
         <StatCard
           icon={<UserPlus size={20} />}
           label="New Users (24 h)"
           value={stats.newUsers}
-          accent="#c0392b"
         />
         <StatCard
           icon={<GraduationCap size={20} />}
           label="Total Tracks"
           value={stats.totalTracks}
-          accent="#ae2c2c"
         />
         <StatCard
           icon={<BookOpen size={20} />}
           label="Total Courses"
           value={stats.totalCourses}
-          accent="#d35400"
         />
         <StatCard
           icon={<CalendarDays size={20} />}
           label="Total Events"
           value={stats.totalEvents}
-          accent="#8e44ad"
         />
         {/* Avg completion stays hidden until the backend computes it from
             session progress; it has only ever reported 0%. */}
@@ -129,7 +113,6 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
             label="Avg Completion"
             value={completionPct}
             sub="across all tracks"
-            accent="#27ae60"
           />
         ) : (
           <StatCard
@@ -137,7 +120,6 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
             label="Submissions"
             value={stats.totalSubmissions ?? 0}
             sub={`across ${stats.totalAssignments ?? 0} assignments`}
-            accent="#27ae60"
           />
         )}
       </div>

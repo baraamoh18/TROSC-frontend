@@ -113,8 +113,13 @@ const Section: React.FC<{
   count: number;
   children: React.ReactNode;
   defaultOpen?: boolean;
-}> = ({ icon, title, count, children, defaultOpen = false }) => {
+  /** Plain card without the toggle, when the page heading already names it. */
+  flat?: boolean;
+}> = ({ icon, title, count, children, defaultOpen = false, flat = false }) => {
   const [open, setOpen] = useState(defaultOpen);
+  if (flat) {
+    return <div className="rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm">{children}</div>;
+  }
   return (
     <div className="rounded-xl border border-neutral-light-active bg-white shadow-sm overflow-hidden">
       <button
@@ -1041,7 +1046,7 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
       )}
 
       {showAnnouncements && (
-        <Section icon={<Megaphone size={18} />} title="Announcements" count={announcements.length} defaultOpen={panels.length === 1}>
+        <Section icon={<Megaphone size={18} />} title="Announcements" count={announcements.length} flat={panels.length === 1}>
           <AnnouncementsPanel
             announcements={announcements}
             tracks={tracks}
@@ -1053,7 +1058,7 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
       )}
 
       {showEvents && (
-        <Section icon={<CalendarDays size={18} />} title="Events" count={events.length} defaultOpen={panels.length === 1}>
+        <Section icon={<CalendarDays size={18} />} title="Events" count={events.length} flat={panels.length === 1}>
           <EventsPanel events={events} loading={eventsLoading} onRefresh={fetchEvents} />
         </Section>
       )}
