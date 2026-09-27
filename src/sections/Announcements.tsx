@@ -17,7 +17,7 @@ const AnnouncementCard = ({ ann }: { ann: BackendAnnouncement }) => {
 
   return (
     <div
-      className={`rounded-2xl border bg-white px-5 py-4 shadow-sm transition-all ${
+      className={`rounded-xl border bg-white px-5 py-4 shadow-sm transition-all ${
         ann.isPinned
           ? "border-primary/30 ring-1 ring-primary/20"
           : "border-gray-200"
@@ -116,7 +116,7 @@ const Announcements = () => {
   return (
     <section
       id="announcements"
-      className="w-full bg-neutral-light px-6 py-12 font-family-poppins"
+      className="w-full bg-white px-6 py-12"
     >
       <div className="mx-auto w-full max-w-5xl">
         <h2 className="mb-8 text-3xl font-extrabold text-primary-darker">
@@ -128,7 +128,7 @@ const Announcements = () => {
             {[1, 2, 3].map((n) => (
               <div
                 key={n}
-                className="h-20 rounded-2xl bg-gray-200 animate-pulse"
+                className="h-20 rounded-xl bg-gray-200 animate-pulse"
               />
             ))}
           </div>

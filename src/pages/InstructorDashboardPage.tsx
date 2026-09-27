@@ -87,7 +87,7 @@ const InstructorDashboardPage = () => {
 
   if (!user || !isInstructor) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-light pt-16 font-family-poppins">
+      <div className="flex min-h-screen items-center justify-center bg-neutral-light pt-16">
         <div className="px-4 text-center">
           <ShieldAlert size={48} className="mx-auto mb-3 text-primary" />
           <h1 className="mb-3 text-3xl font-bold text-neutral-darker">
@@ -99,7 +99,7 @@ const InstructorDashboardPage = () => {
           <button
             type="button"
             onClick={() => navigate(user ? "/dashboard" : "/signin")}
-            className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
+            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
           >
             {user ? "Go to my dashboard" : "Sign in"}
           </button>
@@ -144,7 +144,7 @@ const InstructorDashboardPage = () => {
     setBusyId(studentId);
     try {
       await api.approveLeave(selectedTrackId, studentId);
-      toast.success("Leave request approved — student removed from track.");
+      toast.success("Leave approved. The student was removed from the track.");
       await fetchPending(selectedTrackId);
       fetchTracks();
     } catch (err) {
@@ -159,7 +159,7 @@ const InstructorDashboardPage = () => {
     setBusyId(studentId);
     try {
       await api.rejectLeave(selectedTrackId, studentId);
-      toast.success("Leave request rejected — student stays in the track.");
+      toast.success("Leave rejected. The student stays in the track.");
       await fetchPending(selectedTrackId);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Rejection failed.");
@@ -169,7 +169,7 @@ const InstructorDashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-light pt-24 pb-20 font-family-poppins">
+    <div className="min-h-screen bg-neutral-light pt-24 pb-20">
       <div className="mx-auto w-full max-w-4xl px-6">
         {/* Header */}
         <div className="mb-8">
@@ -186,7 +186,7 @@ const InstructorDashboardPage = () => {
         {tracksLoading ? (
           <div className="mb-8 h-12 w-2/3 animate-pulse rounded-full bg-gray-200" />
         ) : tracks.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-10 text-center text-neutral-dark">
+          <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-10 text-center text-neutral-dark">
             You don't have any tracks assigned yet. Once a track is created with
             you as the instructor, requests will show up here.
           </div>
@@ -200,7 +200,7 @@ const InstructorDashboardPage = () => {
                     key={track._id}
                     type="button"
                     onClick={() => setSelectedTrackId(track._id)}
-                    className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-colors ${
+                    className={`inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-bold transition-colors ${
                       isActive
                         ? "bg-primary text-white shadow-sm"
                         : "bg-white text-neutral-dark hover:bg-neutral-light-active hover:text-neutral-darker"
@@ -228,8 +228,8 @@ const InstructorDashboardPage = () => {
                 Managing{" "}
                 <span className="font-semibold text-neutral-darker">
                   {selectedTrack.title}
-                </span>{" "}
-                — {selectedTrack.studentCount} student
+                </span>
+                , {selectedTrack.studentCount} student
                 {selectedTrack.studentCount === 1 ? "" : "s"} enrolled.
               </p>
             )}

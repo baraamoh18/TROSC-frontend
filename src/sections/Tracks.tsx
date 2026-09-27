@@ -101,7 +101,7 @@ const AllTracksModal = ({
             <h2 id="all-tracks-title" className="text-2xl font-extrabold text-gray-900">All Tracks</h2>
             {!initialLoading && (
               <p className="text-sm text-gray-500 mt-0.5">
-                {total} track{total !== 1 ? "s" : ""} available — pick your path
+                {total} track{total !== 1 ? "s" : ""} available
               </p>
             )}
           </div>
@@ -124,7 +124,7 @@ const AllTracksModal = ({
             </div>
           ) : tracks.length === 0 ? (
             <p className="text-center text-gray-500 py-12">
-              No tracks published yet — check back soon!
+              No tracks have been published yet.
             </p>
           ) : (
             <>
@@ -140,7 +140,7 @@ const AllTracksModal = ({
                   <button
                     onClick={() => fetchPage(page + 1)}
                     disabled={loadingMore}
-                    className="inline-flex items-center gap-2 py-2.5 px-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-full transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-2 py-2.5 px-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {loadingMore ? (
                       <>
@@ -195,7 +195,7 @@ const Tracks = () => {
   const featured = tracks ?? [];
 
   return (
-    <div className="bg-white px-6 py-16 w-full flex items-center justify-center font-sans">
+    <div className="bg-neutral-light px-6 py-16 w-full flex items-center justify-center">
       <div className="w-full max-w-6xl mx-auto">
         <h2
           className="text-3xl md:text-4xl font-extrabold text-gray-900 text-center mb-12"
@@ -208,10 +208,7 @@ const Tracks = () => {
             [1, 2, 3].map((n) => <TrackSkeleton key={n} />)
           ) : featured.length === 0 ? (
             <div className="col-span-full text-center py-16 text-gray-500">
-              <p className="text-lg font-medium">No tracks published yet.</p>
-              <p className="text-sm mt-1">
-                Our team is working on it — check back soon!
-              </p>
+              <p className="text-lg font-medium">No tracks have been published yet.</p>
             </div>
           ) : (
             featured.map((track) => (
@@ -225,7 +222,7 @@ const Tracks = () => {
           <div className="text-center">
             <button
               onClick={() => setShowModal(true)}
-              className="py-3 px-10 bg-primary text-white font-semibold rounded-full hover:bg-primary-hover transition-colors duration-300 shadow-md"
+              className="py-3 px-10 bg-primary text-white font-semibold rounded-lg hover:bg-primary-hover transition-colors duration-300 shadow-md"
             >
               See All Tracks
             </button>

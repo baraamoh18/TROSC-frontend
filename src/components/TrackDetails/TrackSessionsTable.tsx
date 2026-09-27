@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Check, Circle, Loader2, Lock, PlayCircle } from "lucide-react";
+import { CalendarClock, Check, Circle, Loader2, Lock, Paperclip, PlayCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import * as api from "../../services/api";
 import type { BackendSession, SessionCatalogItem } from "../../services/api";
+import EmptyState from "../EmptyState";
 
 interface TrackSessionsTableProps {
   sessions: BackendSession[];
@@ -19,7 +20,7 @@ const formatDate = (date?: string): string =>
   date ? new Date(date).toLocaleDateString() : "TBA";
 
 const formatDuration = (duration?: number): string =>
-  duration ? `${duration} min` : "—";
+  duration ? `${duration} min` : "";
 
 const isFullSession = (
   session: BackendSession | SessionCatalogItem,
@@ -66,7 +67,7 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
       {canWatch && isFullSession(session) && (session.url || session.embedUrl) && (
         <Link
           to={`/sessions/${session._id}`}
-          className="mt-2 inline-flex items-center gap-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold py-1.5 px-3 rounded"
+          className="mt-2 inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-primary-hover"
         >
           <PlayCircle className="h-3.5 w-3.5" />
           Watch session
@@ -83,7 +84,7 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
           type="button"
           disabled={session.myProgress?.status === "watched" || updatingSessionId === session._id}
           onClick={() => markWatched(session._id)}
-          className="mt-2 flex items-center gap-1 text-xs font-semibold text-primary disabled:text-green-700 disabled:cursor-default"
+          className="mt-2 flex min-h-8 items-center gap-1 text-xs font-semibold text-primary disabled:text-green-700 disabled:cursor-default"
         >
           {updatingSessionId === session._id ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -95,6 +96,25 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
           {session.myProgress?.status === "watched" ? "Watched" : "Mark as watched"}
         </button>
       )}
+      {canWatch && isFullSession(session) && (session.resources?.length ?? 0) > 0 && (
+        <ul className="mt-2 space-y-1" aria-label={`Materials for ${session.title}`}>
+          {session.resources!
+            .filter((r) => !!r.url)
+            .map((r, i) => (
+              <li key={`${r.url}-${i}`}>
+                <a
+                  href={r.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-6 items-center gap-1 text-xs font-semibold text-gray-700 hover:text-primary"
+                >
+                  <Paperclip className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  {r.title || `Material ${i + 1}`}
+                </a>
+              </li>
+            ))}
+        </ul>
+      )}
     </>
   );
 
@@ -103,9 +123,9 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Sessions</h2>
+      <h2 className="mb-6 text-2xl font-bold text-primary-darker">Sessions</h2>
       {rows.length === 0 ? (
-        <p className="text-gray-600 text-sm">No sessions available yet.</p>
+        <EmptyState icon={CalendarClock} message="No sessions have been scheduled for this track yet." />
       ) : (
         <>
           {/* Cards on small screens */}
@@ -124,9 +144,10 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
                     {session.description && (
                       <p className="mt-1 text-sm text-gray-700">{session.description}</p>
                     )}
-                    <p className="mt-2 text-xs text-gray-500">
-                      {instructorName(session)} · {formatDate(session.startDate)} ·{" "}
-                      {formatDuration(session.duration)}
+                    <p className="mt-2 text-xs text-gray-600">
+                      {[instructorName(session), formatDate(session.startDate), formatDuration(session.duration)]
+                        .filter(Boolean)
+                        .join(" · ")}
                     </p>
                     <div className="flex flex-wrap items-center gap-x-4">{renderActions(session)}</div>
                   </div>
@@ -136,10 +157,10 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
           </ol>
 
           {/* Table from md up */}
-          <div className="hidden md:block overflow-x-auto">
+          <div className="hidden overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm md:block">
             <table className="min-w-full border-collapse">
               <thead>
-                <tr className="border-b-2 border-gray-800">
+                <tr className="border-b border-gray-200 bg-gray-50">
                   <th scope="col" className="py-3 px-4 text-center font-bold text-gray-900 w-12">#</th>
                   <th scope="col" className="py-3 px-4 text-left font-bold text-gray-900">Title</th>
                   <th scope="col" className="py-3 px-4 text-left font-bold text-gray-900">Description</th>
@@ -151,7 +172,7 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
                 {rows.map((session, index) => (
                   <tr
                     key={session._id}
-                    className={index !== rows.length - 1 ? "border-b border-gray-300" : ""}
+                    className={index !== rows.length - 1 ? "border-b border-gray-200" : ""}
                   >
                     <td className="py-4 px-4 font-bold text-center align-top">{index + 1}</td>
                     <td className="py-4 px-4 text-sm align-top w-1/5">{renderTitle(session)}</td>
@@ -163,7 +184,7 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
                     </td>
                     <td className="py-4 px-4 text-sm text-gray-800 align-top">
                       <div>{formatDate(session.startDate)}</div>
-                      <div className="text-xs text-gray-500">{formatDuration(session.duration)}</div>
+                      <div className="text-xs text-gray-600">{formatDuration(session.duration)}</div>
                       {renderActions(session)}
                     </td>
                   </tr>

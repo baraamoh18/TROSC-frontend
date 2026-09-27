@@ -48,7 +48,7 @@ const ProgressToggle = ({
       type="button"
       onClick={handleMarkWatched}
       disabled={watched || marking}
-      className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-bold transition-colors ${
+      className={`inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-bold transition-colors ${
         watched
           ? "cursor-default bg-emerald-100 text-emerald-700"
           : "bg-primary text-white hover:bg-primary-hover active:bg-primary-active disabled:opacity-60"

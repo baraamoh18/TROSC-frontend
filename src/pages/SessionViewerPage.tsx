@@ -60,9 +60,9 @@ const SessionViewerPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-light pt-24 pb-20 font-family-poppins">
+      <div className="min-h-screen bg-neutral-light pt-24 pb-20">
         <div className="mx-auto w-full max-w-4xl px-6">
-          <div className="aspect-video w-full animate-pulse rounded-2xl bg-gray-200" />
+          <div className="aspect-video w-full animate-pulse rounded-xl bg-gray-200" />
           <div className="mt-6 h-8 w-2/3 animate-pulse rounded-xl bg-gray-200" />
           <div className="mt-4 h-4 w-1/3 animate-pulse rounded-xl bg-gray-200" />
         </div>
@@ -72,7 +72,7 @@ const SessionViewerPage = () => {
 
   if (!session) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-light pt-16 font-family-poppins">
+      <div className="flex min-h-screen items-center justify-center bg-neutral-light pt-16">
         <div className="px-4 text-center">
           <h1 className="mb-3 text-3xl font-bold text-neutral-darker">
             {errorStatus === 403
@@ -86,7 +86,7 @@ const SessionViewerPage = () => {
           </p>
           <Link
             to="/dashboard"
-            className="inline-block rounded-xl bg-primary px-6 py-2.5 font-bold text-white transition-colors hover:bg-primary-hover"
+            className="inline-block rounded-lg bg-primary px-6 py-2.5 font-bold text-white transition-colors hover:bg-primary-hover"
           >
             Back to Dashboard
           </Link>
@@ -118,7 +118,7 @@ const SessionViewerPage = () => {
     : "TBA";
 
   return (
-    <div className="min-h-screen bg-neutral-light pt-24 pb-20 font-family-poppins">
+    <div className="min-h-screen bg-neutral-light pt-24 pb-20">
       <div className="mx-auto w-full max-w-4xl px-6">
         {/* Breadcrumb */}
         <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-neutral-dark">
@@ -133,7 +133,7 @@ const SessionViewerPage = () => {
 
         {/* Video player */}
         {session.embedUrl ? (
-          <div className="aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-md">
+          <div className="aspect-video w-full overflow-hidden rounded-xl bg-black shadow-md">
             <iframe
               src={session.embedUrl}
               title={session.title}
@@ -143,7 +143,7 @@ const SessionViewerPage = () => {
             />
           </div>
         ) : session.url ? (
-          <div className="flex flex-col items-start gap-3 rounded-2xl border border-neutral-light-active bg-white p-6 shadow-sm">
+          <div className="flex flex-col items-start gap-3 rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm">
             <p className="flex items-center gap-2 font-bold text-neutral-darker">
               <Video size={20} className="text-primary" />
               This session's content is hosted externally.
@@ -152,13 +152,13 @@ const SessionViewerPage = () => {
               href={session.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-hover"
+              className="rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-hover"
             >
               Open session content
             </a>
           </div>
         ) : isLocked ? (
-          <div className="flex aspect-video w-full flex-col items-center justify-center gap-3 rounded-2xl bg-neutral-light-active px-6 text-center">
+          <div className="flex aspect-video w-full flex-col items-center justify-center gap-3 rounded-xl bg-neutral-light-active px-6 text-center">
             <Lock size={28} className="text-neutral-dark" aria-hidden="true" />
             <p className="font-bold text-neutral-darker">This session is for track members</p>
             <p className="max-w-sm text-sm text-neutral-dark">
@@ -186,13 +186,13 @@ const SessionViewerPage = () => {
             )}
           </div>
         ) : (
-          <div className="flex aspect-video w-full items-center justify-center rounded-2xl bg-neutral-light-active text-neutral-dark">
+          <div className="flex aspect-video w-full items-center justify-center rounded-xl bg-neutral-light-active text-neutral-dark">
             The recording hasn't been published yet.
           </div>
         )}
 
         {/* Title & meta */}
-        <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm sm:p-8">
+        <div className="mt-6 rounded-xl bg-white p-6 shadow-sm sm:p-8">
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${LEVEL_BADGE[session.level]}`}
@@ -264,7 +264,7 @@ const SessionViewerPage = () => {
 
         {/* Resources */}
         {(session.resources?.length ?? 0) > 0 && (
-          <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm sm:p-8">
+          <div className="mt-6 rounded-xl bg-white p-6 shadow-sm sm:p-8">
             <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-neutral-darker">
               <FileText size={20} className="text-primary" />
               Session resources

@@ -33,7 +33,7 @@ const Navbar: React.FC = () => {
     const hash = location.hash || "#home";
     setActiveLink(`/${hash}`);
 
-    const sections = ["home", "tracks", "events", "upcoming-events"];
+    const sections = ["home", "tracks", "events"];
 
     const handleScroll = () => {
       let current = "home";
@@ -104,7 +104,6 @@ const Navbar: React.FC = () => {
     { name: "Home", href: "/#home" },
     { name: "Tracks", href: "/#tracks" },
     { name: "Events", href: "/#events" },
-    { name: "Upcoming Events", href: "/#upcoming-events" },
     { name: "Contact us", href: "/contact" },
   ];
 
@@ -169,7 +168,7 @@ const Navbar: React.FC = () => {
             ) : (
               <Link
                 to="/signin"
-                className="inline-block bg-primary text-white font-bold text-base py-2.5 px-2.5 rounded-md hover:bg-primary-hover transition-colors duration-300 shadow-lg cursor-pointer"
+                className="inline-block bg-primary text-white font-bold text-base py-2.5 px-2.5 rounded-lg hover:bg-primary-hover transition-colors duration-300 shadow-lg cursor-pointer"
               >
                 Log In
               </Link>
@@ -197,7 +196,7 @@ const Navbar: React.FC = () => {
               key={link.name}
               to={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className={`block px-3 py-2 rounded-md text-base font-medium ${activeLink === link.href
+              className={`block px-3 py-2 rounded-lg text-base font-medium ${activeLink === link.href
                   ? "text-gray-900 bg-gray-50"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                 }`}
@@ -218,7 +217,7 @@ const Navbar: React.FC = () => {
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-800 font-bold text-sm py-2 px-3 rounded-md hover:bg-gray-200 transition-colors duration-300 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-800 font-bold text-sm py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors duration-300 cursor-pointer"
                 >
                   <LogOut size={16} />
                   Log Out
@@ -228,7 +227,7 @@ const Navbar: React.FC = () => {
                 <Link
                   to="/admin"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                 >
                   <Shield size={18} />
                   Admin Dashboard
@@ -238,7 +237,7 @@ const Navbar: React.FC = () => {
                 <Link
                   to="/instructor"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                 >
                   <GraduationCap size={18} />
                   Instructor Dashboard
@@ -247,7 +246,7 @@ const Navbar: React.FC = () => {
               <Link
                 to="/settings"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               >
                 <Settings size={18} />
                 Settings

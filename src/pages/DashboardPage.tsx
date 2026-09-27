@@ -204,7 +204,7 @@ const formatRelative = (isoDate: string) => {
 // Shown instead of a section's empty state when its request failed, so a
 // failed load isn't mistaken for "you have nothing here".
 const SectionError = ({ what, onRetry }: { what: string; onRetry: () => void }) => (
-  <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
+  <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
     <p className="flex items-center gap-2">
       <AlertCircle size={18} className="text-primary" />
       Couldn't load {what}.
@@ -212,7 +212,7 @@ const SectionError = ({ what, onRetry }: { what: string; onRetry: () => void }) 
     <button
       type="button"
       onClick={onRetry}
-      className="inline-flex items-center gap-1.5 rounded-full border border-neutral-light-active px-4 py-1.5 text-sm font-semibold text-neutral-darker transition-colors hover:bg-neutral-light"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-light-active px-4 py-1.5 text-sm font-semibold text-neutral-darker transition-colors hover:bg-neutral-light"
     >
       <RotateCw size={14} />
       Retry
@@ -321,10 +321,10 @@ const DashboardPage = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-neutral-light pt-24 pb-20 font-family-poppins">
+    <div className="min-h-screen bg-neutral-light pt-24 pb-20">
       <div className="mx-auto w-full max-w-5xl px-6">
         {/* Profile header */}
-        <div className="mb-10 flex flex-col items-start gap-6 rounded-2xl bg-white p-6 shadow-sm sm:flex-row sm:items-center">
+        <div className="mb-10 flex flex-col items-start gap-6 rounded-xl bg-white p-6 shadow-sm sm:flex-row sm:items-center">
           {/* Clickable avatar with camera overlay */}
           <AvatarUpload />
 
@@ -357,13 +357,13 @@ const DashboardPage = () => {
             </h2>
 
             {enrollmentsLoading ? (
-              <div className="h-24 animate-pulse rounded-2xl bg-gray-200" />
+              <div className="h-24 animate-pulse rounded-xl bg-gray-200" />
             ) : enrollmentsError ? (
               <SectionError what="your track" onRetry={loadEnrollments} />
             ) : (() => {
               const enrolledTrack = enrollments?.tracks?.[0] ?? null;
               return enrolledTrack ? (
-                <div className="flex flex-col gap-4 rounded-2xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-4 rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h3 className="mb-1 text-xl font-bold text-neutral-darker">
                       {enrolledTrack.title}
@@ -381,14 +381,14 @@ const DashboardPage = () => {
                   </div>
                   <Link
                     to={`/track/${enrolledTrack._id}`}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-2.5 text-base font-bold text-white transition-colors hover:bg-primary-hover"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-base font-bold text-white transition-colors hover:bg-primary-hover"
                   >
                     <GraduationCap size={18} />
                     Go to Track
                   </Link>
                 </div>
               ) : user.pendingTrack ? (
-                <div className="rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-6 text-center text-amber-800">
+                <div className="rounded-xl border border-dashed border-amber-300 bg-amber-50 p-6 text-center text-amber-800">
                   Your request to join a track is waiting for approval.{" "}
                   <Link
                     to={`/track/${user.pendingTrack}`}
@@ -398,7 +398,7 @@ const DashboardPage = () => {
                   </Link>
                 </div>
               ) : (
-                <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
+                <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
                   You haven't joined a track yet.{" "}
                   <Link
                     to="/#tracks"
@@ -419,7 +419,7 @@ const DashboardPage = () => {
             <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">
               {user.role === "admin" ? "Admin Dashboard" : "Instructor Dashboard"}
             </h2>
-            <div className="flex flex-col gap-4 rounded-2xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-neutral-dark">
                   {user.role === "admin"
@@ -429,7 +429,7 @@ const DashboardPage = () => {
               </div>
               <Link
                 to={user.role === "admin" ? "/admin" : "/instructor"}
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-6 py-2.5 text-base font-bold text-white transition-colors hover:bg-primary-hover"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-base font-bold text-white transition-colors hover:bg-primary-hover"
               >
                 {user.role === "admin" ? (
                   <Shield size={18} />
@@ -451,13 +451,13 @@ const DashboardPage = () => {
           {eventsLoading ? (
             <div className="space-y-4">
               {[1, 2].map((n) => (
-                <div key={n} className="h-24 animate-pulse rounded-2xl bg-gray-200" />
+                <div key={n} className="h-24 animate-pulse rounded-xl bg-gray-200" />
               ))}
             </div>
           ) : eventsError ? (
             <SectionError what="your events" onRetry={loadEvents} />
           ) : (rsvpEvents?.length || 0) === 0 ? (
-            <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
+            <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
               You haven't RSVP'd to any events yet.{" "}
               <Link
                 to="/#events"
@@ -477,7 +477,7 @@ const DashboardPage = () => {
                 return (
                   <div
                     key={event._id}
-                    className="flex flex-col gap-4 rounded-2xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center"
+                    className="flex flex-col gap-4 rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center"
                   >
                     <img loading="lazy"
                       src={event.coverImage || PLACEHOLDER_IMAGE}
@@ -492,9 +492,9 @@ const DashboardPage = () => {
                         <CalendarCheck size={16} />
                         {dateLabel}
                         {event.locationType === "offline" && event.locationAddress
-                          ? ` — ${event.locationAddress}`
+                          ? ` · ${event.locationAddress}`
                           : event.locationType === "online"
-                            ? " — Online"
+                            ? " · Online"
                             : ""}
                       </p>
                     </div>
@@ -520,11 +520,11 @@ const DashboardPage = () => {
           ) : activityError ? (
             <SectionError what="your recent activity" onRetry={loadActivity} />
           ) : (activityLogs?.length || 0) === 0 ? (
-            <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
+            <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
               No activity recorded yet.
             </div>
           ) : (
-            <div className="rounded-2xl border border-neutral-light-active bg-white shadow-sm divide-y divide-gray-100">
+            <div className="rounded-xl border border-neutral-light-active bg-white shadow-sm divide-y divide-gray-100">
               {(activityLogs || []).map((log) => (
                 <div
                   key={log._id}

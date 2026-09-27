@@ -14,7 +14,7 @@ interface ProfileFormData {
 }
 
 const inputClasses =
-  "px-4 py-3 border-2 border-neutral-light-active rounded-full bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors";
+  "px-4 py-3 border-2 border-neutral-light-active rounded-lg bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors";
 
 const ProfileForm = () => {
   const { user, setUser } = useAuth();
@@ -99,7 +99,7 @@ const ProfileForm = () => {
           rows={3}
           {...register("bio")}
           placeholder="Tell the community a little about yourself..."
-          className="px-4 py-3 border-2 border-neutral-light-active rounded-2xl bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors resize-none"
+          className="px-4 py-3 border-2 border-neutral-light-active rounded-lg bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors resize-none"
         />
       </div>
 
@@ -177,7 +177,7 @@ const ProfileForm = () => {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="mt-2 inline-flex items-center justify-center gap-2 self-start rounded-full bg-primary px-8 py-3 text-base font-bold text-white transition-colors hover:bg-primary-hover active:bg-primary-active disabled:opacity-50 disabled:cursor-not-allowed"
+        className="mt-2 inline-flex items-center justify-center gap-2 self-start rounded-lg bg-primary px-8 py-3 text-base font-bold text-white transition-colors hover:bg-primary-hover active:bg-primary-active disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting && <Loader2 size={18} className="animate-spin" />}
         {isSubmitting ? "Saving..." : "Save changes"}

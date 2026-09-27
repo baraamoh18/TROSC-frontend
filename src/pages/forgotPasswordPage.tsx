@@ -30,9 +30,9 @@ const ForgotPasswordPage = () => {
   return (
     <AuthLayout logo={TroscLogo}>
       {sent ? (
-        <div className="w-full max-w-md bg-neutral-light px-8 py-12 rounded-3xl shadow-lg font-family-poppins text-center">
+        <div className="w-full max-w-md bg-neutral-light px-8 py-12 rounded-xl shadow-lg text-center">
           <div className="mb-6 flex justify-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-light text-primary">
+            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary-light text-primary">
               <MailCheck size={28} aria-hidden="true" />
             </div>
           </div>
@@ -46,7 +46,7 @@ const ForgotPasswordPage = () => {
           </p>
           <Link
             to="/signin"
-            className="inline-block w-full py-3 bg-primary hover:bg-primary-hover text-white font-bold text-lg rounded-full transition-colors duration-200 text-center"
+            className="inline-block w-full py-3 bg-primary hover:bg-primary-hover text-white font-bold text-lg rounded-lg transition-colors duration-200 text-center"
           >
             Back to Sign In
           </Link>

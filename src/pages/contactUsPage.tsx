@@ -6,7 +6,7 @@ import usePageTitle from "../hooks/usePageTitle";
 const ContactUsPage: React.FC = () => {
   usePageTitle("Contact us");
   return (
-    <div className="min-h-screen bg-neutral-light-hover pt-20 font-family-poppins">
+    <div className="min-h-screen bg-neutral-light-hover pt-20">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-16 py-8">
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
 
@@ -14,17 +14,12 @@ const ContactUsPage: React.FC = () => {
 
 
             <h1 className="font-bold text-4xl md:text-5xl leading-tight text-neutral-darker mt-8 mb-6">
-              Get in Touch
+              Contact us
             </h1>
 
-            <h2 className="font-semibold text-2xl text-neutral-darker mb-4">
-              Contact Us
-            </h2>
-
             <p className="text-lg md:text-xl leading-relaxed text-neutral-dark-active mb-6 max-w-md">
-              Got a question or an idea? We're more than a team — we're a family
-              that listens and supports. Reach out anytime, and let's turn your
-              message into the start of something great.
+              Questions about a track, an event, or joining TROSC? Send us a
+              message, call, or email and a team member will get back to you.
             </p>
 
             <div className="flex flex-col gap-4">

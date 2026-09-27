@@ -2,12 +2,13 @@ import TeamPic from '../../assets/teamwork.webp';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 
-function WhoWeAre() {
+/** belowNavbar: leave room for the fixed navbar when this is the first section. */
+function WhoWeAre({ belowNavbar = true }: { belowNavbar?: boolean }) {
   const { user } = useAuth();
   return (
     <>
       {/* Hero Section */}
-      <section className="pt-16">
+      <section className={belowNavbar ? "pt-16" : ""}>
         <div className="w-full h-[500px] overflow-hidden relative">
           <div className="absolute inset-0 z-10 bg-black/40"></div>
 
@@ -20,7 +21,7 @@ function WhoWeAre() {
               <div className="mt-8">
                 <Link
                   to={user ? "/dashboard" : "/signup"}
-                  className="inline-block bg-primary text-white font-bold text-lg py-3 px-8 rounded-md hover:bg-primary-hover transition-colors duration-300 shadow-lg"
+                  className="inline-block bg-primary text-white font-bold text-lg py-3 px-8 rounded-lg hover:bg-primary-hover transition-colors duration-300 shadow-lg"
                 >
                   {user ? "Go to my dashboard" : "Join our family"}
                 </Link>
@@ -40,15 +41,14 @@ function WhoWeAre() {
       <section id="about" className="bg-white">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 font-family-poppins">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
               Who We Are
             </h2>
 
-            <p className="text-base md:text-lg leading-relaxed text-gray-700 font-family-poppins font-semibold">
-              Trosc is a student-led team from the Faculty of Computers and Information, dedicated to
-              guiding learners through various tech tracks. We provide clear learning resources, hands-on
-              tasks, and continuous support in Frontend & UI/UX, Backend, Mobile, Cyber Security, AI,
-              and 3D. Join our community of passionate learners and level up your skills with Trosc!
+            <p className="text-base md:text-lg leading-relaxed text-gray-700 font-semibold">
+              TROSC is a student-led team from the Faculty of Computers and Information. We run
+              learning tracks in Frontend & UI/UX, Backend, Mobile, Cyber Security, AI and 3D, each
+              with sessions, weekly tasks, assignments and instructors who review your work.
             </p>
           </div>
         </div>

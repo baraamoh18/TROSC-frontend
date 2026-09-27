@@ -40,7 +40,7 @@ function SignInForm() {
   };
 
   return (
-    <div className="w-full max-w-md bg-neutral-light px-8 py-12 rounded-3xl shadow-lg font-family-poppins">
+    <div className="w-full max-w-md bg-neutral-light px-8 py-12 rounded-xl shadow-lg">
       <h1 className="text-4xl font-bold text-neutral-darker text-center mb-8">
         Sign In
       </h1>
@@ -68,7 +68,7 @@ function SignInForm() {
               },
             })}
             placeholder="Enter your email"
-            className="px-4 py-3 border-2 border-neutral-light-active rounded-full bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors"
+            className="px-4 py-3 border-2 border-neutral-light-active rounded-lg bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors"
           />
           {errors.email && (
             <span id="email-error" role="alert" className="text-xs text-red-600">{errors.email.message}</span>
@@ -132,7 +132,7 @@ function SignInForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3 mt-2 bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-bold text-lg rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-3 mt-2 bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-bold text-lg rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? "Signing In..." : "Sign In"}
         </button>

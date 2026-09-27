@@ -22,7 +22,7 @@ const SettingsPage = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-neutral-light pt-24 pb-20 font-family-poppins">
+    <div className="min-h-screen bg-neutral-light pt-24 pb-20">
       <div className="mx-auto w-full max-w-3xl px-6">
         {/* Page header */}
         <h1 className="text-3xl font-extrabold text-primary-darker">
@@ -44,7 +44,7 @@ const SettingsPage = () => {
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => setActiveTab(tab.id)}
-                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-colors ${
+                className={`inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-bold transition-colors ${
                   isActive
                     ? "bg-primary text-white shadow-sm"
                     : "bg-white text-neutral-dark hover:text-neutral-darker hover:bg-neutral-light-active"
@@ -58,7 +58,7 @@ const SettingsPage = () => {
         </div>
 
         {/* Active panel */}
-        <div className="rounded-2xl bg-white p-6 shadow-sm sm:p-8">
+        <div className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
           {activeTab === "profile" && <ProfileForm />}
           {activeTab === "security" && <SecurityForm />}
           {activeTab === "danger" && <DangerZone />}

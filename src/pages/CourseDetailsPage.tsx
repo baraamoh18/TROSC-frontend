@@ -94,7 +94,7 @@ const CourseDetailsPage = () => {
 
   if (!hasValidId) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 pt-16 font-family-poppins">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 pt-16">
         <div className="px-4 text-center">
           <h1 className="mb-3 text-3xl font-bold text-gray-900">
             Course not found
@@ -104,7 +104,7 @@ const CourseDetailsPage = () => {
           </p>
           <Link
             to="/"
-            className="inline-block rounded-xl bg-primary px-6 py-2.5 font-bold text-white transition-colors hover:bg-primary-hover"
+            className="inline-block rounded-lg bg-primary px-6 py-2.5 font-bold text-white transition-colors hover:bg-primary-hover"
           >
             Back to Home
           </Link>
@@ -159,10 +159,10 @@ const CourseDetailsPage = () => {
 
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-24 pb-20 font-family-poppins">
+      <div className="min-h-screen bg-gray-50 pt-24 pb-20">
         <div className="mx-auto w-full max-w-5xl px-4">
-          <div className="h-72 animate-pulse rounded-2xl bg-gray-200" />
-          <div className="mt-8 h-40 animate-pulse rounded-2xl bg-gray-200" />
+          <div className="h-72 animate-pulse rounded-xl bg-gray-200" />
+          <div className="mt-8 h-40 animate-pulse rounded-xl bg-gray-200" />
         </div>
       </div>
     );
@@ -170,7 +170,7 @@ const CourseDetailsPage = () => {
 
   if (!course) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 pt-16 font-family-poppins">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 pt-16">
         <div className="px-4 text-center">
           <h1 className="mb-3 text-3xl font-bold text-gray-900">
             {errorStatus === 401
@@ -189,14 +189,14 @@ const CourseDetailsPage = () => {
           {errorStatus === 401 ? (
             <Link
               to="/signin"
-              className="inline-block rounded-xl bg-primary px-6 py-2.5 font-bold text-white transition-colors hover:bg-primary-hover"
+              className="inline-block rounded-lg bg-primary px-6 py-2.5 font-bold text-white transition-colors hover:bg-primary-hover"
             >
               Sign In
             </Link>
           ) : (
             <Link
               to="/"
-              className="inline-block rounded-xl bg-primary px-6 py-2.5 font-bold text-white transition-colors hover:bg-primary-hover"
+              className="inline-block rounded-lg bg-primary px-6 py-2.5 font-bold text-white transition-colors hover:bg-primary-hover"
             >
               Back to Home
             </Link>
@@ -213,7 +213,7 @@ const CourseDetailsPage = () => {
   const isEnrolled = !!user && (user.enrolledCourses ?? []).includes(course._id);
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20 pt-16 font-family-poppins">
+    <div className="bg-gray-50 min-h-screen pb-20 pt-16">
       <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <div className="mb-4 mt-2 text-sm font-semibold text-neutral-dark">
@@ -228,7 +228,7 @@ const CourseDetailsPage = () => {
 
         {/* Hero */}
         <div
-          className="relative flex h-72 items-end overflow-hidden rounded-2xl bg-cover bg-center md:h-96"
+          className="relative flex h-72 items-end overflow-hidden rounded-xl bg-cover bg-center md:h-96"
           style={
             heroImage ? { backgroundImage: `url(${heroImage})` } : undefined
           }
@@ -291,7 +291,7 @@ const CourseDetailsPage = () => {
             return stats.map((stat, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm"
+                className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm"
               >
                 <span className="rounded-full bg-primary-light p-2.5 text-primary">
                   <stat.icon size={20} />
@@ -311,7 +311,7 @@ const CourseDetailsPage = () => {
 
         <div className="mt-10 space-y-10">
           {/* Overview */}
-          <section className="rounded-2xl bg-white p-6 shadow-sm sm:p-8">
+          <section className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
             <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">
               Overview
             </h2>
@@ -321,7 +321,7 @@ const CourseDetailsPage = () => {
             {course.track && (
               <Link
                 to={`/track/${course.track._id}`}
-                className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary-light px-5 py-2.5 text-sm font-bold text-primary-dark transition-colors hover:bg-primary-light-active"
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary-light px-5 py-2.5 text-sm font-bold text-primary-dark transition-colors hover:bg-primary-light-active"
               >
                 <GraduationCap size={16} />
                 Part of the {course.track.title} track
@@ -330,7 +330,7 @@ const CourseDetailsPage = () => {
           </section>
 
           {/* Syllabus */}
-          <section className="rounded-2xl bg-white p-6 shadow-sm sm:p-8">
+          <section className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
             <h2 className="mb-4 flex items-center gap-2 text-2xl font-extrabold text-primary-darker">
               <ListChecks size={22} />
               Syllabus
@@ -367,7 +367,7 @@ const CourseDetailsPage = () => {
 
           {/* Attachments */}
           {(course.attachments?.length ?? 0) > 0 && (
-            <section className="rounded-2xl bg-white p-6 shadow-sm sm:p-8">
+            <section className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
               <h2 className="mb-4 flex items-center gap-2 text-2xl font-extrabold text-primary-darker">
                 <FileText size={22} />
                 Materials
@@ -391,7 +391,7 @@ const CourseDetailsPage = () => {
           )}
 
           {/* Enrollment */}
-          <section className="rounded-2xl bg-white p-6 shadow-sm sm:p-8">
+          <section className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
             <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">
               {isEnrolled ? "You're enrolled" : "Join this course"}
             </h2>
@@ -404,7 +404,7 @@ const CourseDetailsPage = () => {
                 <Link
                   to="/signin"
                   state={{ from: location }}
-                  className="rounded-full bg-primary px-8 py-3 text-base font-bold text-white transition-colors hover:bg-primary-hover"
+                  className="rounded-lg bg-primary px-8 py-3 text-base font-bold text-white transition-colors hover:bg-primary-hover"
                 >
                   Sign In
                 </Link>
@@ -421,7 +421,7 @@ const CourseDetailsPage = () => {
                       {course.track && (
                         <Link
                           to={`/track/${course.track._id}`}
-                          className="rounded-full bg-primary px-8 py-3 text-base font-bold text-white transition-colors hover:bg-primary-hover"
+                          className="rounded-lg bg-primary px-8 py-3 text-base font-bold text-white transition-colors hover:bg-primary-hover"
                         >
                           Go to Track
                         </Link>
@@ -429,14 +429,14 @@ const CourseDetailsPage = () => {
                       <button
                         type="button"
                         onClick={() => setConfirmingLeave(true)}
-                        className="rounded-full border-2 border-primary-dark bg-white px-8 py-3 text-base font-bold text-primary-dark transition-colors hover:bg-primary-light"
+                        className="rounded-lg border-2 border-primary-dark bg-white px-8 py-3 text-base font-bold text-primary-dark transition-colors hover:bg-primary-light"
                       >
                         Leave course
                       </button>
                     </div>
                   </>
                 ) : (
-                  <div className="rounded-2xl border-2 border-primary-light-active bg-primary-light p-5">
+                  <div className="rounded-xl border-2 border-primary-light-active bg-primary-light p-5">
                     <p className="mb-3 text-sm font-semibold text-primary-darker">
                       Leave this course? You can re-enroll later while it's
                       open.
@@ -446,7 +446,7 @@ const CourseDetailsPage = () => {
                         type="button"
                         onClick={handleLeave}
                         disabled={actionLoading}
-                        className="inline-flex items-center gap-2 rounded-full bg-primary-dark px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark-hover disabled:opacity-50"
+                        className="inline-flex items-center gap-2 rounded-lg bg-primary-dark px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark-hover disabled:opacity-50"
                       >
                         {actionLoading && (
                           <Loader2 size={16} className="animate-spin" />
@@ -457,7 +457,7 @@ const CourseDetailsPage = () => {
                         type="button"
                         onClick={() => setConfirmingLeave(false)}
                         disabled={actionLoading}
-                        className="rounded-full bg-white px-6 py-2.5 text-sm font-bold text-neutral-darker transition-colors hover:bg-neutral-light-active disabled:opacity-50"
+                        className="rounded-lg bg-white px-6 py-2.5 text-sm font-bold text-neutral-darker transition-colors hover:bg-neutral-light-active disabled:opacity-50"
                       >
                         Cancel
                       </button>
@@ -475,7 +475,7 @@ const CourseDetailsPage = () => {
                   type="button"
                   onClick={handleEnroll}
                   disabled={actionLoading}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-base font-bold text-white transition-colors hover:bg-primary-hover active:bg-primary-active disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3 text-base font-bold text-white transition-colors hover:bg-primary-hover active:bg-primary-active disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {actionLoading && <Loader2 size={18} className="animate-spin" />}
                   {actionLoading ? "Enrolling..." : "Enroll in course"}

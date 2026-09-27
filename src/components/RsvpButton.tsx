@@ -60,7 +60,7 @@ const RsvpButton = ({ event, onToggle }: RsvpButtonProps) => {
       type="button"
       onClick={handleRsvp}
       disabled={loading}
-      className={`inline-flex items-center gap-2 whitespace-nowrap rounded-full px-7 py-2.5 text-base font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+      className={`inline-flex items-center gap-2 whitespace-nowrap rounded-lg px-7 py-2.5 text-base font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
         rsvped
           ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
           : "bg-primary text-white hover:bg-primary-hover"

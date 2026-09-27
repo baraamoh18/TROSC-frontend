@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, Link, useLocation } from "react-router-dom";
+import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
+import { Lock } from "lucide-react";
 import * as api from "../services/api";
 import { ApiError } from "../services/api";
 import type {
@@ -14,18 +15,17 @@ import type {
 import { useAuth } from "../context/useAuth";
 import TrackHero from "../components/TrackDetails/TrackHero";
 import TrackTabs from "../components/TrackDetails/TrackTabs";
+import { panelId, tabId } from "../components/TrackDetails/tabIds";
+import type { TrackTab } from "../components/TrackDetails/TrackTabs";
+import TrackJoinAction from "../components/TrackDetails/TrackJoinAction";
 import TrackOverview from "../components/TrackDetails/TrackOverview";
 import TrackWeeklyTasks from "../components/TrackDetails/TrackWeeklyTasks";
 import TrackSessionsTable from "../components/TrackDetails/TrackSessionsTable";
 import TrackAssignments from "../components/TrackDetails/TrackAssignments";
 import TrackCourses from "../components/TrackDetails/TrackCourses";
-import TrackResources from "../components/TrackDetails/TrackResources";
-import TrackSchedule from "../components/TrackDetails/TrackSchedule";
 import FeedbackPanel from "../components/FeedbackPanel";
-import Divider from "../components/Divider";
-import ComingSoonNotice from "../components/ComingSoonNotice";
+import EmptyState from "../components/EmptyState";
 import { trackCoverImage, trackGradient } from "../utils/trackVisuals";
-import { smoothScrollToId } from "../utils/smoothScroll";
 import usePageTitle from "../hooks/usePageTitle";
 
 /** Returns true only for valid 24-character hex MongoDB ObjectIds. */
@@ -35,6 +35,7 @@ const TrackDetailsPage = () => {
   const { trackId } = useParams<{ trackId: string }>();
   const { user, loading: authLoading } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const hasValidTrackId = !!trackId && isValidObjectId(trackId);
 
   // ── State ────────────────────────────────────────────────────
@@ -211,49 +212,16 @@ const TrackDetailsPage = () => {
     !!user &&
     (user.enrolledTrack === trackId || user.role === "admin" || user.role === "instructor");
 
-  // PDFs come from each session's resources[] attachments;
-  // Recordings are sessions that have a primary URL (video/embed) and link
-  // to the session viewer, which handles access checks and progress.
-  const trackResources = useMemo(() => {
-    if (!canWatchSessions) return { pdfs: [], recordings: [] };
-    const pdfs = sortedSessions.flatMap((s) =>
-      (s.resources ?? [])
-        .filter((r) => !!r.url)
-        .map((r) => ({ title: r.title, url: r.url })),
-    );
-    const recordings = sortedSessions
-      .filter((s) => !!s.url)
-      .map((s) => ({ sessionId: s._id, title: s.title }));
-    return { pdfs, recordings };
-  }, [sortedSessions, canWatchSessions]);
-
-  // Derive schedule from sessions with a startDate
-  const scheduleItems = useMemo(() => {
-    return sortedSessions
-      .filter((s) => !!s.startDate)
-      .map((s) => ({
-        date: new Date(s.startDate!).toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }),
-        event: s.title,
-        type: "session" as const,
-      }));
-  }, [sortedSessions]);
-
   const nextSessionLabel = useMemo(() => {
     const now = Date.now();
-    const upcoming = sortedSessions.find(
-      (s) => s.startDate && new Date(s.startDate).getTime() > now,
-    );
-    return upcoming?.startDate
-      ? new Date(upcoming.startDate).toLocaleString(undefined, {
-          dateStyle: "medium",
-          timeStyle: "short",
-        })
-      : "TBA";
-  }, [sortedSessions]);
+    const dates = (canWatchSessions ? sortedSessions : sessionCatalog)
+      .map((s) => (s.startDate ? new Date(s.startDate).getTime() : NaN))
+      .filter((t) => t > now)
+      .sort((a, b) => a - b);
+    return dates.length
+      ? new Date(dates[0]).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })
+      : undefined;
+  }, [sortedSessions, sessionCatalog, canWatchSessions]);
 
   // Update a single assignment's mySubmission after a successful submit
   const handleAssignmentSubmission = (assignmentId: string, submission: Submission) => {
@@ -283,6 +251,32 @@ const TrackDetailsPage = () => {
   };
 
   const isEnrolled = !!user && user.enrolledTrack === trackId;
+  const isStaff = !!user && (user.role === "admin" || user.role === "instructor");
+
+  // ── Tabs ─────────────────────────────────────────────────────
+
+  const tabs: TrackTab[] = [
+    { id: "overview", name: "Overview" },
+    { id: "courses", name: "Courses", count: courses.length },
+    {
+      id: "sessions",
+      name: "Sessions",
+      count: canWatchSessions ? sessions.length : sessionCatalog.length,
+    },
+    { id: "weekly-tasks", name: "Weekly tasks" },
+    { id: "assignments", name: "Assignments" },
+    { id: "reviews", name: "Reviews" },
+  ];
+  // ?tab= keeps the open tab shareable; old #section links still open their tab.
+  // (Not the hash itself: useScrollToHash scrolls on every hash change.)
+  const requestedTab =
+    new URLSearchParams(location.search).get("tab") ?? location.hash.replace("#", "");
+  const activeTab = tabs.some((t) => t.id === requestedTab) ? requestedTab : "overview";
+  const selectTab = (id: string) =>
+    navigate(
+      { search: id === "overview" ? "" : `?tab=${id}`, hash: location.hash },
+      { replace: true, preventScrollReset: true },
+    );
 
   // ── Hero values ───────────────────────────────────────────────
 
@@ -290,27 +284,6 @@ const TrackDetailsPage = () => {
   usePageTitle(liveTrack?.title);
   const heroSubtitle = liveTrack?.description ?? "";
   const heroImage = trackCoverImage(liveTrack?.coverImage);
-  const isPending = !!user && user.pendingTrack === trackId;
-
-  // Hero call to action so visitors don't have to find the Overview sidebar.
-  // Enrolled/pending users manage their status in the Overview section.
-  const heroCtaCls =
-    "inline-block rounded-xl bg-primary px-6 py-3 font-bold text-white shadow-lg transition-colors hover:bg-primary-hover";
-  const heroAction = authLoading || !liveTrack ? null : !user ? (
-    <Link to="/signin" state={{ from: location }} className={heroCtaCls}>
-      Sign in to enroll
-    </Link>
-  ) : user.role === "admin" || user.role === "instructor" ? null : !isEnrolled && !isPending ? (
-    <button type="button" onClick={() => smoothScrollToId("overview", 140)} className={heroCtaCls}>
-      Join the Track
-    </button>
-  ) : null;
-
-  const scheduleSummary = {
-    nextSession: nextSessionLabel,
-    projectDeadline: "TBA",
-    finalExam: "TBA",
-  };
 
   // Keep the validation guard after all hooks so the hook order is stable.
   if (!hasValidTrackId) {
@@ -323,7 +296,7 @@ const TrackDetailsPage = () => {
           </p>
           <Link
             to="/#tracks"
-            className="inline-block bg-primary text-white font-bold py-2.5 px-6 rounded-xl hover:bg-primary-hover transition-colors"
+            className="inline-block bg-primary text-white font-bold py-2.5 px-6 rounded-lg hover:bg-primary-hover transition-colors"
           >
             Browse Tracks
           </Link>
@@ -331,6 +304,133 @@ const TrackDetailsPage = () => {
       </div>
     );
   }
+
+  // Members-only tabs explain how to get in instead of showing nothing.
+  const lockedState = (what: string) => {
+    if (authLoading) return null;
+    if (!user) {
+      return (
+        <EmptyState
+          icon={Lock}
+          message={`Sign in and join this track to see its ${what}.`}
+          action={
+            <Link
+              to="/signin"
+              state={{ from: location }}
+              className="rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-hover"
+            >
+              Sign in
+            </Link>
+          }
+        />
+      );
+    }
+    if (isStaff) {
+      return (
+        <EmptyState
+          icon={Lock}
+          message={`Members see their ${what} here. You can manage them from your dashboard.`}
+          action={
+            <Link
+              to={user.role === "admin" ? "/admin" : "/instructor"}
+              className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-bold text-gray-800 transition-colors hover:bg-gray-50"
+            >
+              Open dashboard
+            </Link>
+          }
+        />
+      );
+    }
+    return <EmptyState icon={Lock} message={`Join this track to see its ${what}.`} />;
+  };
+
+  const sectionHeading = (title: string) => (
+    <h2 className="mb-6 text-2xl font-bold text-primary-darker">{title}</h2>
+  );
+
+  const skeleton = (count: number, height: string) => (
+    <div className="space-y-3">
+      {Array.from({ length: count }, (_, n) => (
+        <div key={n} className={`${height} animate-pulse rounded-xl bg-gray-200`} />
+      ))}
+    </div>
+  );
+
+  const renderPanel = () => {
+    switch (activeTab) {
+      case "courses":
+        return <TrackCourses courses={courses} />;
+      case "sessions":
+        if (authLoading) return skeleton(3, "h-16");
+        return canWatchSessions && !sessionsUnauthorized ? (
+          <TrackSessionsTable
+            sessions={sortedSessions}
+            canWatch
+            signedIn
+            isEnrolled={isEnrolled}
+            onWatched={handleSessionWatched}
+          />
+        ) : (
+          <TrackSessionsTable
+            sessions={[]}
+            catalogSessions={sessionCatalog}
+            canWatch={false}
+            signedIn={!!user}
+            isEnrolled={false}
+          />
+        );
+      case "weekly-tasks":
+        if (!isEnrolled || weeklyTasksUnauthorized) {
+          return (
+            <>
+              {sectionHeading("Weekly tasks")}
+              {lockedState("weekly tasks")}
+            </>
+          );
+        }
+        return weeklyTasksLoading ? (
+          <>
+            {sectionHeading("Weekly tasks")}
+            {skeleton(3, "h-16")}
+          </>
+        ) : (
+          <TrackWeeklyTasks tasks={weeklyTasks} />
+        );
+      case "assignments":
+        if (!isEnrolled || assignmentsUnauthorized) {
+          return (
+            <>
+              {sectionHeading("Assignments")}
+              {lockedState("assignments")}
+            </>
+          );
+        }
+        return assignmentsLoading ? (
+          <>
+            {sectionHeading("Assignments")}
+            {skeleton(2, "h-24")}
+          </>
+        ) : (
+          <TrackAssignments
+            assignments={assignments}
+            isEnrolled={isEnrolled}
+            onSubmissionUpdate={handleAssignmentSubmission}
+          />
+        );
+      case "reviews":
+        return <FeedbackPanel subject="track" subjectId={trackId ?? ""} />;
+      default:
+        return (
+          <TrackOverview
+            trackId={trackId ?? ""}
+            track={liveTrack}
+            overview={heroSubtitle || "No overview available yet."}
+            nextSession={nextSessionLabel}
+            courseCount={courses.length}
+          />
+        );
+    }
+  };
 
   // ── Render ────────────────────────────────────────────────────
 
@@ -341,165 +441,22 @@ const TrackDetailsPage = () => {
         subtitle={heroSubtitle}
         image={heroImage}
         gradient={trackGradient(trackId ?? "")}
-        action={heroAction}
+        action={liveTrack ? <TrackJoinAction trackId={trackId ?? ""} /> : null}
         level={liveTrack?.level}
         studentCount={liveTrack?.studentCount}
       />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        <TrackTabs />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <TrackTabs tabs={tabs} active={activeTab} onChange={selectTab} />
 
-        <div className="mt-8 space-y-16">
-          {/* Overview */}
-          <section id="overview" className="scroll-mt-32">
-            <TrackOverview
-              trackId={trackId ?? ""}
-              track={liveTrack}
-              overview={heroSubtitle || "No overview available yet."}
-              scheduleSummary={scheduleSummary}
-              courseCount={courses.length}
-            />
-
-          </section>
-
-          <Divider />
-
-          {/* Courses */}
-          <section id="courses" className="scroll-mt-32">
-            <TrackCourses courses={courses} />
-          </section>
-
-          <Divider />
-
-          {/* Sessions */}
-          <section id="sessions" className="scroll-mt-32">
-            {authLoading ? null : canWatchSessions && !sessionsUnauthorized ? (
-              <TrackSessionsTable
-                sessions={sortedSessions}
-                canWatch
-                signedIn
-                isEnrolled={isEnrolled}
-                onWatched={handleSessionWatched}
-              />
-            ) : (
-              <TrackSessionsTable
-                sessions={[]}
-                catalogSessions={sessionCatalog}
-                canWatch={false}
-                signedIn={!!user}
-                isEnrolled={false}
-              />
-            )}
-          </section>
-
-          <Divider />
-
-          {/* Resources */}
-          <section id="resources" className="scroll-mt-32">
-            {trackResources.pdfs.length === 0 && trackResources.recordings.length === 0 ? (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">{heroTitle} Resources</h2>
-                <ComingSoonNotice
-                  message={
-                    canWatchSessions
-                      ? "Track resources will appear here once sessions have attached materials."
-                      : user
-                        ? "Join this track to see its recordings and materials."
-                        : "Sign in and join this track to see its recordings and materials."
-                  }
-                />
-              </div>
-            ) : (
-              <TrackResources resources={trackResources} trackTitle={heroTitle} />
-            )}
-          </section>
-
-          <Divider />
-
-          {/* Weekly Tasks */}
-          <section id="weekly-tasks" className="scroll-mt-32">
-            {!authLoading && !user ? (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
-                <ComingSoonNotice message="Sign in and join this track to unlock weekly tasks." />
-              </div>
-            ) : !authLoading && user && !isEnrolled ? (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
-                <ComingSoonNotice message="Join this track to unlock weekly tasks and progress tracking." />
-              </div>
-            ) : weeklyTasksUnauthorized ? (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
-                <ComingSoonNotice message="Sign in to view weekly tasks." />
-              </div>
-            ) : weeklyTasksLoading ? (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
-                <div className="space-y-3">
-                  {[1, 2, 3].map((n) => (
-                    <div key={n} className="h-16 rounded-xl bg-gray-200 animate-pulse" />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <TrackWeeklyTasks tasks={weeklyTasks} />
-            )}
-          </section>
-
-          <Divider />
-
-          {/* Assignments */}
-          <section id="assignments" className="scroll-mt-32">
-            {!authLoading && !user ? (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Assignments</h2>
-                <ComingSoonNotice message="Sign in and join this track to unlock assignments." />
-              </div>
-            ) : !authLoading && user && !isEnrolled ? (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Assignments</h2>
-                <ComingSoonNotice message="Join this track to unlock assignments and secure submission." />
-              </div>
-            ) : assignmentsUnauthorized ? (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Assignments</h2>
-                <ComingSoonNotice message="Sign in to view assignments." />
-              </div>
-            ) : assignmentsLoading ? (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Assignments</h2>
-                <div className="space-y-3">
-                  {[1, 2].map((n) => (
-                    <div key={n} className="h-24 rounded-xl bg-gray-200 animate-pulse" />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <TrackAssignments
-                assignments={assignments}
-                isEnrolled={isEnrolled}
-                onSubmissionUpdate={handleAssignmentSubmission}
-              />
-            )}
-          </section>
-
-          {/* Schedule */}
-          <section id="schedule" className="scroll-mt-32">
-            {scheduleItems.length === 0 ? (
-              <div className="mb-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Upcoming Sessions & Deadlines</h2>
-                <ComingSoonNotice message="Session dates will appear here once sessions have scheduled start dates." />
-              </div>
-            ) : (
-              <TrackSchedule upcoming={scheduleItems} />
-            )}
-          </section>
-
-          {/* Feedback */}
-          <section id="feedback" className="scroll-mt-32">
-            <FeedbackPanel subject="track" subjectId={trackId ?? ""} />
-          </section>
+        <div
+          role="tabpanel"
+          id={panelId(activeTab)}
+          aria-labelledby={tabId(activeTab)}
+          tabIndex={0}
+          className="mt-8 focus:outline-none"
+        >
+          {renderPanel()}
         </div>
       </div>
     </div>

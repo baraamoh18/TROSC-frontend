@@ -7,12 +7,14 @@ import {
   Loader2,
   Star,
   AlertCircle,
+  FileText,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import * as api from "../../services/api";
 import type { BackendAssignment, Submission } from "../../services/api";
 import { useAuth } from "../../context/useAuth";
 import Modal from "../Modal";
+import EmptyState from "../EmptyState";
 
 // ── Submission status badge ───────────────────────────────────
 
@@ -193,7 +195,7 @@ const SubmitModal = ({
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="flex-1 inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white font-bold py-2.5 px-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white font-bold py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? (
               <>
@@ -210,7 +212,7 @@ const SubmitModal = ({
           <button
             onClick={onClose}
             disabled={submitting}
-            className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors disabled:opacity-50"
+            className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
@@ -238,18 +240,16 @@ const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
 
   if (assignments.length === 0) {
     return (
-      <div className="mb-16">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Assignments</h2>
-        <p className="text-gray-500 text-sm">
-          No assignments have been added to this track yet.
-        </p>
+      <div>
+        <h2 className="mb-6 text-2xl font-bold text-primary-darker">Assignments</h2>
+        <EmptyState icon={FileText} message="No assignments have been added to this track yet." />
       </div>
     );
   }
 
   return (
-    <div className="mb-16">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Assignments</h2>
+    <div>
+      <h2 className="mb-6 text-2xl font-bold text-primary-darker">Assignments</h2>
 
       <div className="space-y-4">
         {assignments.map((assignment, index) => {

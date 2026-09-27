@@ -103,12 +103,12 @@ const TrendsChart: React.FC = () => {
 
   const metricLabel = METRICS.find((m) => m.key === metric)?.label ?? "";
   const btnCls = (on: boolean) =>
-    `rounded-full px-3.5 py-1.5 text-xs font-bold capitalize transition-colors ${
+    `rounded-lg px-3.5 py-1.5 text-xs font-bold capitalize transition-colors ${
       on ? "bg-primary text-white" : "bg-neutral-light text-neutral-dark hover:bg-neutral-light-active"
     }`;
 
   return (
-    <section className="mt-8 rounded-2xl border border-neutral-light-active bg-white p-5 shadow-sm sm:p-6">
+    <section className="mt-8 rounded-xl border border-neutral-light-active bg-white p-5 shadow-sm sm:p-6">
       <h3 id={titleId} className="text-lg font-bold text-neutral-darker">
         Trends · {metricLabel}
       </h3>
@@ -127,7 +127,7 @@ const TrendsChart: React.FC = () => {
           <select
             value={metric}
             onChange={(e) => setMetric(e.target.value as MetricKey)}
-            className="rounded-full border border-neutral-light-active bg-white px-3 py-1.5 text-xs font-semibold text-neutral-darker focus:border-primary focus:outline-none"
+            className="rounded-lg border border-neutral-light-active bg-white px-3 py-1.5 text-xs font-semibold text-neutral-darker focus:border-primary focus:outline-none"
           >
             {METRICS.map((m) => (
               <option key={m.key} value={m.key}>{m.label}</option>

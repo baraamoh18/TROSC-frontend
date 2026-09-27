@@ -123,7 +123,7 @@ const SecurityForm = () => {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="mt-2 inline-flex items-center justify-center gap-2 self-start rounded-full bg-primary px-8 py-3 text-base font-bold text-white transition-colors hover:bg-primary-hover active:bg-primary-active disabled:opacity-50 disabled:cursor-not-allowed"
+        className="mt-2 inline-flex items-center justify-center gap-2 self-start rounded-lg bg-primary px-8 py-3 text-base font-bold text-white transition-colors hover:bg-primary-hover active:bg-primary-active disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting && <Loader2 size={18} className="animate-spin" />}
         {isSubmitting ? "Updating..." : "Update password"}

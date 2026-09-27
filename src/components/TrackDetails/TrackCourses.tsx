@@ -12,6 +12,7 @@ import {
   Layers,
 } from "lucide-react";
 import type { BackendCourse } from "../../services/api";
+import EmptyState from "../EmptyState";
 
 // ── Access badge ──────────────────────────────────────────────
 
@@ -160,7 +161,7 @@ const CourseCard = ({ course }: { course: BackendCourse }) => {
                     <span className="font-medium">{item.title}</span>
                     {item.description && (
                       <span className="text-gray-500 ml-1">
-                        — {item.description}
+                        : {item.description}
                       </span>
                     )}
                   </li>
@@ -184,22 +185,15 @@ const TrackCourses: React.FC<TrackCoursesProps> = ({ courses }) => {
   if (courses.length === 0) {
     return (
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Courses</h2>
-        <p className="text-gray-500 text-sm">
-          No courses have been added to this track yet.
-        </p>
+        <h2 className="mb-6 text-2xl font-bold text-primary-darker">Courses</h2>
+        <EmptyState icon={BookOpen} message="No courses have been added to this track yet." />
       </div>
     );
   }
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">
-        Courses
-        <span className="ml-2 text-base font-normal text-gray-400">
-          ({courses.length})
-        </span>
-      </h2>
+      <h2 className="mb-6 text-2xl font-bold text-primary-darker">Courses</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {courses.map((course) => (
           <CourseCard key={course._id} course={course} />

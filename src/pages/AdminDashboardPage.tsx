@@ -111,7 +111,7 @@ const AdminDashboardPage = () => {
 
   if (!user || !isAdmin) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-light pt-16 font-family-poppins">
+      <div className="flex min-h-screen items-center justify-center bg-neutral-light pt-16">
         <div className="px-4 text-center">
           <ShieldAlert size={48} className="mx-auto mb-3 text-primary" />
           <h1 className="mb-3 text-3xl font-bold text-neutral-darker">Restricted area</h1>
@@ -119,7 +119,7 @@ const AdminDashboardPage = () => {
           <button
             type="button"
             onClick={() => navigate(user?.role === "instructor" ? "/instructor" : user ? "/dashboard" : "/signin")}
-            className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
+            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
           >
             {user?.role === "instructor"
               ? "Go to Instructor Dashboard"
@@ -169,7 +169,7 @@ const AdminDashboardPage = () => {
     setBusyId(studentId);
     try {
       await api.approveLeave(selectedTrackId, studentId);
-      toast.success("Leave approved — student removed from track.");
+      toast.success("Leave approved. The student was removed from the track.");
       await fetchPending(selectedTrackId);
       void fetchTracks();
     } catch (err) {
@@ -184,7 +184,7 @@ const AdminDashboardPage = () => {
     setBusyId(studentId);
     try {
       await api.rejectLeave(selectedTrackId, studentId);
-      toast.success("Leave rejected — student stays in the track.");
+      toast.success("Leave rejected. The student stays in the track.");
       await fetchPending(selectedTrackId);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Rejection failed.");
@@ -195,7 +195,7 @@ const AdminDashboardPage = () => {
 
   // ── Render ────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-neutral-light pt-24 pb-20 font-family-poppins">
+    <div className="min-h-screen bg-neutral-light pt-24 pb-20">
       <div className="mx-auto w-full max-w-5xl px-6">
 
         {/* Header */}
@@ -205,7 +205,7 @@ const AdminDashboardPage = () => {
             Admin Dashboard
           </h1>
           <p className="mt-1 text-neutral-dark">
-            Full platform control — users, tracks, and live statistics.
+            Users, tracks, content and platform statistics.
           </p>
         </div>
 
@@ -219,7 +219,7 @@ const AdminDashboardPage = () => {
                 type="button"
                 id={`admin-tab-${tab.id}`}
                 onClick={() => setActiveTab(tab.id)}
-                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-colors ${
+                className={`inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-bold transition-colors ${
                   isActive
                     ? "bg-primary text-white shadow-sm"
                     : "bg-white text-neutral-dark hover:bg-neutral-light-active hover:text-neutral-darker"
@@ -251,7 +251,7 @@ const AdminDashboardPage = () => {
             {tracksLoading ? (
               <div className="mb-8 h-12 w-2/3 animate-pulse rounded-full bg-gray-200" />
             ) : tracks.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-10 text-center text-neutral-dark">
+              <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-10 text-center text-neutral-dark">
                 No tracks exist on the platform yet.
               </div>
             ) : (
@@ -265,7 +265,7 @@ const AdminDashboardPage = () => {
                         key={track._id}
                         type="button"
                         onClick={() => setSelectedTrackId(track._id)}
-                        className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-colors ${
+                        className={`inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-bold transition-colors ${
                           isActive
                             ? "bg-primary text-white shadow-sm"
                             : "bg-white text-neutral-dark hover:bg-neutral-light-active hover:text-neutral-darker"
@@ -289,7 +289,7 @@ const AdminDashboardPage = () => {
                 </div>
 
                 {selectedTrack && (
-                  <div className="mb-6 rounded-2xl border border-neutral-light-active bg-white p-5">
+                  <div className="mb-6 rounded-xl border border-neutral-light-active bg-white p-5">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <p className="text-lg font-bold text-neutral-darker">

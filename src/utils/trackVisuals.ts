@@ -1,13 +1,13 @@
 /** The backend's default cover image; treated as "no image" in the UI. */
 export const TRACK_PLACEHOLDER_IMAGE = "https://placehold.co/800x400?text=Trosc+Track";
 
+// Brand-red tints only, so tracks without a cover still look like TROSC.
 const GRADIENTS = [
-  "linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%)",
-  "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
-  "linear-gradient(135deg, #16a34a 0%, #14532d 100%)",
-  "linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%)",
-  "linear-gradient(135deg, #ea580c 0%, #9a3412 100%)",
-  "linear-gradient(135deg, #0d9488 0%, #134e4a 100%)",
+  "linear-gradient(135deg, #d32f2f 0%, #7f1d1d 100%)",
+  "linear-gradient(135deg, #b92828 0%, #511515 100%)",
+  "linear-gradient(135deg, #8b2323 0%, #2b0b0b 100%)",
+  "linear-gradient(135deg, #a02222 0%, #3f0f0f 100%)",
+  "linear-gradient(135deg, #7a2e2e 0%, #1f1111 100%)",
 ];
 
 /** Stable fallback gradient for a track, derived from its ObjectId. */

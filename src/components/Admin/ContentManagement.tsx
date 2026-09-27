@@ -31,7 +31,7 @@ import type {
 // ── shared helpers ────────────────────────────────────────────
 
 const inputCls =
-  "w-full rounded-xl border border-neutral-light-active bg-neutral-light px-4 py-2.5 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20";
+  "w-full rounded-lg border border-neutral-light-active bg-neutral-light px-4 py-2.5 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20";
 
 const selectCls = inputCls + " cursor-pointer";
 
@@ -64,7 +64,7 @@ const DeleteButton: React.FC<{
           type="button"
           disabled={busy}
           onClick={handleConfirm}
-          className="rounded-full bg-primary-dark px-3 py-1 text-xs font-bold text-white disabled:opacity-50"
+          className="rounded-lg bg-primary-dark px-3 py-1 text-xs font-bold text-white disabled:opacity-50"
         >
           {busy ? <Loader2 size={12} className="animate-spin" /> : "Yes"}
         </button>
@@ -72,7 +72,7 @@ const DeleteButton: React.FC<{
           type="button"
           disabled={busy}
           onClick={() => setAsking(false)}
-          className="rounded-full bg-white px-3 py-1 text-xs font-bold text-neutral-dark border border-neutral-light-active"
+          className="rounded-lg bg-white px-3 py-1 text-xs font-bold text-neutral-dark border border-neutral-light-active"
         >
           No
         </button>
@@ -85,7 +85,7 @@ const DeleteButton: React.FC<{
       type="button"
       disabled={disabled}
       onClick={() => setAsking(true)}
-      className="inline-flex items-center gap-1 rounded-full border border-neutral-light-active bg-white px-3 py-1.5 text-xs font-bold text-primary-dark transition-colors hover:bg-primary-light disabled:opacity-40"
+      className="inline-flex items-center gap-1 rounded-lg border border-neutral-light-active bg-white px-3 py-1.5 text-xs font-bold text-primary-dark transition-colors hover:bg-primary-light disabled:opacity-40"
     >
       <Trash2 size={12} />
       Delete
@@ -98,7 +98,7 @@ const EditButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className="inline-flex items-center gap-1 rounded-full border border-neutral-light-active bg-white px-3 py-1.5 text-xs font-bold text-neutral-dark transition-colors hover:bg-neutral-light-active"
+    className="inline-flex items-center gap-1 rounded-lg border border-neutral-light-active bg-white px-3 py-1.5 text-xs font-bold text-neutral-dark transition-colors hover:bg-neutral-light-active"
   >
     <Pencil size={12} />
     Edit
@@ -116,7 +116,7 @@ const Section: React.FC<{
 }> = ({ icon, title, count, children, defaultOpen = false }) => {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="rounded-2xl border border-neutral-light-active bg-white shadow-sm overflow-hidden">
+    <div className="rounded-xl border border-neutral-light-active bg-white shadow-sm overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -247,7 +247,7 @@ const TracksPanel: React.FC<{
         <button
           type="button"
           onClick={openCreate}
-          className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
         >
           <Plus size={15} /> Add Track
         </button>
@@ -303,7 +303,7 @@ const TracksPanel: React.FC<{
               <textarea
                 id="track-desc"
                 rows={3}
-                className="w-full rounded-xl border border-neutral-light-active bg-neutral-light px-4 py-2.5 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                className="w-full rounded-lg border border-neutral-light-active bg-neutral-light px-4 py-2.5 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
                 placeholder="What will students learn?"
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
@@ -352,7 +352,7 @@ const TracksPanel: React.FC<{
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
               >
                 {saving && <Loader2 size={14} className="animate-spin" />}
                 {saving ? "Saving…" : editingTrack ? "Save Changes" : "Create Track"}
@@ -360,7 +360,7 @@ const TracksPanel: React.FC<{
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="rounded-full border border-neutral-light-active px-5 py-2.5 text-sm font-bold text-neutral-dark hover:bg-neutral-light"
+                className="rounded-lg border border-neutral-light-active px-5 py-2.5 text-sm font-bold text-neutral-dark hover:bg-neutral-light"
               >
                 Cancel
               </button>
@@ -446,7 +446,7 @@ const CoursesPanel: React.FC<{
         <button
           type="button"
           onClick={openCreate}
-          className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
         >
           <Plus size={15} /> Add Course
         </button>
@@ -493,7 +493,7 @@ const CoursesPanel: React.FC<{
             <div>
               <label className="mb-1 block text-sm font-semibold text-neutral-darker">Description *</label>
               <textarea id="course-desc" rows={3}
-                className="w-full rounded-xl border border-neutral-light-active bg-neutral-light px-4 py-2.5 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                className="w-full rounded-lg border border-neutral-light-active bg-neutral-light px-4 py-2.5 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
                 placeholder="What will students learn?"
                 value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
             </div>
@@ -535,12 +535,12 @@ const CoursesPanel: React.FC<{
             </label>
             <div className="flex gap-3 pt-2">
               <button type="submit" disabled={saving}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:opacity-50">
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:opacity-50">
                 {saving && <Loader2 size={14} className="animate-spin" />}
                 {saving ? "Saving…" : editingCourse ? "Save Changes" : "Create Course"}
               </button>
               <button type="button" onClick={() => setShowForm(false)}
-                className="rounded-full border border-neutral-light-active px-5 py-2.5 text-sm font-bold text-neutral-dark hover:bg-neutral-light">
+                className="rounded-lg border border-neutral-light-active px-5 py-2.5 text-sm font-bold text-neutral-dark hover:bg-neutral-light">
                 Cancel
               </button>
             </div>
@@ -631,7 +631,7 @@ const EventsPanel: React.FC<{
         <button
           type="button"
           onClick={openCreate}
-          className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
         >
           <Plus size={15} /> Add Event
         </button>
@@ -678,7 +678,7 @@ const EventsPanel: React.FC<{
             <div>
               <label className="mb-1 block text-sm font-semibold text-neutral-darker">Description *</label>
               <textarea id="event-desc" rows={2}
-                className="w-full rounded-xl border border-neutral-light-active bg-neutral-light px-4 py-2.5 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                className="w-full rounded-lg border border-neutral-light-active bg-neutral-light px-4 py-2.5 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
                 placeholder="What's happening?"
                 value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
             </div>
@@ -712,12 +712,12 @@ const EventsPanel: React.FC<{
             )}
             <div className="flex gap-3 pt-2">
               <button type="submit" disabled={saving}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:opacity-50">
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:opacity-50">
                 {saving && <Loader2 size={14} className="animate-spin" />}
                 {saving ? "Saving…" : editingEvent ? "Save Changes" : "Create Event"}
               </button>
               <button type="button" onClick={() => setShowForm(false)}
-                className="rounded-full border border-neutral-light-active px-5 py-2.5 text-sm font-bold text-neutral-dark hover:bg-neutral-light">
+                className="rounded-lg border border-neutral-light-active px-5 py-2.5 text-sm font-bold text-neutral-dark hover:bg-neutral-light">
                 Cancel
               </button>
             </div>
@@ -821,10 +821,10 @@ const AnnouncementsPanel: React.FC<{
 
   const audienceLabel = (a: BackendAnnouncement) => {
     if (a.audience === "track") {
-      return `Track: ${tracks.find((t) => t._id === a.targetTrack)?.title ?? "—"}`;
+      return `Track: ${tracks.find((t) => t._id === a.targetTrack)?.title ?? "unknown"}`;
     }
     if (a.audience === "course") {
-      return `Course: ${courses.find((c) => c._id === a.targetCourse)?.title ?? "—"}`;
+      return `Course: ${courses.find((c) => c._id === a.targetCourse)?.title ?? "unknown"}`;
     }
     return "Everyone";
   };
@@ -835,7 +835,7 @@ const AnnouncementsPanel: React.FC<{
         <button
           type="button"
           onClick={openCreate}
-          className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
         >
           <Plus size={15} /> Add Announcement
         </button>
@@ -886,7 +886,7 @@ const AnnouncementsPanel: React.FC<{
             <div>
               <label htmlFor="announcement-message" className="mb-1 block text-sm font-semibold text-neutral-darker">Message *</label>
               <textarea id="announcement-message" rows={4}
-                className="w-full rounded-xl border border-neutral-light-active bg-neutral-light px-4 py-2.5 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                className="w-full rounded-lg border border-neutral-light-active bg-neutral-light px-4 py-2.5 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
                 placeholder="At least 10 characters"
                 value={form.message} onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))} />
             </div>
@@ -927,12 +927,12 @@ const AnnouncementsPanel: React.FC<{
             </label>
             <div className="flex gap-3 pt-2">
               <button type="submit" disabled={saving}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:opacity-50">
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:opacity-50">
                 {saving && <Loader2 size={14} className="animate-spin" />}
                 {saving ? "Saving…" : editing ? "Save Changes" : "Publish"}
               </button>
               <button type="button" onClick={() => setShowForm(false)}
-                className="rounded-full border border-neutral-light-active px-5 py-2.5 text-sm font-bold text-neutral-dark hover:bg-neutral-light">
+                className="rounded-lg border border-neutral-light-active px-5 py-2.5 text-sm font-bold text-neutral-dark hover:bg-neutral-light">
                 Cancel
               </button>
             </div>

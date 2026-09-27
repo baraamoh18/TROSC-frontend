@@ -14,6 +14,7 @@ import {
 import toast from "react-hot-toast";
 import * as api from "../../services/api";
 import type { WeeklyTask, WeeklyTaskItem } from "../../services/api";
+import EmptyState from "../EmptyState";
 
 // ── Item type icon ────────────────────────────────────────────
 
@@ -176,10 +177,8 @@ const TrackWeeklyTasks: React.FC<TrackWeeklyTasksProps> = ({ tasks }) => {
   if (tasks.length === 0) {
     return (
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
-        <p className="text-gray-500 text-sm">
-          No weekly tasks have been added to this track yet.
-        </p>
+        <h2 className="mb-6 text-2xl font-bold text-primary-darker">Weekly tasks</h2>
+        <EmptyState icon={ClipboardList} message="No weekly tasks have been added to this track yet." />
       </div>
     );
   }
@@ -189,7 +188,7 @@ const TrackWeeklyTasks: React.FC<TrackWeeklyTasksProps> = ({ tasks }) => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Weekly Tasks</h2>
+      <h2 className="mb-6 text-2xl font-bold text-primary-darker">Weekly tasks</h2>
       <div className="space-y-4 max-w-3xl">
         {sorted.map((task) => (
           <TaskBucket key={task._id} task={task} />

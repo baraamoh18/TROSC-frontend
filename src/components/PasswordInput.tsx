@@ -17,7 +17,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         <input
           ref={ref}
           type={show ? 'text' : 'password'}
-          className={`w-full px-4 py-3 border-2 border-neutral-light-active rounded-full bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors pr-12 ${className}`}
+          className={`w-full px-4 py-3 border-2 border-neutral-light-active rounded-lg bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors pr-12 ${className}`}
           {...props}
         />
         <button

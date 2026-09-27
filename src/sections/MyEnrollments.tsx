@@ -22,7 +22,7 @@ const MyEnrollments = () => {
         if (!cancelled) setData(res.data);
       })
       .catch(() => {
-        // No enrollments yet or request failed — section just won't render details
+        // No enrollments yet or request failed; section just won't render details
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -32,23 +32,24 @@ const MyEnrollments = () => {
     };
   }, [user]);
 
-  // Not logged in, or still resolving auth — don't show this section at all.
+  // Not logged in, or still resolving auth: don't show this section at all.
   if (authLoading || !user) return null;
 
   // Backend returns tracks[] array; pick the first one (users can only be in one track).
   const enrolledTrack = data?.tracks?.[0] ?? null;
 
   return (
-    <section className="w-full bg-neutral-light px-6 py-10 font-family-poppins">
+    // First section on the page, so it clears the fixed navbar.
+    <section className="w-full bg-neutral-light px-6 pb-10 pt-26">
       <div className="mx-auto w-full max-w-5xl">
         <h2 className="mb-6 text-3xl font-extrabold text-primary-darker">
           My Track
         </h2>
 
         {loading ? (
-          <div className="h-24 rounded-2xl bg-gray-200 animate-pulse" />
+          <div className="h-24 rounded-xl bg-gray-200 animate-pulse" />
         ) : enrolledTrack ? (
-          <div className="flex flex-col gap-4 rounded-2xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-xl font-bold text-neutral-darker mb-1">
                 {enrolledTrack.title}
@@ -66,21 +67,21 @@ const MyEnrollments = () => {
             </div>
             <Link
               to={`/track/${enrolledTrack._id}`}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-2.5 text-base font-bold text-white transition-colors hover:bg-primary-hover"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-base font-bold text-white transition-colors hover:bg-primary-hover"
             >
               <GraduationCap size={18} />
               Go to Track
             </Link>
           </div>
         ) : user.pendingTrack ? (
-          <div className="rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-6 text-center text-amber-800">
+          <div className="rounded-xl border border-dashed border-amber-300 bg-amber-50 p-6 text-center text-amber-800">
             Your request to join a track is waiting for approval.{" "}
             <Link to={`/track/${user.pendingTrack}`} className="text-primary font-semibold hover:text-primary-hover">
               View track
             </Link>
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
+          <div className="rounded-xl border border-dashed border-gray-300 bg-white p-6 text-center text-neutral-dark">
             You haven't joined a track yet.{" "}
             <Link to="/#tracks" className="text-primary font-semibold hover:text-primary-hover">
               Browse tracks

@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { LockKeyhole } from "lucide-react";
 import PasswordInput from "./PasswordInput";
 
 interface ResetPasswordData {
@@ -20,17 +21,18 @@ const ResetPasswordForm = ({ onSubmit }: ResetPasswordFormProps) => {
   } = useForm<ResetPasswordData>();
 
   return (
-    <div className="w-full max-w-md bg-neutral-light px-8 py-12 rounded-3xl shadow-lg font-family-poppins">
-      {/* Checkmark Icon */}
+    <div className="w-full max-w-md bg-neutral-light px-8 py-12 rounded-xl shadow-lg">
       <div className="flex justify-center mb-6">
-        <div className="text-5xl">✅</div>
+        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary-light text-primary">
+          <LockKeyhole size={28} aria-hidden="true" />
+        </div>
       </div>
 
       <h1 className="text-2xl font-bold text-neutral-darker text-center mb-2">
-        Reset Password
+        Reset password
       </h1>
       <p className="text-center text-neutral-dark mb-8 text-sm">
-        Create your new Password
+        Choose a new password for your account.
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
@@ -96,7 +98,7 @@ const ResetPasswordForm = ({ onSubmit }: ResetPasswordFormProps) => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3 mt-2 bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-bold text-lg rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-3 mt-2 bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-bold text-lg rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? "Resetting..." : "Set New Password"}
         </button>

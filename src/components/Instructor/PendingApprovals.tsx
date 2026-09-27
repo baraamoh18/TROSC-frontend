@@ -32,7 +32,7 @@ const PendingApprovals: React.FC<PendingApprovalsProps> = ({
   onReject,
 }) => {
   return (
-    <div className="rounded-2xl border border-neutral-light-active bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm">
       <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-neutral-darker">
         {heading}
         {!loading && people.length > 0 && (
@@ -88,7 +88,7 @@ const PendingApprovals: React.FC<PendingApprovalsProps> = ({
                   type="button"
                   disabled={busyId !== null}
                   onClick={() => onApprove(person._id)}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {busyId === person._id ? (
                     <Loader2 size={15} className="animate-spin" />
@@ -101,7 +101,7 @@ const PendingApprovals: React.FC<PendingApprovalsProps> = ({
                   type="button"
                   disabled={busyId !== null}
                   onClick={() => onReject(person._id)}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-primary-dark px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark-hover disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary-dark px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark-hover disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <X size={15} />
                   {rejectLabel}

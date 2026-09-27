@@ -38,7 +38,7 @@ const EventDetailsPage = () => {
     return (
       <div className="min-h-screen bg-neutral-light pt-24 pb-20">
         <div className="mx-auto w-full max-w-4xl px-6">
-          <div className="h-64 animate-pulse rounded-2xl bg-gray-200" />
+          <div className="h-64 animate-pulse rounded-xl bg-gray-200" />
           <div className="mt-6 h-8 w-2/3 animate-pulse rounded-xl bg-gray-200" />
         </div>
       </div>
@@ -79,7 +79,7 @@ const EventDetailsPage = () => {
 
         <EventCover event={event} className="h-56 sm:h-72" />
 
-        <article className="mt-6 rounded-2xl bg-white p-6 shadow-sm sm:p-8">
+        <article className="mt-6 rounded-xl bg-white p-6 shadow-sm sm:p-8">
           {!isUpcoming && (
             <span className="mb-3 inline-block rounded-full bg-neutral-light-active px-3 py-1 text-xs font-bold text-neutral-dark">
               Past event

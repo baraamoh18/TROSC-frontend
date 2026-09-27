@@ -18,9 +18,9 @@ const ForgotPasswordForm = ({ onSubmit }: ForgotPasswordFormProps) => {
   } = useForm<ForgotPasswordData>();
 
   return (
-    <div className="w-full max-w-md bg-neutral-light px-8 py-12 rounded-3xl shadow-lg font-family-poppins">
+    <div className="w-full max-w-md bg-neutral-light px-8 py-12 rounded-xl shadow-lg">
       <div className="flex justify-center mb-6">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-light text-primary">
+        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary-light text-primary">
           <KeyRound size={28} aria-hidden="true" />
         </div>
       </div>
@@ -54,7 +54,7 @@ const ForgotPasswordForm = ({ onSubmit }: ForgotPasswordFormProps) => {
               },
             })}
             placeholder="Enter your email address"
-            className="px-4 py-3 border-2 border-neutral-light-active rounded-full bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors"
+            className="px-4 py-3 border-2 border-neutral-light-active rounded-lg bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors"
           />
           {errors.email && (
             <span id="email-error" role="alert" className="text-xs text-red-600">{errors.email.message}</span>
@@ -64,7 +64,7 @@ const ForgotPasswordForm = ({ onSubmit }: ForgotPasswordFormProps) => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3 mt-2 bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-bold text-lg rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-3 mt-2 bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-bold text-lg rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? "Sending..." : "Send Reset Link"}
         </button>

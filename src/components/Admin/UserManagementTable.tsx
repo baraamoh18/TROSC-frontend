@@ -71,7 +71,7 @@ const ConfirmButton: React.FC<{
           onConfirm();
         } else setArmed(true);
       }}
-      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border px-3.5 py-1.5 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
         armed && danger
           ? "border-primary-dark bg-primary-dark text-white"
           : armed
@@ -180,7 +180,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
             placeholder="Search by name or email…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-full border border-neutral-light-active bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="w-full rounded-lg border border-neutral-light-active bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>
         <label htmlFor="user-status" className="sr-only">Show</label>
@@ -191,7 +191,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
             setStatus(e.target.value as StatusFilter);
             setPage(1);
           }}
-          className="shrink-0 rounded-full border border-neutral-light-active bg-white px-3 py-2.5 text-sm font-semibold text-neutral-darker focus:border-primary focus:outline-none"
+          className="shrink-0 rounded-lg border border-neutral-light-active bg-white px-3 py-2.5 text-sm font-semibold text-neutral-darker focus:border-primary focus:outline-none"
         >
           <option value="active">Active</option>
           <option value="inactive">Deactivated</option>
@@ -209,7 +209,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
           ))}
         </div>
       ) : users.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-10 text-center text-sm text-neutral-dark">
+        <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-10 text-center text-sm text-neutral-dark">
           {query
             ? `No ${status === "inactive" ? "deactivated " : ""}users match "${query}".`
             : status === "inactive"
@@ -217,7 +217,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
               : "No users found."}
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-neutral-light-active bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-xl border border-neutral-light-active bg-white shadow-sm">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-neutral-light-active bg-neutral-light">
@@ -278,7 +278,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
                         type="button"
                         disabled={busyId !== null}
                         onClick={() => handleChangeRole(user._id, user.name, "instructor")}
-                        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-primary px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {busyId === user._id ? (
                           <Loader2 size={12} className="animate-spin" />
@@ -293,7 +293,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
                         type="button"
                         disabled={busyId !== null}
                         onClick={() => handleChangeRole(user._id, user.name, "student")}
-                        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-neutral-light-active bg-white px-3.5 py-1.5 text-xs font-bold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-light-active bg-white px-3.5 py-1.5 text-xs font-bold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {busyId === user._id ? (
                           <Loader2 size={12} className="animate-spin" />
@@ -339,7 +339,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
               type="button"
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
-              className="inline-flex items-center gap-1 rounded-full border border-neutral-light-active bg-white px-3 py-1.5 font-semibold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-lg border border-neutral-light-active bg-white px-3 py-1.5 font-semibold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronLeft size={14} />
               Prev
@@ -348,7 +348,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
               type="button"
               disabled={page === totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className="inline-flex items-center gap-1 rounded-full border border-neutral-light-active bg-white px-3 py-1.5 font-semibold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-lg border border-neutral-light-active bg-white px-3 py-1.5 font-semibold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-40"
             >
               Next
               <ChevronRight size={14} />

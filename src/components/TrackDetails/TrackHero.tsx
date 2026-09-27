@@ -25,7 +25,7 @@ const TrackHero: React.FC<TrackHeroProps> = ({
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
       <div
-        className="relative h-72 md:h-96 rounded-2xl overflow-hidden bg-cover bg-center flex items-end"
+        className="relative min-h-72 md:min-h-96 rounded-xl overflow-hidden bg-cover bg-center flex items-end"
         style={{ backgroundImage: image ? `url(${image})` : gradient }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
@@ -47,7 +47,7 @@ const TrackHero: React.FC<TrackHeroProps> = ({
             </div>
           )}
           <h1 className="text-4xl md:text-5xl font-bold mb-2">{title}</h1>
-          <p className="text-lg md:text-xl font-medium">{subtitle}</p>
+          <p className="max-w-3xl text-lg md:text-xl font-medium line-clamp-3">{subtitle}</p>
           {action && <div className="mt-5">{action}</div>}
         </div>
       </div>

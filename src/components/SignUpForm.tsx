@@ -61,7 +61,7 @@ function SignUpForm() {
   };
 
   return (
-    <div className="w-full max-w-lg bg-neutral-light px-8 py-12 rounded-3xl shadow-lg font-family-poppins">
+    <div className="w-full max-w-lg bg-neutral-light px-8 py-12 rounded-xl shadow-lg">
       <h1 className="text-4xl font-bold text-neutral-darker text-center mb-8">
         Sign Up
       </h1>
@@ -83,7 +83,7 @@ function SignUpForm() {
             type="text"
             {...register("name", { required: "Full name is required" })}
             placeholder="Enter your full name"
-            className="px-4 py-3 border-2 border-neutral-light-active rounded-full bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors"
+            className="px-4 py-3 border-2 border-neutral-light-active rounded-lg bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors"
           />
           {errors.name && (
             <span id="name-error" role="alert" className="text-xs text-red-600">{errors.name.message}</span>
@@ -112,7 +112,7 @@ function SignUpForm() {
               },
             })}
             placeholder="Enter your email"
-            className="px-4 py-3 border-2 border-neutral-light-active rounded-full bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors"
+            className="px-4 py-3 border-2 border-neutral-light-active rounded-lg bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors"
           />
           {errors.email && (
             <span id="email-error" role="alert" className="text-xs text-red-600">{errors.email.message}</span>
@@ -153,7 +153,7 @@ function SignUpForm() {
               </div>
               <p className="mt-1 text-xs text-neutral-dark">
                 Password strength: <span className="font-semibold">{STRENGTH_LABELS[strength]}</span>
-                {strength < 3 && " — mix upper/lowercase letters, numbers and symbols"}
+                {strength < 3 && ". Mix upper and lowercase letters, numbers and symbols."}
               </p>
             </div>
           )}
@@ -195,7 +195,7 @@ function SignUpForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3 mt-6 bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-bold text-lg rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-3 mt-6 bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-bold text-lg rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? "Signing Up..." : "Sign Up"}
         </button>

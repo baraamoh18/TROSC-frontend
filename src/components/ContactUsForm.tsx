@@ -60,7 +60,7 @@ const ContactUsForm = () => {
   };
 
   const inputBase =
-    "w-full px-4 py-2.5 rounded-2xl border-2 border-neutral-light-active bg-white text-sm text-neutral-darker placeholder:text-neutral focus:outline-none focus:border-primary transition-colors duration-200";
+    "w-full px-4 py-2.5 rounded-lg border-2 border-neutral-light-active bg-white text-sm text-neutral-darker placeholder:text-neutral focus:outline-none focus:border-primary transition-colors duration-200";
 
   const errorClass = "border-primary-light-active focus:border-primary";
 
@@ -79,17 +79,17 @@ const ContactUsForm = () => {
             htmlFor="username"
             className="block text-sm font-semibold text-neutral-darker mb-1"
           >
-            Username
+            Name
           </label>
           <input
             id="username"
-            autoComplete="username"
+            autoComplete="name"
             aria-invalid={!!errors.username}
             aria-describedby={errors.username ? "contact-username-error" : undefined}
             type="text"
-            placeholder="Enter your username"
+            placeholder="Your full name"
             className={`${inputBase} ${errors.username ? errorClass : ""}`}
-            {...register("username", { required: "Username is required" })}
+            {...register("username", { required: "Name is required" })}
           />
           {errors.username && (
             <p id="contact-username-error" role="alert" className="mt-1 text-xs text-primary-dark">
@@ -142,7 +142,7 @@ const ContactUsForm = () => {
             aria-invalid={!!errors.email}
             aria-describedby={errors.email ? "contact-email-error" : undefined}
             type="email"
-            placeholder="Enter your email"
+            placeholder="you@example.com"
             className={`${inputBase} ${errors.email ? errorClass : ""}`}
             {...register("email", {
               required: "Email is required",
@@ -172,7 +172,7 @@ const ContactUsForm = () => {
             aria-invalid={!!errors.phone}
             aria-describedby={errors.phone ? "contact-phone-error" : undefined}
             type="tel"
-            placeholder="Enter your phone num"
+            placeholder="01xxxxxxxxx"
             className={`${inputBase} ${errors.phone ? errorClass : ""}`}
             {...register("phone", {
               required: "Phone number is required",
@@ -201,7 +201,7 @@ const ContactUsForm = () => {
             aria-invalid={!!errors.message}
             aria-describedby={errors.message ? "contact-message-error" : undefined}
             rows={4}
-            placeholder="Enter your message Here..."
+            placeholder="How can we help?"
             className={`${inputBase} resize-none ${errors.message ? errorClass : ""}`}
             {...register("message", {
               required: "Message is required",
@@ -222,7 +222,7 @@ const ContactUsForm = () => {
           type="submit"
           disabled={isSubmitting}
           id="contact-submit-btn"
-          className="w-full flex items-center justify-center gap-3 bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-bold text-lg py-3 rounded-2xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-3 bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-bold text-lg py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Send size={20} />
           {isSubmitting ? "Sending..." : "Send Message"}

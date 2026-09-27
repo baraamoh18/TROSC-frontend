@@ -23,7 +23,7 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = ({ icon, label, value, sub, accent = "#e83b3b" }) => (
   <div
-    className="relative overflow-hidden rounded-2xl border border-neutral-light-active bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+    className="relative overflow-hidden rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
   >
     {/* Faint accent circle */}
     <div
@@ -55,7 +55,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
     return (
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-36 animate-pulse rounded-2xl bg-gray-200" />
+          <div key={i} className="h-36 animate-pulse rounded-xl bg-gray-200" />
         ))}
       </div>
     );
@@ -63,7 +63,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
 
   if (!stats) {
     return (
-      <div className="rounded-2xl border border-dashed border-neutral-light-active bg-white p-10 text-center text-neutral-dark">
+      <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-10 text-center text-neutral-dark">
         Could not load platform statistics.
       </div>
     );
@@ -82,7 +82,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
         <button
           type="button"
           onClick={onRefresh}
-          className="inline-flex items-center gap-1.5 rounded-full bg-neutral-light px-4 py-2 text-sm font-semibold text-neutral-dark transition-colors hover:bg-neutral-light-active"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-light px-4 py-2 text-sm font-semibold text-neutral-dark transition-colors hover:bg-neutral-light-active"
         >
           <RefreshCw size={14} />
           Refresh
@@ -145,7 +145,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
       {mostActiveId && (
         <Link
           to={`/track/${mostActiveId}`}
-          className="mt-4 flex items-center gap-3 rounded-2xl border border-neutral-light-active bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+          className="mt-4 flex items-center gap-3 rounded-xl border border-neutral-light-active bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
         >
           <span className="rounded-xl bg-primary-light p-2.5 text-primary">
             <Flame size={20} />

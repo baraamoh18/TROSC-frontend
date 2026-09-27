@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FC } from "react";
-import { Star, UserCircle, Loader2, Trash2 } from "lucide-react";
+import { Star, UserCircle, Loader2, Trash2, MessageSquare } from "lucide-react";
+import EmptyState from "./EmptyState";
 import toast from "react-hot-toast";
 import * as api from "../services/api";
 import type { Review } from "../services/api";
@@ -135,7 +136,7 @@ const ReviewCard = ({ review, onDelete }: { review: Review; onDelete?: () => Pro
                       setConfirming(false);
                     }
                   }}
-                  className="rounded-full bg-primary-dark px-3 py-1 font-bold text-white disabled:opacity-50"
+                  className="rounded-lg bg-primary-dark px-3 py-1 font-bold text-white disabled:opacity-50"
                 >
                   {deleting ? <Loader2 size={12} className="animate-spin" /> : "Yes"}
                 </button>
@@ -143,7 +144,7 @@ const ReviewCard = ({ review, onDelete }: { review: Review; onDelete?: () => Pro
                   type="button"
                   disabled={deleting}
                   onClick={() => setConfirming(false)}
-                  className="rounded-full border border-neutral-light-active bg-white px-3 py-1 font-bold text-neutral-dark"
+                  className="rounded-lg border border-neutral-light-active bg-white px-3 py-1 font-bold text-neutral-dark"
                 >
                   No
                 </button>
@@ -235,7 +236,7 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
     <div className="space-y-8">
       {/* Signed out: no form they can't use, just a way in */}
       {!user ? (
-        <div className="flex flex-col items-start gap-3 rounded-2xl border border-gray-200 bg-gray-100 p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col items-start gap-3 rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <p className="text-gray-700">Sign in to rate and review this {subject}.</p>
           <Link
             to="/signin"
@@ -246,13 +247,9 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
           </Link>
         </div>
       ) : (
-      <div className="bg-gray-100 rounded-2xl p-6 md:p-8 shadow-sm border border-gray-200">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Your Feedback Matters
-        </h2>
-        <p className="text-gray-700 mb-6 max-w-2xl">
-          Help us make this {subject} even better.
-          <br />
+      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+        <h2 className="mb-2 text-2xl font-bold text-primary-darker">Review this {subject}</h2>
+        <p className="mb-6 max-w-2xl text-gray-700">
           Tell us what you liked, what was hard, and what you want to learn next.
         </p>
 
@@ -262,7 +259,8 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
               value={text}
               onChange={(e) => setText(e.target.value)}
               disabled={submitting}
-              className="w-full h-32 md:h-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none bg-white disabled:opacity-60"
+              aria-label={`Your review of this ${subject}`}
+              className="w-full h-32 md:h-full p-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none bg-white disabled:opacity-60"
               placeholder={
                 user
                   ? "Tell us your feedback..."
@@ -272,9 +270,7 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
           </div>
 
           <div className="flex flex-col items-center justify-center min-w-[200px] w-full md:w-auto">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Rate the {subject}
-            </h3>
+            <h3 className="mb-4 text-lg font-bold text-gray-900">Your rating</h3>
             <StarRating
               value={rating}
               hover={hover}
@@ -283,7 +279,7 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
               onLeave={() => setHover(0)}
               disabled={submitting}
             />
-            <p className="mt-2 mb-6 text-sm text-gray-500">
+            <p className="mt-2 mb-6 text-sm text-gray-600">
               {rating > 0
                 ? ["", "Poor", "Fair", "Good", "Very good", "Excellent"][rating]
                 : "Tap a star to rate"}
@@ -294,7 +290,7 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
               onClick={handleSubmit}
               disabled={submitting || !user}
               title={!user ? "Sign in to leave a review" : undefined}
-              className="w-full bg-primary text-white font-bold py-3 px-6 rounded-xl shadow-md transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-primary text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {submitting ? (
                 <>
@@ -302,7 +298,7 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
                   Submitting...
                 </>
               ) : (
-                "Submit Feedback"
+                "Submit review"
               )}
             </button>
           </div>
@@ -323,9 +319,10 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
             ))}
           </div>
         ) : reviews.length === 0 ? (
-          <p className="text-gray-500 text-sm">
-            {user ? "No reviews yet. Be the first!" : "No reviews yet."}
-          </p>
+          <EmptyState
+            icon={MessageSquare}
+            message={user ? "No reviews yet. Be the first to share one." : "No reviews yet."}
+          />
         ) : (
           <div className="space-y-3">
             {reviews.map((r) => {
