@@ -113,10 +113,14 @@ const AdminDashboardPage = () => {
           <p className="text-neutral-dark">Only admins can access this dashboard.</p>
           <button
             type="button"
-            onClick={() => navigate("/instructor")}
+            onClick={() => navigate(user?.role === "instructor" ? "/instructor" : user ? "/dashboard" : "/signin")}
             className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
           >
-            Go to Instructor Dashboard
+            {user?.role === "instructor"
+              ? "Go to Instructor Dashboard"
+              : user
+                ? "Go to my dashboard"
+                : "Sign in"}
           </button>
         </div>
       </div>

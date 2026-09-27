@@ -91,6 +91,13 @@ const InstructorDashboardPage = () => {
           <p className="text-neutral-dark">
             Only instructors can open this dashboard.
           </p>
+          <button
+            type="button"
+            onClick={() => navigate(user ? "/dashboard" : "/signin")}
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
+          >
+            {user ? "Go to my dashboard" : "Sign in"}
+          </button>
         </div>
       </div>
     );
