@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 
 import MainLayout from "./layout/MainLayout";
@@ -15,6 +15,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import RedirectIfAuthenticated from "./components/RedirectIfAuthenticated";
 import NotFoundPage from "./pages/NotFoundPage";
 import useScrollToHash from "./hooks/useScrollToHash";
+import ErrorBoundary from "./components/ErrorBoundary";
+import { lazyWithReload as lazy } from "./utils/lazyWithReload";
 
 // Signed-in and deep-link pages are split into their own chunks so first-time
 // visitors to the landing page don't download the dashboards.
@@ -35,6 +37,7 @@ function App() {
   useScrollToHash();
 
   return (
+    <ErrorBoundary>
     <Suspense fallback={<PageFallback />}>
     <Routes>
       {/* Pages with Navbar + Footer */}
@@ -100,6 +103,7 @@ function App() {
       </Route>
     </Routes>
     </Suspense>
+    </ErrorBoundary>
   );
 }
 

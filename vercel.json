@@ -5,7 +5,7 @@
       "destination": "https://trosc.onrender.com/v1/:path*"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!assets/).*)",
       "destination": "/index.html"
     }
   ]
