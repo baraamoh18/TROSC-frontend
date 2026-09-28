@@ -44,6 +44,8 @@ const TrackDetailsPage = () => {
 
   const [sessions, setSessions] = useState<BackendSession[]>([]);
   const [sessionsUnauthorized, setSessionsUnauthorized] = useState(false);
+  // Drafts the API sent anyway; their assignments are hidden from students too.
+  const [draftSessionIds, setDraftSessionIds] = useState<Set<string>>(new Set());
   const [sessionCatalog, setSessionCatalog] = useState<SessionCatalogItem[]>([]);
 
   const [courses, setCourses] = useState<BackendCourse[]>([]);
@@ -106,6 +108,9 @@ const TrackDetailsPage = () => {
         // The track list sends raw progress entries; pick out the caller's own.
         // It also includes drafts, which only staff should see.
         const isStaffUser = user.role === "admin" || user.role === "instructor";
+        setDraftSessionIds(
+          new Set(isStaffUser ? [] : res.data.sessions.filter((s) => s.published === false).map((s) => s._id)),
+        );
         setSessions(
           res.data.sessions
             .filter((s) => isStaffUser || s.published !== false)
@@ -425,7 +430,10 @@ const TrackDetailsPage = () => {
           </>
         ) : (
           <TrackAssignments
-            assignments={assignments}
+            assignments={assignments.filter((a) => {
+              const sessionId = typeof a.session === "string" ? a.session : a.session?._id;
+              return !sessionId || !draftSessionIds.has(sessionId);
+            })}
             isEnrolled={isEnrolled}
             onSubmissionUpdate={handleAssignmentSubmission}
           />
