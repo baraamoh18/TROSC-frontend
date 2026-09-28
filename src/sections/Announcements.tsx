@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Pin, Megaphone, ChevronDown, ChevronUp } from "lucide-react";
 import * as api from "../services/api";
 import type { BackendAnnouncement } from "../services/api";
+import Reveal from "../components/Reveal";
 
 // ── Single announcement card ──────────────────────────────────
 
@@ -120,13 +121,17 @@ const Announcements = () => {
       className="w-full bg-white px-6 py-12"
     >
       <div className="mx-auto w-full max-w-5xl">
-        <h2 className="mb-8 text-3xl font-extrabold text-primary-darker">
-          Announcements
-        </h2>
+        <Reveal>
+          <h2 className="mb-8 text-3xl font-extrabold text-primary-darker">
+            Announcements
+          </h2>
+        </Reveal>
 
         <div className="space-y-4">
-          {announcements.map((ann) => (
-            <AnnouncementCard key={ann._id} ann={ann} />
+          {announcements.map((ann, i) => (
+            <Reveal key={ann._id} delay={i * 80}>
+              <AnnouncementCard ann={ann} />
+            </Reveal>
           ))}
         </div>
       </div>

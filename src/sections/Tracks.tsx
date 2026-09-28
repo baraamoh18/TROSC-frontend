@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { X, Loader2 } from "lucide-react";
 import TrackCard from "./trackCard";
+import Reveal from "../components/Reveal";
 import Modal from "../components/Modal";
 import { trackCoverImage, trackGradient } from "../utils/trackVisuals";
 import * as api from "../services/api";
@@ -197,11 +198,11 @@ const Tracks = () => {
   return (
     <div className="bg-neutral-light px-6 py-16 w-full flex items-center justify-center">
       <div className="w-full max-w-6xl mx-auto">
-        <h2
-          className="text-3xl md:text-4xl font-extrabold text-gray-900 text-center mb-12"
-        >
-          Our Tracks
-        </h2>
+        <Reveal>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 text-center mb-12">
+            Our Tracks
+          </h2>
+        </Reveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {loading ? (
@@ -211,8 +212,10 @@ const Tracks = () => {
               <p className="text-lg font-medium">No tracks have been published yet.</p>
             </div>
           ) : (
-            featured.map((track) => (
-              <TrackCard key={track.id} track={track} />
+            featured.map((track, i) => (
+              <Reveal key={track.id} delay={i * 120} className="flex">
+                <TrackCard track={track} />
+              </Reveal>
             ))
           )}
         </div>

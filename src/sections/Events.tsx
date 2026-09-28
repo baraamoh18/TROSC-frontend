@@ -6,6 +6,7 @@ import type { BackendEvent } from "../services/api";
 import RsvpButton from "../components/RsvpButton";
 import EventCover from "../components/EventCover";
 import EmptyState from "../components/EmptyState";
+import Reveal from "../components/Reveal";
 
 const UPCOMING_LIMIT = 3;
 const PAST_LIMIT = 3;
@@ -72,7 +73,7 @@ const UpcomingEventCard: React.FC<{ event: BackendEvent }> = ({ event }) => {
 };
 
 const PastEventCard: React.FC<{ event: BackendEvent }> = ({ event }) => (
-  <article className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+  <article className="group relative h-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-[box-shadow,translate] duration-300 hover:shadow-lg motion-safe:hover:-translate-y-1">
     <EventCover event={event} flush className="h-36" />
     <div className="p-4">
       <p className="mb-1 text-xs font-semibold text-neutral-dark">
@@ -126,10 +127,12 @@ const Events: React.FC = () => {
   return (
     <section className="w-full bg-neutral-light px-6 py-14">
       <div className="mx-auto w-full max-w-5xl">
-        <h2 className="mb-2 text-center text-4xl font-extrabold text-primary-darker">Events</h2>
-        <p className="mb-10 text-center text-neutral-dark">
-          Workshops, talks and meetups run by TROSC.
-        </p>
+        <Reveal>
+          <h2 className="mb-2 text-center text-4xl font-extrabold text-primary-darker">Events</h2>
+          <p className="mb-10 text-center text-neutral-dark">
+            Workshops, talks and meetups run by TROSC.
+          </p>
+        </Reveal>
 
         {loading ? (
           <div className="space-y-5">
@@ -141,8 +144,10 @@ const Events: React.FC = () => {
           <>
             {upcoming.length > 0 ? (
               <div className="space-y-5">
-                {upcoming.map((event) => (
-                  <UpcomingEventCard key={event._id} event={event} />
+                {upcoming.map((event, i) => (
+                  <Reveal key={event._id} delay={i * 100}>
+                    <UpcomingEventCard event={event} />
+                  </Reveal>
                 ))}
               </div>
             ) : (
@@ -156,8 +161,10 @@ const Events: React.FC = () => {
               <div className="mt-12">
                 <h3 className="mb-5 text-xl font-bold text-neutral-darker">Past events</h3>
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {past.map((event) => (
-                    <PastEventCard key={event._id} event={event} />
+                  {past.map((event, i) => (
+                    <Reveal key={event._id} delay={i * 100}>
+                      <PastEventCard event={event} />
+                    </Reveal>
                   ))}
                 </div>
               </div>

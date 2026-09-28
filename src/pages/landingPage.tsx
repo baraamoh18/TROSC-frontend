@@ -1,4 +1,5 @@
-import WhoWeAre from "../sections/WhoWeAre";
+import Hero from "../sections/Hero";
+import HowItWorks from "../sections/HowItWorks";
 import Tracks from "../sections/Tracks";
 import Events from "../sections/Events";
 import MyEnrollments from "../sections/MyEnrollments";
@@ -15,8 +16,9 @@ function LandingPage() {
     <>
       {showMyTrack && <MyEnrollments />}
       <section id="home">
-        <WhoWeAre belowNavbar={!showMyTrack} />
+        <Hero belowNavbar={!showMyTrack} />
       </section>
+      <HowItWorks />
       <section id="tracks">
         <Tracks />
       </section>
