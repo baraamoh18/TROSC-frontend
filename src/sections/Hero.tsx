@@ -43,8 +43,7 @@ function useNextEvent() {
   return event;
 }
 
-/** belowNavbar: leave room for the fixed navbar when this is the first section. */
-function Hero({ belowNavbar = true }: { belowNavbar?: boolean }) {
+function Hero() {
   const { user } = useAuth();
   const reduceMotion = usePrefersReducedMotion();
   const nextEvent = useNextEvent();
@@ -60,7 +59,7 @@ function Hero({ belowNavbar = true }: { belowNavbar?: boolean }) {
   const afterHeadline = 80 + (HEADLINE.length + 1) * 70;
 
   return (
-    <section className={`relative overflow-hidden bg-white ${belowNavbar ? "pt-16" : ""}`}>
+    <section className="relative overflow-hidden bg-white pt-16">
       <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 pb-10 pt-12 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:pb-14 lg:pt-20">
         <div>
           <p
