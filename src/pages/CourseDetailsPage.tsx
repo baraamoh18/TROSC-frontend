@@ -95,10 +95,10 @@ const CourseDetailsPage = () => {
   usePageTitle(course?.title);
 
   // The course's sessions, for signed-in viewers (the session list needs a sign-in).
+  // Fetched by the session's course field: course.sessions can be out of date.
   const [sessions, setSessions] = useState<BackendSession[] | null>(null);
-  const sessionCount = course?.sessions?.length ?? 0;
   useEffect(() => {
-    if (!user || !courseId || sessionCount === 0) return;
+    if (!user || !courseId) return;
     let cancelled = false;
     api
       .getSessions(`course=${courseId}&limit=100`)
@@ -114,7 +114,7 @@ const CourseDetailsPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [user, courseId, sessionCount]);
+  }, [user, courseId]);
 
   if (!hasValidId) {
     return (
@@ -281,7 +281,7 @@ const CourseDetailsPage = () => {
         {/* Stats row */}
         <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
           {(() => {
-            const sessionTotal = course.sessionCount ?? course.sessions?.length ?? 0;
+            const sessionTotal = sessions?.length ?? course.sessionCount ?? course.sessions?.length ?? 0;
             const stats: {
               icon: LucideIcon;
               value: string | number;
@@ -415,17 +415,13 @@ const CourseDetailsPage = () => {
           )}
 
           {/* Sessions (signed-in only; the session list needs a sign-in) */}
-          {user && sessionCount > 0 && (
+          {user && sessions !== null && sessions.length > 0 && (
             <section className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
               <h2 className="mb-4 flex items-center gap-2 text-2xl font-extrabold text-primary-darker">
                 <Video className="h-6 w-6" />
                 Sessions
               </h2>
-              {sessions === null ? (
-                <div className="h-16 animate-pulse rounded-lg bg-gray-100" />
-              ) : sessions.length === 0 ? (
-                <p className="text-sm text-neutral-dark">No sessions have been published yet.</p>
-              ) : (
+              {(
                 <ul className="divide-y divide-neutral-light-active">
                   {sessions.map((s) => (
                     <li key={s._id}>
@@ -452,7 +448,7 @@ const CourseDetailsPage = () => {
           {/* Enrollment */}
           <section className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
             <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">
-              {isEnrolled ? "You're enrolled" : "Join this course"}
+              {isEnrolled ? "You're enrolled" : isStaffUser(user) ? "For staff" : "Join this course"}
             </h2>
 
             {!user ? (
