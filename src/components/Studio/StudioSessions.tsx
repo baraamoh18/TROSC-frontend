@@ -9,6 +9,7 @@ import ConfirmAction from "./ConfirmAction";
 import SessionForm from "./SessionForm";
 import { cardCls, errorMessage, formatDateTime, ownerName, primaryBtn, smallBtn } from "./studioUi";
 import type { CanManage } from "./studioUi";
+import { isOpenSession } from "../../utils/catalog";
 
 interface StudioSessionsProps {
   trackId: string;
@@ -127,12 +128,30 @@ const StudioSessions = ({ trackId, sessions, looseSessions, courses, canManage, 
       {looseSessions.length > 0 && (
         <section className="mt-10" aria-labelledby="loose-sessions">
           <h3 id="loose-sessions" className="mb-1 font-bold text-gray-900">Not in a track</h3>
-          <p className="mb-4 text-sm text-gray-600">Your sessions that no track includes yet. Students can't find these.</p>
+          <p className="mb-4 text-sm text-gray-600">
+            Your sessions that no track includes. Published public ones with no course are open sessions, listed on
+            Explore for anyone to join. Students can't find the rest.
+          </p>
           <ul className="space-y-2">
             {looseSessions.map((s) => (
               <li key={s._id} className={`${cardCls} flex flex-wrap items-center justify-between gap-3 px-4 py-3`}>
-                <span className="font-semibold text-gray-900">{s.title}</span>
-                <div className="flex gap-1">
+                <span className="flex min-w-0 flex-wrap items-center gap-2">
+                  <Link to={`/sessions/${s._id}`} className="font-semibold text-gray-900 hover:text-primary">
+                    {s.title}
+                  </Link>
+                  {isOpenSession(s) ? (
+                    <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-800">Open session</span>
+                  ) : (
+                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-700">
+                      {!s.published ? "Draft" : s.course ? "In a course" : "Not listed"}
+                    </span>
+                  )}
+                </span>
+                <div className="flex flex-wrap gap-1">
+                  <button type="button" className={`${smallBtn} text-gray-800 hover:bg-gray-100`} onClick={() => setEditing(s)}>
+                    <Pencil size={13} aria-hidden="true" />
+                    Edit
+                  </button>
                   <button
                     type="button"
                     className={`${smallBtn} text-primary hover:bg-primary-light`}

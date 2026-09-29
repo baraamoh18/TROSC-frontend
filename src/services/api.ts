@@ -566,6 +566,11 @@ export interface SessionResponse {
   data: { session: BackendSession };
 }
 
+/** Signed-in only; filters such as access=public&published=true pass through. */
+export function getSessions(query?: string): Promise<SessionsResponse> {
+  return request<SessionsResponse>("GET", `/sessions${query ? `?${query}` : ""}`);
+}
+
 export function getSession(id: string): Promise<SessionResponse> {
   return request<SessionResponse>("GET", `/sessions/${id}`);
 }

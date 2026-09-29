@@ -123,10 +123,10 @@ function Hero() {
               />
             </Link>
             <Link
-              to="/#tracks"
+              to="/explore"
               className="inline-flex min-h-12 items-center rounded-lg border border-neutral-light-active bg-white px-7 text-base font-bold text-neutral-darker transition-colors hover:border-primary hover:text-primary"
             >
-              Explore tracks
+              Explore tracks and courses
             </Link>
           </div>
         </div>

@@ -54,10 +54,10 @@ const Footer: React.FC = () => {
               <li className="flex items-center">
                 <MailIcon />
                 <a
-                  href="mailto:trosc@gmail.com"
+                  href="mailto:troscscu2@gmail.com"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  trosc@gmail.com
+                  troscscu2@gmail.com
                 </a>
               </li>
               <li className="flex items-center">
@@ -74,7 +74,7 @@ const Footer: React.FC = () => {
             <h3 className="text-lg font-bold text-white mb-4">Explore</h3>
             <ul className="space-y-3 text-sm">
               {[
-                { to: "/#tracks", label: "Tracks" },
+                { to: "/explore", label: "Explore" },
                 { to: "/#events", label: "Events" },
                 { to: "/contact", label: "Contact us" },
               ].map((l) => (

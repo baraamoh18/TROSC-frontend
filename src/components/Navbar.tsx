@@ -33,7 +33,7 @@ const Navbar: React.FC = () => {
     const hash = location.hash || "#home";
     setActiveLink(`/${hash}`);
 
-    const sections = ["home", "tracks", "events"];
+    const sections = ["home", "events"];
 
     const handleScroll = () => {
       let current = "home";
@@ -102,7 +102,7 @@ const Navbar: React.FC = () => {
 
   const navLinks: NavLink[] = [
     { name: "Home", href: "/#home" },
-    { name: "Tracks", href: "/#tracks" },
+    { name: "Explore", href: "/explore" },
     { name: "Events", href: "/#events" },
     { name: "Contact us", href: "/contact" },
   ];

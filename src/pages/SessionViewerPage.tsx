@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -6,6 +7,7 @@ import {
   CalendarDays,
   Clock,
   FileText,
+  Loader2,
   Lock,
   UserCircle,
   Video,
@@ -17,6 +19,7 @@ import ProgressToggle from "../components/Session/ProgressToggle";
 import FeedbackPanel from "../components/FeedbackPanel";
 import { useAuth } from "../context/useAuth";
 import usePageTitle from "../hooks/usePageTitle";
+import { isStandaloneSession } from "../utils/catalog";
 
 const LEVEL_BADGE: Record<BackendSession["level"], string> = {
   beginner: "bg-emerald-100 text-emerald-700",
@@ -26,7 +29,8 @@ const LEVEL_BADGE: Record<BackendSession["level"], string> = {
 
 const SessionViewerPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
+  const [membershipBusy, setMembershipBusy] = useState(false);
 
   const [session, setSession] = useState<BackendSession | null>(null);
   const [loading, setLoading] = useState(true);
@@ -85,7 +89,7 @@ const SessionViewerPage = () => {
           </h1>
           <p className="mb-6 text-neutral-dark">
             {errorStatus === 403
-              ? "Join the track this session belongs to in order to watch it."
+              ? "This session is only open to its members."
               : "It may have been removed, or the link is incorrect."}
           </p>
           <Link
@@ -110,6 +114,38 @@ const SessionViewerPage = () => {
     (!!user?.enrolledTrack && sessionTrackIds.includes(user.enrolledTrack)) ||
     !!user?.enrolledSessions?.includes(session._id);
   const isStaff = user?.role === "admin" || user?.role === "instructor";
+  const standalone = isStandaloneSession(session);
+  const joinedDirectly = !!user?.enrolledSessions?.includes(session._id);
+  // Public sessions outside any track or course can be joined on their own.
+  const canJoin = !!user && !isStaff && standalone && session.access === "public" && !canTrackProgress;
+  const back = trackId
+    ? { to: `/track/${trackId}`, label: "Back to track" }
+    : session.course
+      ? { to: `/courses/${session.course}`, label: "Back to course" }
+      : standalone
+        ? { to: "/explore#sessions", label: "Back to open sessions" }
+        : { to: "/dashboard", label: "Back to dashboard" };
+
+  const changeMembership = async (join: boolean) => {
+    setMembershipBusy(true);
+    try {
+      if (join) {
+        await api.enrollInSession(session._id);
+        toast.success("You've joined this session.");
+      } else {
+        await api.leaveSession(session._id);
+        toast.success("You've left this session.");
+      }
+      await refreshUser();
+      // Refetch so the recording link and progress reflect the new membership.
+      const res = await api.getSession(session._id);
+      setSession(res.data.session);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong. Try again.");
+    } finally {
+      setMembershipBusy(false);
+    }
+  };
   // The API strips url/embedUrl for callers without access, so no link here
   // means "members only" unless the session is public or the caller is staff.
   const isLocked =
@@ -126,12 +162,9 @@ const SessionViewerPage = () => {
       <div className="mx-auto w-full max-w-4xl px-6">
         {/* Breadcrumb */}
         <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-neutral-dark">
-          <Link
-            to={trackId ? `/track/${trackId}` : "/dashboard"}
-            className="inline-flex items-center gap-1.5 hover:text-primary transition-colors"
-          >
+          <Link to={back.to} className="inline-flex items-center gap-1.5 hover:text-primary transition-colors">
             <ArrowLeft size={16} />
-            {trackId ? "Back to track" : "Back to dashboard"}
+            {back.label}
           </Link>
         </div>
 
@@ -164,19 +197,31 @@ const SessionViewerPage = () => {
         ) : isLocked ? (
           <div className="flex aspect-video w-full flex-col items-center justify-center gap-3 rounded-xl bg-neutral-light-active px-6 text-center">
             <Lock size={28} className="text-neutral-dark" aria-hidden="true" />
-            <p className="font-bold text-neutral-darker">This session is for track members</p>
+            <p className="font-bold text-neutral-darker">
+              {trackId
+                ? "This session is for track members"
+                : session.course
+                  ? "This session is for course members"
+                  : canJoin
+                    ? "Join this session to watch it"
+                    : "This session is for its members"}
+            </p>
             <p className="max-w-sm text-sm text-neutral-dark">
-              {user
+              {trackId
                 ? "Join the track to watch the recording and track your progress."
-                : "Sign in and join the track to watch the recording."}
+                : session.course
+                  ? "Enroll in the course to watch the recording."
+                  : canJoin
+                    ? "It's open to everyone. Use Join session below."
+                    : "Ask its instructor for access."}
             </p>
             {user ? (
-              trackId && (
+              (trackId || session.course) && (
                 <Link
-                  to={`/track/${trackId}`}
+                  to={trackId ? `/track/${trackId}` : `/courses/${session.course}`}
                   className="rounded-lg bg-primary-dark px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark-hover"
                 >
-                  View the track
+                  {trackId ? "View the track" : "View the course"}
                 </Link>
               )
             ) : (
@@ -253,13 +298,44 @@ const SessionViewerPage = () => {
                   }
                 />
                 <span className="text-sm text-neutral-dark">
-                  Mark sessions as watched to track your progress in the track
-                  page.
+                  {trackId
+                    ? "Mark sessions as watched to track your progress in the track page."
+                    : "Mark it as watched once you've seen it."}
+                </span>
+                {standalone && joinedDirectly && (
+                  <button
+                    type="button"
+                    onClick={() => changeMembership(false)}
+                    disabled={membershipBusy}
+                    className="ml-auto inline-flex min-h-11 items-center gap-2 rounded-lg border border-neutral-light-active px-4 text-sm font-bold text-neutral-darker transition-colors hover:border-primary hover:text-primary disabled:opacity-50"
+                  >
+                    {membershipBusy && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
+                    Leave session
+                  </button>
+                )}
+              </div>
+            ) : canJoin ? (
+              <div className="flex flex-wrap items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => changeMembership(true)}
+                  disabled={membershipBusy}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-6 font-bold text-white transition-colors hover:bg-primary-hover disabled:opacity-50"
+                >
+                  {membershipBusy && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
+                  Join session
+                </button>
+                <span className="text-sm text-neutral-dark">
+                  Open to everyone. Join to track your progress on it.
                 </span>
               </div>
             ) : (
               <p className="text-sm text-neutral-dark">
-                Join the track to track your progress on this session.
+                {trackId
+                  ? "Join the track to track your progress on this session."
+                  : session.course
+                    ? "Enroll in the course to track your progress on this session."
+                    : "Only this session's members can track progress on it."}
               </p>
             )}
           </div>

@@ -15,12 +15,14 @@ import {
   Globe,
   UserCircle,
   Users,
+  Video,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import * as api from "../services/api";
 import { ApiError } from "../services/api";
-import type { BackendCourse } from "../services/api";
+import type { BackendCourse, BackendSession } from "../services/api";
+import { canSelfEnrollInCourse, isStaffUser } from "../utils/catalog";
 import { isDefaultPhoto } from "../utils/photoUtils";
 import { useAuth } from "../context/useAuth";
 import FeedbackPanel from "../components/FeedbackPanel";
@@ -91,6 +93,28 @@ const CourseDetailsPage = () => {
   }, [courseId, hasValidId, authLoading]);
 
   usePageTitle(course?.title);
+
+  // The course's sessions, for signed-in viewers (the session list needs a sign-in).
+  const [sessions, setSessions] = useState<BackendSession[] | null>(null);
+  const sessionCount = course?.sessions?.length ?? 0;
+  useEffect(() => {
+    if (!user || !courseId || sessionCount === 0) return;
+    let cancelled = false;
+    api
+      .getSessions(`course=${courseId}&limit=100`)
+      .then((res) => {
+        if (cancelled) return;
+        // Only this course's sessions, drafts only for staff.
+        const own = res.data.sessions.filter((s) => s.course === courseId);
+        setSessions(isStaffUser(user) ? own : own.filter((s) => s.published));
+      })
+      .catch(() => {
+        if (!cancelled) setSessions([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, courseId, sessionCount]);
 
   if (!hasValidId) {
     return (
@@ -183,7 +207,7 @@ const CourseDetailsPage = () => {
             {errorStatus === 401
               ? "Course details are available to signed-in members."
               : errorStatus === 403
-                ? "Enroll in the track this course belongs to in order to view it."
+                ? "This course is only open to its members."
                 : "It may have been removed, or the link is incorrect."}
           </p>
           {errorStatus === 401 ? (
@@ -218,11 +242,11 @@ const CourseDetailsPage = () => {
         {/* Breadcrumb */}
         <div className="mb-4 mt-2 text-sm font-semibold text-neutral-dark">
           <Link
-            to={course.track ? `/track/${course.track._id}` : "/"}
+            to={course.track ? `/track/${course.track._id}` : "/explore#courses"}
             className="inline-flex items-center gap-1.5 hover:text-primary transition-colors"
           >
             <ArrowLeft size={16} />
-            {course.track ? `Back to ${course.track.title}` : "Back to home"}
+            {course.track ? `Back to ${course.track.title}` : "Back to courses"}
           </Link>
         </div>
 
@@ -390,6 +414,41 @@ const CourseDetailsPage = () => {
             </section>
           )}
 
+          {/* Sessions (signed-in only; the session list needs a sign-in) */}
+          {user && sessionCount > 0 && (
+            <section className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
+              <h2 className="mb-4 flex items-center gap-2 text-2xl font-extrabold text-primary-darker">
+                <Video className="h-6 w-6" />
+                Sessions
+              </h2>
+              {sessions === null ? (
+                <div className="h-16 animate-pulse rounded-lg bg-gray-100" />
+              ) : sessions.length === 0 ? (
+                <p className="text-sm text-neutral-dark">No sessions have been published yet.</p>
+              ) : (
+                <ul className="divide-y divide-neutral-light-active">
+                  {sessions.map((s) => (
+                    <li key={s._id}>
+                      <Link
+                        to={`/sessions/${s._id}`}
+                        className="flex items-center justify-between gap-3 py-3 font-semibold text-neutral-darker transition-colors hover:text-primary"
+                      >
+                        <span className="min-w-0 truncate">{s.title}</span>
+                        <span className="shrink-0 text-xs font-semibold text-neutral-dark">
+                          {s.startDate
+                            ? new Date(s.startDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })
+                            : s.duration
+                              ? `${s.duration} min`
+                              : ""}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
+
           {/* Enrollment */}
           <section className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
             <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">
@@ -414,8 +473,9 @@ const CourseDetailsPage = () => {
                 {!confirmingLeave ? (
                   <>
                     <p className="text-sm text-neutral-dark">
-                      This course is in your enrollments. You can find its
-                      sessions through your track page.
+                      {course.track
+                        ? "This course is in your enrollments. You can find its sessions on your track page."
+                        : "This course is in your enrollments. Its sessions are listed above."}
                     </p>
                     <div className="flex flex-wrap gap-3">
                       {course.track && (
@@ -463,6 +523,36 @@ const CourseDetailsPage = () => {
                       </button>
                     </div>
                   </div>
+                )}
+              </div>
+            ) : isStaffUser(user) ? (
+              <div className="flex flex-col items-start gap-3">
+                <p className="text-sm text-neutral-dark">
+                  Staff don't enroll in courses. Manage this course's sessions and assignments in the Studio.
+                </p>
+                <Link
+                  to="/studio"
+                  className="rounded-lg bg-primary px-8 py-3 text-base font-bold text-white transition-colors hover:bg-primary-hover"
+                >
+                  Open the Studio
+                </Link>
+              </div>
+            ) : !canSelfEnrollInCourse(course, user) ? (
+              <div className="flex flex-col items-start gap-3">
+                <p className="text-sm text-neutral-dark">
+                  {course.access === "private"
+                    ? "This course is invite-only. Ask its instructor to add you."
+                    : course.track
+                      ? `This course is part of the ${course.track.title} track. Join the track to take it.`
+                      : "This course isn't open for enrollment yet."}
+                </p>
+                {course.access !== "private" && course.track && (
+                  <Link
+                    to={`/track/${course.track._id}`}
+                    className="rounded-lg bg-primary px-8 py-3 text-base font-bold text-white transition-colors hover:bg-primary-hover"
+                  >
+                    View the track
+                  </Link>
                 )}
               </div>
             ) : (

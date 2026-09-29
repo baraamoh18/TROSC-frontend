@@ -26,6 +26,7 @@ const SessionViewerPage = lazy(() => import("./pages/SessionViewerPage"));
 const CourseDetailsPage = lazy(() => import("./pages/CourseDetailsPage"));
 const StudioPage = lazy(() => import("./pages/StudioPage"));
 const EventDetailsPage = lazy(() => import("./pages/EventDetailsPage"));
+const ExplorePage = lazy(() => import("./pages/ExplorePage"));
 
 /** Old or guessed links: /tracks/:id → /track/:id */
 const TracksRedirect = () => {
@@ -51,6 +52,9 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/track/:trackId" element={<TrackDetailsPage />} />
         <Route path="/tracks/:trackId" element={<TracksRedirect />} />
+        <Route path="/explore" element={<ExplorePage />} />
+        <Route path="/tracks" element={<Navigate to="/explore" replace />} />
+        <Route path="/courses" element={<Navigate to="/explore#courses" replace />} />
         <Route path="/courses/:courseId" element={<CourseDetailsPage />} />
         <Route path="/events/:eventId" element={<EventDetailsPage />} />
       </Route>

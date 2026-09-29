@@ -1,25 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
-import { X, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import TrackCard from "./trackCard";
 import Reveal from "../components/Reveal";
-import Modal from "../components/Modal";
-import { trackCoverImage, trackGradient } from "../utils/trackVisuals";
+import { toTrackItem } from "../utils/trackVisuals";
 import * as api from "../services/api";
-import type { BackendTrack } from "../services/api";
 import type { TrackItem } from "../data/tracksData";
-
-// Placeholder URL used by the backend when no cover image is set
-function mapTrack(t: BackendTrack): TrackItem {
-  return {
-    id: t._id,
-    imageUrl: trackCoverImage(t.coverImage),
-    gradient: trackGradient(t._id),
-    title: t.title,
-    description: t.description,
-  };
-}
-
-// ── Loading skeleton ──────────────────────────────────────────
 
 const TrackSkeleton = () => (
   <div className="bg-gray-100 rounded-xl overflow-hidden animate-pulse">
@@ -32,148 +17,12 @@ const TrackSkeleton = () => (
   </div>
 );
 
-// ── All-Tracks Modal (with pagination) ────────────────────────
-
-const PAGE_SIZE = 9;
-
-const AllTracksModal = ({
-  onClose,
-}: {
-  onClose: () => void;
-}) => {
-  const close = useCallback(onClose, [onClose]);
-
-  // Paginated state inside the modal
-  const [tracks, setTracks] = useState<TrackItem[]>([]);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
-
-  // Fetch one page of tracks
-  const fetchPage = useCallback(
-    (pageNum: number) => {
-      const isFirst = pageNum === 1;
-      if (isFirst) setInitialLoading(true);
-      else setLoadingMore(true);
-
-      let cancelled = false;
-      api
-        .getTracks(`published=true&limit=${PAGE_SIZE}&page=${pageNum}`)
-        .then((res) => {
-          if (cancelled) return;
-          setTotal(res.total);
-          setTracks((prev) =>
-            isFirst
-              ? res.data.tracks.map(mapTrack)
-              : [...prev, ...res.data.tracks.map(mapTrack)],
-          );
-          setPage(pageNum);
-        })
-        .catch(() => {
-          // Keep what we have — show no more results
-        })
-        .finally(() => {
-          if (cancelled) return;
-          if (isFirst) setInitialLoading(false);
-          else setLoadingMore(false);
-        });
-
-      return () => { cancelled = true; };
-    },
-    [],
-  );
-
-  useEffect(() => {
-    fetchPage(1);
-  }, [fetchPage]);
-
-  const hasMore = tracks.length < total;
-
-  return (
-    <Modal
-      onClose={close}
-      labelledBy="all-tracks-title"
-      className="max-w-5xl max-h-[90vh] flex flex-col"
-    >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
-          <div>
-            <h2 id="all-tracks-title" className="text-2xl font-extrabold text-gray-900">All Tracks</h2>
-            {!initialLoading && (
-              <p className="text-sm text-gray-500 mt-0.5">
-                {total} track{total !== 1 ? "s" : ""} available
-              </p>
-            )}
-          </div>
-          <button
-            onClick={close}
-            className="p-2 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
-            aria-label="Close modal"
-          >
-            <X size={22} />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="overflow-y-auto p-6 flex flex-col gap-6">
-          {initialLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((n) => (
-                <TrackSkeleton key={n} />
-              ))}
-            </div>
-          ) : tracks.length === 0 ? (
-            <p className="text-center text-gray-500 py-12">
-              No tracks have been published yet.
-            </p>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {tracks.map((track) => (
-                  <TrackCard key={track.id} track={track} />
-                ))}
-              </div>
-
-              {/* Load More */}
-              {hasMore && (
-                <div className="text-center pt-2">
-                  <button
-                    onClick={() => fetchPage(page + 1)}
-                    disabled={loadingMore}
-                    className="inline-flex items-center gap-2 py-2.5 px-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    {loadingMore ? (
-                      <>
-                        <Loader2 size={16} className="animate-spin" />
-                        Loading…
-                      </>
-                    ) : (
-                      `Load More (${total - tracks.length} remaining)`
-                    )}
-                  </button>
-                </div>
-              )}
-
-              {/* All loaded indicator */}
-              {!hasMore && tracks.length > PAGE_SIZE && (
-                <p className="text-center text-sm text-gray-500">
-                  All {total} tracks loaded
-                </p>
-              )}
-            </>
-          )}
-        </div>
-    </Modal>
-  );
-};
 
 // ── Tracks section ────────────────────────────────────────────
 
 const Tracks = () => {
   // null = still loading, [] = loaded but empty, [...] = has tracks
   const [tracks, setTracks] = useState<TrackItem[] | null>(null);
-  const [showModal, setShowModal] = useState(false);
 
   // Landing page shows first 3 published tracks
   useEffect(() => {
@@ -182,7 +31,7 @@ const Tracks = () => {
       .getTracks("published=true&limit=3")
       .then((res) => {
         if (cancelled) return;
-        setTracks(res.data.tracks.map(mapTrack));
+        setTracks(res.data.tracks.map(toTrackItem));
       })
       .catch(() => {
         if (!cancelled) setTracks([]);
@@ -220,22 +69,19 @@ const Tracks = () => {
           )}
         </div>
 
-        {/* Only show "See All Tracks" when there are tracks to browse */}
+        {/* Only show the Explore link when there are tracks to browse */}
         {!loading && featured.length > 0 && (
           <div className="text-center">
-            <button
-              onClick={() => setShowModal(true)}
-              className="py-3 px-10 bg-primary text-white font-semibold rounded-lg hover:bg-primary-hover transition-colors duration-300 shadow-md"
+            <Link
+              to="/explore"
+              className="inline-flex min-h-12 items-center py-3 px-10 bg-primary text-white font-semibold rounded-lg hover:bg-primary-hover transition-colors duration-300 shadow-md"
             >
-              See All Tracks
-            </button>
+              See all tracks and courses
+            </Link>
           </div>
         )}
       </div>
 
-      {showModal && (
-        <AllTracksModal onClose={() => setShowModal(false)} />
-      )}
     </div>
   );
 };

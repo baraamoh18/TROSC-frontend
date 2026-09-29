@@ -44,6 +44,8 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
   const [startDate, setStartDate] = useState(toLocalInput(session?.startDate));
   const [published, setPublished] = useState(session?.published ?? true);
   const [courseId, setCourseId] = useState(session?.course ?? "");
+  // New sessions only: skip the track and make it public, so it's listed under Open sessions.
+  const [openSession, setOpenSession] = useState(false);
   const [resources, setResources] = useState<{ title: string; url: string }[]>(session?.resources ?? []);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -69,7 +71,7 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
       title: title.trim(),
       description: description.trim(),
       level,
-      access,
+      access: openSession ? "public" : access,
       published,
       resources: resources.map((r, i) => ({ title: r.title.trim() || `Material ${i + 1}`, url: r.url.trim() })),
     };
@@ -80,23 +82,31 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
     if (start) payload.startDate = start;
 
     setSaving(true);
+    // An open session never joins a course.
+    const targetCourse = openSession ? "" : courseId;
     try {
       if (editing) {
         await api.updateSession(session._id, payload);
         const oldCourse = session.course ?? "";
-        if (oldCourse !== courseId) {
+        if (oldCourse !== targetCourse) {
           if (oldCourse) await api.detachSessionFromCourse(oldCourse, session._id);
-          if (courseId) await api.attachSessionToCourse(courseId, session._id);
+          if (targetCourse) await api.attachSessionToCourse(targetCourse, session._id);
         }
         toast.success("Session saved.");
       } else {
         const res = await api.createSession(payload);
         const newId = res.data?.session?._id;
         if (!newId) throw new Error("The session was created, but the server didn't return its id.");
+        if (openSession) {
+          toast.success(published ? "Open session created. It's listed on Explore." : "Open session saved as a draft.");
+          onSaved();
+          onClose();
+          return;
+        }
         // Creating and linking are separate requests; say which part failed.
         try {
           await api.attachSessionToTrack(trackId, newId);
-          if (courseId) await api.attachSessionToCourse(courseId, newId);
+          if (targetCourse) await api.attachSessionToCourse(targetCourse, newId);
           toast.success("Session created and added to the track.");
         } catch (err) {
           toast.error(
@@ -174,6 +184,23 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
             {fieldError("url")}
           </div>
 
+          {!editing && (
+            <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-3 text-sm">
+              <input
+                type="checkbox"
+                checked={openSession}
+                onChange={(e) => setOpenSession(e.target.checked)}
+                className="mt-0.5 h-4 w-4 accent-primary"
+              />
+              <span>
+                <span className="block font-semibold text-gray-900">Open session</span>
+                <span className="text-gray-600">
+                  Not part of this track or a course. Anyone signed in can find it on Explore and join it.
+                </span>
+              </span>
+            </label>
+          )}
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="s-start" className={labelCls}>Date and time</label>
@@ -217,7 +244,8 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
               <select
                 id="s-access"
                 className={inputCls}
-                value={access}
+                disabled={openSession}
+                value={openSession ? "public" : access}
                 onChange={(e) => setAccess(e.target.value as SessionPayload["access"])}
               >
                 <option value="track-only">Track members only</option>
@@ -227,7 +255,13 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
             </div>
             <div className="sm:col-span-2">
               <label htmlFor="s-course" className={labelCls}>Course (optional)</label>
-              <select id="s-course" className={inputCls} value={courseId} onChange={(e) => setCourseId(e.target.value)}>
+              <select
+                id="s-course"
+                className={inputCls}
+                disabled={openSession}
+                value={openSession ? "" : courseId}
+                onChange={(e) => setCourseId(e.target.value)}
+              >
                 <option value="">Not part of a course</option>
                 {courses.map((c) => (
                   <option key={c._id} value={c._id}>

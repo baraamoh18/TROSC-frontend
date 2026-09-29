@@ -108,7 +108,7 @@ const HowItWorks = () => {
             Every track runs the same way, so you always know what comes next.
           </p>
           <Link
-            to="/#tracks"
+            to="/explore"
             className="group mt-8 inline-flex min-h-11 items-center gap-2 font-bold text-primary transition-colors hover:text-primary-hover"
           >
             Find your track

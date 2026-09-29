@@ -472,8 +472,9 @@ const CoursesPanel: React.FC<{
             <li key={c._id} className="flex items-center justify-between gap-3 py-3">
               <div className="min-w-0">
                 <p className="truncate font-semibold text-neutral-darker">{c.title}</p>
-                <p className="text-xs text-neutral-dark capitalize">
-                  {c.level} · {c.published ? "Published" : "Draft"} · {c.access}
+                <p className="text-xs text-neutral-dark">
+                  <span className="capitalize">{c.level}</span> · {c.published ? "Published" : "Draft"} · {c.access} ·{" "}
+                  {c.track ? c.track.title : "No track"}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -532,6 +533,15 @@ const CoursesPanel: React.FC<{
                   {tracks.map((t) => <option key={t._id} value={t._id}>{t.title}</option>)}
                 </select>
               </div>
+            )}
+            {!form.track && (
+              <p className="rounded-lg bg-neutral-light px-3 py-2 text-xs text-neutral-dark">
+                {form.access === "public"
+                  ? "No track and public: this course is listed on Explore, and anyone signed in can enroll."
+                  : form.access === "track-only"
+                    ? "No track and track-only: nobody can enroll. Choose a track, or set access to Public."
+                    : "No track and private: students can't find or enroll in this course on their own."}
+              </p>
             )}
             <label className="flex items-center gap-2 text-sm font-semibold text-neutral-darker cursor-pointer">
               <input type="checkbox" checked={form.published}

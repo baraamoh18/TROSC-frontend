@@ -25,6 +25,7 @@ import * as api from "../services/api";
 import type { EnrollmentsResponse, BackendEvent, ActivityLog } from "../services/api";
 import { useAuth } from "../context/useAuth";
 import usePageTitle from "../hooks/usePageTitle";
+import { isStandaloneCourse, isStandaloneSession } from "../utils/catalog";
 
 const PLACEHOLDER_IMAGE = "https://placehold.co/800x400?text=Trosc+Event";
 const MAX_SOURCE_FILE_SIZE_MB = 5;
@@ -401,7 +402,7 @@ const DashboardPage = () => {
                 <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
                   You haven't joined a track yet.{" "}
                   <Link
-                    to="/#tracks"
+                    to="/explore"
                     className="font-semibold text-primary hover:text-primary-hover"
                   >
                     Browse tracks
@@ -412,6 +413,56 @@ const DashboardPage = () => {
             })()}
           </section>
         )}
+
+        {/* Courses and sessions joined outside a track — students only */}
+        {user.role === "student" && !enrollmentsLoading && !enrollmentsError && (() => {
+          const ownCourses = (enrollments?.courses ?? []).filter(isStandaloneCourse);
+          const ownSessions = (enrollments?.sessions ?? []).filter(isStandaloneSession);
+          return (
+            <section className="mb-10">
+              <h2 className="mb-1 text-2xl font-extrabold text-primary-darker">On their own</h2>
+              <p className="mb-4 text-sm text-neutral-dark">
+                Courses and open sessions you joined outside a track.
+              </p>
+              {ownCourses.length + ownSessions.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
+                  Nothing here yet.{" "}
+                  <Link to="/explore#courses" className="font-semibold text-primary hover:text-primary-hover">
+                    Find a course or open session
+                  </Link>
+                  .
+                </div>
+              ) : (
+                <ul className="divide-y divide-neutral-light-active overflow-hidden rounded-xl border border-neutral-light-active bg-white shadow-sm">
+                  {ownCourses.map((c) => (
+                    <li key={c._id}>
+                      <Link
+                        to={`/courses/${c._id}`}
+                        className="flex items-center gap-3 px-5 py-4 font-semibold text-neutral-darker transition-colors hover:bg-neutral-light hover:text-primary"
+                      >
+                        <BookOpen size={18} className="shrink-0 text-primary" aria-hidden="true" />
+                        <span className="min-w-0 flex-1 truncate">{c.title}</span>
+                        <span className="text-xs font-semibold text-neutral-dark">Course</span>
+                      </Link>
+                    </li>
+                  ))}
+                  {ownSessions.map((sess) => (
+                    <li key={sess._id}>
+                      <Link
+                        to={`/sessions/${sess._id}`}
+                        className="flex items-center gap-3 px-5 py-4 font-semibold text-neutral-darker transition-colors hover:bg-neutral-light hover:text-primary"
+                      >
+                        <Video size={18} className="shrink-0 text-primary" aria-hidden="true" />
+                        <span className="min-w-0 flex-1 truncate">{sess.title}</span>
+                        <span className="text-xs font-semibold text-neutral-dark">Session</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          );
+        })()}
 
         {/* Role-specific shortcuts: instructors & admins */}
         {(user.role === "instructor" || user.role === "admin") && (

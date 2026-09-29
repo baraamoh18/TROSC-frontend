@@ -1,3 +1,6 @@
+import type { BackendTrack } from "../services/api";
+import type { TrackItem } from "../data/tracksData";
+
 /** The backend's default cover image; treated as "no image" in the UI. */
 export const TRACK_PLACEHOLDER_IMAGE = "https://placehold.co/800x400?text=Trosc+Track";
 
@@ -21,3 +24,12 @@ export const trackCoverImage = (coverImage?: string): string | undefined =>
 /** The backend fills empty covers with placehold.co images; treat those as missing. */
 export const realImage = (url?: string | null): string | undefined =>
   url && !url.toLowerCase().includes("placehold.co") ? url : undefined;
+
+/** Card data for a track from the API. */
+export const toTrackItem = (t: BackendTrack): TrackItem => ({
+  id: t._id,
+  imageUrl: trackCoverImage(t.coverImage),
+  gradient: trackGradient(t._id),
+  title: t.title,
+  description: t.description,
+});

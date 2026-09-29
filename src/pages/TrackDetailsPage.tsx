@@ -313,7 +313,7 @@ const TrackDetailsPage = () => {
             This track doesn't exist yet or hasn't been published.
           </p>
           <Link
-            to="/#tracks"
+            to="/explore"
             className="inline-block bg-primary text-white font-bold py-2.5 px-6 rounded-lg hover:bg-primary-hover transition-colors"
           >
             Browse Tracks
