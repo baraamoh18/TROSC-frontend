@@ -149,7 +149,11 @@ const SessionViewerPage = () => {
   // The API strips url/embedUrl for callers without access, so no link here
   // means "members only" unless the session is public or the caller is staff.
   const isLocked =
-    !session.embedUrl && !session.url && session.access !== "public" && !canTrackProgress && !isStaff;
+    !session.embedUrl &&
+    !session.url &&
+    !canTrackProgress &&
+    !isStaff &&
+    (session.access !== "public" || canJoin);
   const dateLabel = session.startDate
     ? new Date(session.startDate).toLocaleString(undefined, {
         dateStyle: "medium",
@@ -298,9 +302,13 @@ const SessionViewerPage = () => {
                   }
                 />
                 <span className="text-sm text-neutral-dark">
-                  {trackId
-                    ? "Mark sessions as watched to track your progress in the track page."
-                    : "Mark it as watched once you've seen it."}
+                  {session.myProgress?.status === "watched"
+                    ? trackId
+                      ? "It counts toward your progress on the track page."
+                      : "You've watched this session."
+                    : trackId
+                      ? "Mark sessions as watched to track your progress in the track page."
+                      : "Mark it as watched once you've seen it."}
                 </span>
                 {standalone && joinedDirectly && (
                   <button

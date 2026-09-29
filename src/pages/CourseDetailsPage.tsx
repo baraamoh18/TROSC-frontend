@@ -471,7 +471,9 @@ const CourseDetailsPage = () => {
                     <p className="text-sm text-neutral-dark">
                       {course.track
                         ? "This course is in your enrollments. You can find its sessions on your track page."
-                        : "This course is in your enrollments. Its sessions are listed above."}
+                        : sessions && sessions.length > 0
+                          ? "This course is in your enrollments. Its sessions are listed above."
+                          : "This course is in your enrollments. Its sessions will appear on this page."}
                     </p>
                     <div className="flex flex-wrap gap-3">
                       {course.track && (

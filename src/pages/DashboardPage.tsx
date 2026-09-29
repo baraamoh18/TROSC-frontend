@@ -25,7 +25,7 @@ import * as api from "../services/api";
 import type { EnrollmentsResponse, BackendEvent, ActivityLog } from "../services/api";
 import { useAuth } from "../context/useAuth";
 import usePageTitle from "../hooks/usePageTitle";
-import { isStandaloneCourse, isStandaloneSession } from "../utils/catalog";
+import { isStandaloneCourse } from "../utils/catalog";
 
 const PLACEHOLDER_IMAGE = "https://placehold.co/800x400?text=Trosc+Event";
 const MAX_SOURCE_FILE_SIZE_MB = 5;
@@ -232,6 +232,8 @@ const DashboardPage = () => {
   >(null);
   const [enrollmentsLoading, setEnrollmentsLoading] = useState(true);
   const [enrollmentsError, setEnrollmentsError] = useState(false);
+  /** Ids of standalone sessions; enrollments don't say which sessions are in a track. */
+  const [standaloneSessionIds, setStandaloneSessionIds] = useState<Set<string>>(new Set());
 
   const [rsvpEvents, setRsvpEvents] = useState<BackendEvent[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
@@ -247,10 +249,15 @@ const DashboardPage = () => {
     let cancelled = false;
     setEnrollmentsLoading(true);
     setEnrollmentsError(false);
-    api
-      .getMyEnrollments()
-      .then((res) => {
-        if (!cancelled) setEnrollments(res.data);
+    Promise.all([
+      api.getMyEnrollments(),
+      // If this fails, list no sessions rather than track sessions by mistake.
+      api.getSessions("isStandalone=true&limit=100").catch(() => null),
+    ])
+      .then(([res, standalone]) => {
+        if (cancelled) return;
+        setEnrollments(res.data);
+        setStandaloneSessionIds(new Set((standalone?.data.sessions ?? []).map((s) => s._id)));
       })
       .catch(() => {
         if (!cancelled) setEnrollmentsError(true);
@@ -416,8 +423,10 @@ const DashboardPage = () => {
 
         {/* Courses and sessions joined outside a track — students only */}
         {user.role === "student" && !enrollmentsLoading && !enrollmentsError && (() => {
-          const ownCourses = (enrollments?.courses ?? []).filter(isStandaloneCourse);
-          const ownSessions = (enrollments?.sessions ?? []).filter(isStandaloneSession);
+          const ownCourses = (enrollments?.courses ?? []).filter((c) => c.published && isStandaloneCourse(c));
+          const ownSessions = (enrollments?.sessions ?? []).filter(
+            (s) => s.published && standaloneSessionIds.has(s._id),
+          );
           return (
             <section className="mb-10">
               <h2 className="mb-1 text-2xl font-extrabold text-primary-darker">On their own</h2>
