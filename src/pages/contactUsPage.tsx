@@ -25,7 +25,7 @@ const ContactUsPage: React.FC = () => {
             <div className="flex flex-col gap-4">
 
               <a
-                href="tel:01023456789"
+                href="tel:+201201864338"
                 className="flex items-center gap-3 group w-fit"
                 aria-label="Call us"
               >
@@ -33,12 +33,12 @@ const ContactUsPage: React.FC = () => {
                   <Phone size={22} strokeWidth={2} />
                 </span>
                 <span className="font-semibold text-base text-neutral-darker group-hover:text-primary transition-colors duration-200">
-                  01023456789
+                  01201864338
                 </span>
               </a>
 
               <a
-                href="mailto:trosc@gmail.com"
+                href="mailto:troscscu2@gmail.com"
                 className="flex items-center gap-3 group w-fit"
                 aria-label="Email us"
               >
@@ -46,7 +46,7 @@ const ContactUsPage: React.FC = () => {
                   <Mail size={22} strokeWidth={2} />
                 </span>
                 <span className="font-semibold text-base text-neutral-darker group-hover:text-primary transition-colors duration-200">
-                  trosc@gmail.com
+                  troscscu2@gmail.com
                 </span>
               </a>
             </div>

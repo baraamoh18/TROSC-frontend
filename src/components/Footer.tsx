@@ -62,8 +62,8 @@ const Footer: React.FC = () => {
               </li>
               <li className="flex items-center">
                 <PhoneIcon />
-                <a href="tel:01023456789" className="text-gray-400 hover:text-white transition-colors">
-                  01023456789
+                <a href="tel:+201201864338" className="text-gray-400 hover:text-white transition-colors">
+                  01201864338
                 </a>
               </li>
             </ul>
