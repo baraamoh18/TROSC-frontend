@@ -16,9 +16,19 @@ interface StudioAssignmentsProps {
   canManage: CanManage;
   onChanged: () => void;
   onGrade: (assignmentId: string) => void;
+  /** What the list covers, for its copy. */
+  scope?: string;
 }
 
-const StudioAssignments = ({ assignments, courses, sessions, canManage, onChanged, onGrade }: StudioAssignmentsProps) => {
+const StudioAssignments = ({
+  assignments,
+  courses,
+  sessions,
+  canManage,
+  onChanged,
+  onGrade,
+  scope = "this track",
+}: StudioAssignmentsProps) => {
   const [editing, setEditing] = useState<BackendAssignment | "new" | null>(null);
   const sorted = [...assignments].sort((a, b) => Date.parse(a.deadline) - Date.parse(b.deadline));
   // Assignments can only be added to courses and sessions the person manages.
@@ -40,7 +50,7 @@ const StudioAssignments = ({ assignments, courses, sessions, canManage, onChange
     <div>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-gray-600">
-          {assignments.length} assignment{assignments.length === 1 ? "" : "s"} in this track
+          {assignments.length} assignment{assignments.length === 1 ? "" : "s"} in {scope}
         </p>
         <button
           type="button"
@@ -56,12 +66,12 @@ const StudioAssignments = ({ assignments, courses, sessions, canManage, onChange
 
       {!canCreate && (
         <p className="mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Assignments belong to a course or a session. Create a session in this track first, then add assignments to it.
+          Assignments belong to a course or a session. Create one in {scope} first, then add assignments to it.
         </p>
       )}
 
       {sorted.length === 0 ? (
-        <EmptyState icon={FileText} message="No assignments in this track yet." />
+        <EmptyState icon={FileText} message={`No assignments in ${scope} yet.`} />
       ) : (
         <ul className="space-y-3">
           {sorted.map((a) => {

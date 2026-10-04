@@ -20,7 +20,8 @@ import {
 } from "./studioUi";
 
 interface SessionFormProps {
-  trackId: string;
+  /** The track a new session joins. Omit for sessions run outside any track. */
+  trackId?: string;
   courses: BackendCourse[];
   /** Omit to create a new session. */
   session?: BackendSession;
@@ -40,7 +41,9 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
   const [description, setDescription] = useState(session?.description ?? "");
   const [url, setUrl] = useState(session?.url ?? "");
   const [level, setLevel] = useState<SessionPayload["level"]>(session?.level ?? "beginner");
-  const [access, setAccess] = useState<SessionPayload["access"]>(session?.access ?? "track-only");
+  const [access, setAccess] = useState<SessionPayload["access"]>(
+    session?.access ?? (trackId ? "track-only" : "public"),
+  );
   const [duration, setDuration] = useState(session?.duration ? String(session.duration) : "");
   const [startDate, setStartDate] = useState(toLocalInput(session?.startDate));
   const [published, setPublished] = useState(session?.published ?? true);
@@ -103,6 +106,24 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
         if (!newId) throw new Error("The session was created, but the server didn't return its id.");
         if (openSession) {
           toast.success(published ? "Open session created. It's listed on Explore." : "Open session saved as a draft.");
+          onSaved();
+          onClose();
+          return;
+        }
+        if (!trackId) {
+          // Outside a track: it joins a course, or stands alone as an open session.
+          try {
+            if (targetCourse) await api.attachSessionToCourse(targetCourse, newId);
+            toast.success(
+              targetCourse
+                ? "Session created and added to the course."
+                : published && payload.access === "public"
+                  ? "Open session created. It's listed on Explore."
+                  : "Session created.",
+            );
+          } catch (err) {
+            toast.error(`Session created, but it couldn't be added to the course: ${errorMessage(err, "unknown error")}.`);
+          }
           onSaved();
           onClose();
           return;
@@ -210,7 +231,7 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
             </div>
           )}
 
-          {!editing && (
+          {!editing && trackId && (
             <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-3 text-sm">
               <input
                 type="checkbox"

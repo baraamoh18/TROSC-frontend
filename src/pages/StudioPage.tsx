@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   BarChart3,
+  BookOpen,
   CalendarClock,
   CalendarDays,
   ClipboardCheck,
@@ -27,6 +28,7 @@ import StudioAssignments from "../components/Studio/StudioAssignments";
 import StudioGrading from "../components/Studio/StudioGrading";
 import StudioWeeklyTasks from "../components/Studio/StudioWeeklyTasks";
 import StudioOverview from "../components/Studio/StudioOverview";
+import StudioMine from "../components/Studio/StudioMine";
 import UserManagementTable from "../components/Admin/UserManagementTable";
 import ContentManagement from "../components/Admin/ContentManagement";
 import { inputCls, refId } from "../components/Studio/studioUi";
@@ -38,6 +40,7 @@ type SectionId =
   | "assignments"
   | "grading"
   | "weekly-tasks"
+  | "mine"
   | "overview"
   | "users"
   | "catalog"
@@ -48,9 +51,18 @@ interface SectionDef {
   id: SectionId;
   name: string;
   icon: LucideIcon;
-  /** "track" sections work on the picked track; "platform" ones are admin-only. */
-  group: "track" | "platform";
+  /**
+   * "track" sections work on the picked track, "mine" on the person's own
+   * courses and sessions, and "platform" ones are admin-only.
+   */
+  group: "track" | "mine" | "platform";
 }
+
+const GROUP_LABELS: Record<SectionDef["group"], string> = {
+  track: "Track",
+  mine: "Your own",
+  platform: "Platform",
+};
 
 const SECTIONS: SectionDef[] = [
   { id: "requests", name: "Requests", icon: Inbox, group: "track" },
@@ -58,6 +70,7 @@ const SECTIONS: SectionDef[] = [
   { id: "assignments", name: "Assignments", icon: FileText, group: "track" },
   { id: "grading", name: "Grading", icon: ClipboardCheck, group: "track" },
   { id: "weekly-tasks", name: "Weekly tasks", icon: ListChecks, group: "track" },
+  { id: "mine", name: "My courses & sessions", icon: BookOpen, group: "mine" },
   { id: "overview", name: "Overview", icon: BarChart3, group: "platform" },
   { id: "users", name: "Users", icon: Users, group: "platform" },
   { id: "catalog", name: "Tracks & courses", icon: FolderTree, group: "platform" },
@@ -132,10 +145,12 @@ const StudioPage = () => {
   const trackId = tracks.some((t) => t._id === requestedTrack) ? requestedTrack! : tracks[0]?._id ?? null;
   const track = tracks.find((t) => t._id === trackId) ?? null;
   const isAdmin = user?.role === "admin";
-  const available = SECTIONS.filter((s) => s.group === "track" || isAdmin);
+  const available = SECTIONS.filter((s) => s.group !== "platform" || isAdmin);
   const requested = available.find((s) => s.id === params.get("section"));
-  // Admins land on the platform overview, instructors on their requests.
-  const active = requested ?? available.find((s) => s.id === (isAdmin ? "overview" : "requests"))!;
+  // Admins land on the platform overview, instructors on their requests, or
+  // on their own courses and sessions when they have no track.
+  const landing = isAdmin ? "overview" : !tracksLoading && tracks.length === 0 ? "mine" : "requests";
+  const active = requested ?? available.find((s) => s.id === landing)!;
   const section = active.id;
   const isTrackSection = active.group === "track";
   // Lead and co-instructors manage everything in their track; others only their own items.
@@ -229,6 +244,8 @@ const StudioPage = () => {
     switch (section) {
       case "overview":
         return <StudioOverview tracks={tracks} />;
+      case "mine":
+        return <StudioMine userId={user._id} />;
       case "users":
         return <UserManagementTable currentUserId={user._id} />;
       case "catalog":
@@ -263,15 +280,13 @@ const StudioPage = () => {
               : "You don't lead or co-instruct a track yet. Once an admin adds you to one, it shows up here."
           }
           action={
-            isAdmin ? (
-              <button
-                type="button"
-                onClick={() => setParam({ section: "catalog" })}
-                className="rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-white hover:bg-primary-hover"
-              >
-                Open Tracks & courses
-              </button>
-            ) : undefined
+            <button
+              type="button"
+              onClick={() => setParam({ section: isAdmin ? "catalog" : "mine" })}
+              className="rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-white hover:bg-primary-hover"
+            >
+              {isAdmin ? "Open Tracks & courses" : "Open my courses & sessions"}
+            </button>
           }
         />
       );
@@ -350,7 +365,7 @@ const StudioPage = () => {
             <p className="mt-1 text-neutral-dark">
               {isAdmin
                 ? "Track content and grading, plus users, the catalog, events and announcements."
-                : "Join requests, sessions, assignments, grading and weekly tasks for the tracks you lead or co-instruct."}
+                : "Your own courses and sessions, plus requests, sessions, assignments, grading and weekly tasks for the tracks you lead or co-instruct."}
             </p>
           </div>
           {isTrackSection && tracks.length > 0 && (
@@ -386,15 +401,13 @@ const StudioPage = () => {
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[210px_1fr]">
             <nav aria-label="Studio sections" className="md:sticky md:top-24 md:self-start">
-              {(["track", "platform"] as const)
+              {(["track", "mine", "platform"] as const)
                 .filter((g) => available.some((x) => x.group === g))
                 .map((g) => (
                   <div key={g} className="mb-2 md:mb-5">
-                    {isAdmin && (
-                      <p className="mb-1 hidden px-3 text-xs font-bold uppercase tracking-wide text-gray-600 md:block">
-                        {g === "track" ? "Track" : "Platform"}
-                      </p>
-                    )}
+                    <p className="mb-1 hidden px-3 text-xs font-bold uppercase tracking-wide text-gray-600 md:block">
+                      {GROUP_LABELS[g]}
+                    </p>
                     <ul className="flex gap-1 overflow-x-auto [scrollbar-width:none] md:flex-col md:overflow-visible">
                       {available
                         .filter((x) => x.group === g)
