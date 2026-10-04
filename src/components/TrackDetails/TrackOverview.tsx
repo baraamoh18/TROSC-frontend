@@ -19,7 +19,7 @@ const TrackOverview = ({ trackId, track, overview, nextSession, courseCount }: T
   const { user, refreshUser } = useAuth();
   const [leaving, setLeaving] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
-  // Set right after a successful leave request; the track's pendingLeaves
+  // Set right after a successful leave request; the track's isPendingLeave
   // covers later visits.
   const [leaveRequested, setLeaveRequested] = useState(false);
 
@@ -40,7 +40,8 @@ const TrackOverview = ({ trackId, track, overview, nextSession, courseCount }: T
 
   const isEnrolled = !!user && user.enrolledTrack === trackId;
   const isLeavePending =
-    isEnrolled && (leaveRequested || (!!user && !!track?.pendingLeaves?.includes(user._id)));
+    isEnrolled &&
+    (leaveRequested || !!track?.isPendingLeave || (!!user && !!track?.pendingLeaves?.includes(user._id)));
 
   const renderLeaveControl = () => {
     if (!isEnrolled) return null;

@@ -85,6 +85,13 @@ export interface PopulatedUser {
   photo?: string;
 }
 
+/** Tracks expose only this much about their instructors. */
+export interface PublicUser {
+  _id: string;
+  name: string;
+  photo?: string;
+}
+
 // ── Domain types ─────────────────────────────────────────────
 
 export interface AuthUser {
@@ -121,12 +128,20 @@ export interface BackendTrack {
   _id: string;
   title: string;
   description: string;
-  instructor: PopulatedUser;
+  /** The lead instructor. */
+  instructor: PublicUser;
+  /** Co-instructors; [] when there are none. */
+  instructors?: PublicUser[];
   courses: string[];
   sessions: string[];
-  students: string[];
-  pendingStudents: string[];
-  pendingLeaves: string[];
+  /** Staff only (admin, lead, co-instructor). Everyone else gets the flags below. */
+  students?: string[];
+  pendingStudents?: string[];
+  pendingLeaves?: string[];
+  /** Non-staff only, and not on /tracks/popular. */
+  isEnrolled?: boolean;
+  isPending?: boolean;
+  isPendingLeave?: boolean;
   level: "beginner" | "intermediate" | "advanced" | "all";
   coverImage: string;
   published: boolean;
@@ -147,7 +162,11 @@ export interface BackendSession {
   /** Auto-generated YouTube embed or Google Drive preview URL — use in <iframe> */
   embedUrl?: string;
   instructor: PopulatedUser;
+  /** Only on GET /sessions/:id, and only for staff and enrolled callers. */
   students?: string[];
+  studentCount?: number;
+  /** Lists count direct enrollment only; the detail also counts track and course membership. */
+  isEnrolled?: boolean;
   /** Some endpoints return populated track docs, others bare ids */
   tracks?: Array<string | { _id: string }>;
   course?: string;
@@ -162,13 +181,11 @@ export interface BackendSession {
   published: boolean;
   startDate?: string;
   endDate?: string;
-  /** Present only for an enrolled requester. The server remains authoritative. */
+  /** Only on GET /sessions/:id, and only for an enrolled caller. Lists never carry it. */
   myProgress?: {
     status: "not_started" | "watched";
     watchedAt?: string | null;
   };
-  /** GET /sessions/track/:id returns raw progress entries instead of myProgress. */
-  progress?: { student: string; status: "not_started" | "watched"; watchedAt?: string | null }[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -180,7 +197,6 @@ export interface SessionCatalogItem {
   description?: string;
   startDate?: string;
   duration?: number;
-  instructor?: { _id: string; name: string };
 }
 
 export interface SyllabusItem {
@@ -280,13 +296,20 @@ export interface BackendAssignment {
   course?: BackendCourse | null;
   /** Populated session reference (mutually exclusive with course) */
   session?: BackendSession | null;
+  /** The parent course's or session's instructor, not necessarily who created it. */
   instructor: PopulatedUser;
+  /** Who created it. Missing on older records. */
+  createdBy?: string;
   /** Trusted-host URLs (Drive, GitHub, Cloudinary, etc.) */
   attachments: string[];
   deadline: string;
-  submissions: Submission[];
-  /** The requesting user's own submission — only present on track-level endpoint */
+  /** Only on GET /assignments/:id (staff). Lists never carry it. */
+  submissions?: Submission[];
+  /** The caller's own submission, or null. On every list endpoint. */
   mySubmission?: Submission | null;
+  /** List endpoints, for people who manage the assignment only. */
+  submissionCount?: number;
+  ungradedCount?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -450,6 +473,8 @@ export interface TrackPayload {
   published?: boolean;
   /** Admin only: user id of an instructor or admin. Ignored for other roles. */
   instructor?: string;
+  /** Admin only: co-instructor ids. Replaces the whole list; [] clears it. */
+  instructors?: string[];
 }
 
 export function createTrack(
@@ -496,26 +521,11 @@ export interface PendingListResponse {
   };
 }
 
-/**
- * Pending join and leave requests for a track. The deployed API returns
- * join requests from /pending and leave requests from a separate /leaves
- * endpoint, so fetch both and merge them.
- */
-export async function getTrackPending(
+/** Pending join and leave requests for a track (admin, lead or co-instructor). */
+export function getTrackPending(
   trackId: string,
 ): Promise<PendingListResponse> {
-  const [pending, leaves] = await Promise.all([
-    request<PendingListResponse>("GET", `/tracks/${trackId}/pending`),
-    request<{ data?: { pendingLeaves?: AuthUser[] } }>("GET", `/tracks/${trackId}/leaves`)
-      .catch(() => null),
-  ]);
-  return {
-    ...pending,
-    data: {
-      ...pending.data,
-      pendingLeaves: leaves?.data?.pendingLeaves ?? pending.data?.pendingLeaves ?? [],
-    },
-  };
+  return request<PendingListResponse>("GET", `/tracks/${trackId}/pending`);
 }
 
 export function approveEnrollment(
@@ -619,6 +629,8 @@ export interface SessionPayload {
   endDate?: string | null;
   published?: boolean;
   resources?: { title: string; url: string }[];
+  /** Admin only: user id of an instructor or admin. Ignored for other roles. */
+  instructor?: string;
 }
 
 export function createSession(payload: SessionPayload): Promise<SessionResponse> {
@@ -724,6 +736,8 @@ export interface CoursePayload {
   level?: "beginner" | "intermediate" | "advanced";
   published?: boolean;
   access?: "public" | "track-only" | "private";
+  /** Admin only: user id of an instructor or admin. Ignored for other roles. */
+  instructor?: string;
 }
 
 export function createCourse(
@@ -1060,6 +1074,13 @@ export function submitAssignmentLink(
   url: string,
 ): Promise<AssignmentUploadResponse> {
   return request<AssignmentUploadResponse>("POST", `/assignments/${assignmentId}/submissions`, { file: url });
+}
+
+// ── Config (public) ───────────────────────────────────────────
+
+/** Hosts that session, resource, attachment and submission links must use (https only). */
+export function getTrustedHosts(): Promise<{ status: string; data: { trustedHosts: string[] } }> {
+  return request("GET", "/config/trusted-hosts");
 }
 
 // ── Contact ───────────────────────────────────────────────────

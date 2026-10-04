@@ -134,7 +134,7 @@ const GradeRow = ({ assignmentId, submission, onSaved }: { assignmentId: string;
 };
 
 const StudioGrading = ({ assignments: all, courses, sessions, canManage, selectedId, onSelect, onGraded }: StudioGradingProps) => {
-  // Only the assignment's creator (or an admin) can read and grade submissions.
+  // Admins, track staff and the parent's instructor can read and grade submissions.
   const assignments = all.filter((a) => canManage(a.instructor));
   const [detail, setDetail] = useState<BackendAssignment | null>(null);
   const [loading, setLoading] = useState(false);
@@ -171,7 +171,7 @@ const StudioGrading = ({ assignments: all, courses, sessions, canManage, selecte
         icon={ClipboardCheck}
         message={
           all.length > 0
-            ? "You can grade assignments you created. The assignments in this track were created by someone else."
+            ? "You can grade assignments in courses and sessions you manage. The ones in this track belong to someone else."
             : "There's nothing to grade yet. Create an assignment first."
         }
       />
@@ -193,7 +193,7 @@ const StudioGrading = ({ assignments: all, courses, sessions, canManage, selecte
       prev
         ? {
             ...prev,
-            submissions: prev.submissions.map((s) => (refId(s.student) === refId(updated.student) ? updated : s)),
+            submissions: (prev.submissions ?? []).map((s) => (refId(s.student) === refId(updated.student) ? updated : s)),
           }
         : prev,
     );

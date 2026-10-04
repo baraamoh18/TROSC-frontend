@@ -16,6 +16,7 @@ import type { BackendAssignment, Submission } from "../../services/api";
 import { useAuth } from "../../context/useAuth";
 import Modal from "../Modal";
 import EmptyState from "../EmptyState";
+import { hostListLabel, linkProblem, useTrustedHosts } from "../../utils/trustedHosts";
 
 // ── Submission status badge ───────────────────────────────────
 
@@ -73,17 +74,13 @@ const SubmitModal = ({
   const [url, setUrl] = useState(assignment.mySubmission?.file ?? "");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const hosts = useTrustedHosts();
 
   const handleSubmit = async () => {
     const value = url.trim();
-    let valid = false;
-    try {
-      valid = ["http:", "https:"].includes(new URL(value).protocol);
-    } catch {
-      valid = false;
-    }
-    if (!valid) {
-      setError("Paste the full link to your work, starting with https://");
+    const problem = value ? linkProblem(value, hosts) : "Paste the full link to your work, starting with https://";
+    if (problem) {
+      setError(problem);
       return;
     }
     setError("");
@@ -158,7 +155,7 @@ const SubmitModal = ({
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
         <p id="submission-link-hint" className="mt-1 mb-4 text-xs text-gray-600">
-          Use Google Drive, GitHub or a similar service, and make sure anyone with the link can view it.
+          Make sure anyone with the link can view it. Allowed hosts: {hostListLabel(hosts)}.
         </p>
         {error && (
           <p id="submission-link-error" role="alert" className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-800">

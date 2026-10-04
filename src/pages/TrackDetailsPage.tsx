@@ -41,6 +41,8 @@ const TrackDetailsPage = () => {
   // ── State ────────────────────────────────────────────────────
 
   const [liveTrack, setLiveTrack] = useState<BackendTrack | null>(null);
+  // Unknown id, or a draft the caller doesn't manage (the API answers 404 for both).
+  const [trackMissing, setTrackMissing] = useState(false);
 
   const [sessions, setSessions] = useState<BackendSession[]>([]);
   const [sessionsUnauthorized, setSessionsUnauthorized] = useState(false);
@@ -64,16 +66,18 @@ const TrackDetailsPage = () => {
   useEffect(() => {
     if (!hasValidTrackId || !trackId) return;
     let cancelled = false;
+    setTrackMissing(false);
     api
       .getTrack(trackId)
       .then((res) => {
         if (!cancelled) setLiveTrack(res.data.track);
       })
-      .catch(() => {
-        // Invalid ID or network error — hero falls back to placeholders below
+      .catch((err) => {
+        // A network error leaves the hero on its placeholders.
+        if (!cancelled && err instanceof ApiError && err.status === 404) setTrackMissing(true);
       });
     return () => { cancelled = true; };
-  }, [trackId, hasValidTrackId]);
+  }, [trackId, hasValidTrackId, user]);
 
   // Public catalog: names and schedule only. The API must never include media
   // URLs here, because this request is made for unauthenticated visitors too.
@@ -103,22 +107,25 @@ const TrackDetailsPage = () => {
     let cancelled = false;
     api
       .getSessionsByTrack(trackId)
-      .then((res) => {
+      .then(async (res) => {
         if (cancelled) return;
-        // The track list sends raw progress entries; pick out the caller's own.
-        // It also includes drafts, which only staff should see.
+        // Drafts reach staff only; keep their assignments away from anyone else.
         const isStaffUser = user.role === "admin" || user.role === "instructor";
+        const list = res.data.sessions.filter((s) => isStaffUser || s.published !== false);
         setDraftSessionIds(
           new Set(isStaffUser ? [] : res.data.sessions.filter((s) => s.published === false).map((s) => s._id)),
         );
+        setSessions(list);
+        // List items carry no myProgress, and no links for members who joined
+        // through the track. The detail has both, so members load each session.
+        if (user.enrolledTrack !== trackId || isStaffUser) return;
+        const details = await Promise.allSettled(list.map((s) => api.getSession(s._id)));
+        if (cancelled) return;
         setSessions(
-          res.data.sessions
-            .filter((s) => isStaffUser || s.published !== false)
-            .map((s) => {
-            if (s.myProgress) return s;
-            const mine = s.progress?.find((p) => p.student === user._id);
-            return mine ? { ...s, myProgress: { status: mine.status, watchedAt: mine.watchedAt } } : s;
-            }),
+          list.map((s, i) => {
+            const d = details[i];
+            return d.status === "fulfilled" ? { ...s, ...d.value.data.session } : s;
+          }),
         );
       })
       .catch((err) => {
@@ -304,7 +311,7 @@ const TrackDetailsPage = () => {
   const heroImage = trackCoverImage(liveTrack?.coverImage);
 
   // Keep the validation guard after all hooks so the hook order is stable.
-  if (!hasValidTrackId) {
+  if (!hasValidTrackId || trackMissing) {
     return (
       <div className="bg-gray-50 min-h-screen pt-16 flex items-center justify-center">
         <div className="text-center px-4">
@@ -462,7 +469,7 @@ const TrackDetailsPage = () => {
         subtitle={heroSubtitle}
         image={heroImage}
         gradient={trackGradient(trackId ?? "")}
-        action={liveTrack ? <TrackJoinAction trackId={trackId ?? ""} /> : null}
+        action={liveTrack ? <TrackJoinAction track={liveTrack} /> : null}
         level={liveTrack?.level}
         studentCount={liveTrack?.studentCount}
       />

@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import * as api from "../../services/api";
 import type { AssignmentPayload, BackendAssignment, BackendCourse, BackendSession } from "../../services/api";
 import Modal from "../Modal";
+import { hostListLabel, linkProblem, useTrustedHosts } from "../../utils/trustedHosts";
 import { errorMessage, fromLocalInput, inputCls, labelCls, primaryBtn, secondaryBtn, toLocalInput } from "./studioUi";
 
 interface AssignmentFormProps {
@@ -15,16 +16,9 @@ interface AssignmentFormProps {
   onSaved: () => void;
 }
 
-const isUrl = (value: string) => {
-  try {
-    return ["http:", "https:"].includes(new URL(value).protocol);
-  } catch {
-    return false;
-  }
-};
-
 const AssignmentForm = ({ courses, sessions, assignment, onClose, onSaved }: AssignmentFormProps) => {
   const editing = !!assignment;
+  const hosts = useTrustedHosts();
   // "course:<id>" or "session:<id>"; fixed once the assignment exists.
   const [target, setTarget] = useState(courses[0] ? `course:${courses[0]._id}` : sessions[0] ? `session:${sessions[0]._id}` : "");
   const [title, setTitle] = useState(assignment?.title ?? "");
@@ -45,7 +39,8 @@ const AssignmentForm = ({ courses, sessions, assignment, onClose, onSaved }: Ass
     if (title.trim().length < 3) next.title = "Use at least 3 characters.";
     if (description.trim().length < 10) next.description = "Use at least 10 characters.";
     if (!deadline) next.deadline = "Choose a deadline.";
-    if (links.some((l) => !isUrl(l))) next.attachments = "Each line must be a full link starting with https://";
+    const badLink = links.map((l) => linkProblem(l, hosts)).find(Boolean);
+    if (badLink) next.attachments = badLink;
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -181,9 +176,12 @@ const AssignmentForm = ({ courses, sessions, assignment, onClose, onSaved }: Ass
               value={attachments}
               onChange={(e) => setAttachments(e.target.value)}
               aria-invalid={!!errors.attachments}
-              aria-describedby={describedBy("attachments")}
+              aria-describedby={[describedBy("attachments"), "a-hosts"].filter(Boolean).join(" ")}
             />
             {fieldError("attachments")}
+            <p id="a-hosts" className="mt-1 text-xs text-gray-600">
+              Links must start with https:// and be on one of these hosts: {hostListLabel(hosts)}.
+            </p>
           </div>
         </div>
 

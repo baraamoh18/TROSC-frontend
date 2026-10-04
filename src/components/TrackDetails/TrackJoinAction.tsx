@@ -3,13 +3,15 @@ import { Link, useLocation } from "react-router-dom";
 import { CheckCircle2, Clock, Loader2, Settings } from "lucide-react";
 import toast from "react-hot-toast";
 import * as api from "../../services/api";
+import type { BackendTrack } from "../../services/api";
 import { useAuth } from "../../context/useAuth";
 
 /**
  * The track page's only membership call to action, shown in the hero:
  * sign in, join, waiting, member, or manage for staff.
  */
-const TrackJoinAction = ({ trackId }: { trackId: string }) => {
+const TrackJoinAction = ({ track }: { track: BackendTrack }) => {
+  const trackId = track._id;
   const { user, loading: authLoading, refreshUser } = useAuth();
   const location = useLocation();
   const [enrolling, setEnrolling] = useState(false);
@@ -45,6 +47,12 @@ const TrackJoinAction = ({ trackId }: { trackId: string }) => {
   }
 
   if (user.role === "admin" || user.role === "instructor") {
+    // Only admins and this track's lead and co-instructors can manage it.
+    const isTrackStaff =
+      user.role === "admin" ||
+      track.instructor?._id === user._id ||
+      (track.instructors ?? []).some((u) => u._id === user._id);
+    if (!isTrackStaff) return null;
     return (
       <Link
         to={`/studio?track=${trackId}`}

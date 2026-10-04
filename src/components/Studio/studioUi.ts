@@ -57,8 +57,9 @@ export const assignmentTarget = (
 };
 
 /**
- * The API only lets people change content they created (admins change
- * anything): "You can only modify your own content".
+ * Whether the signed-in person may change an item, given its instructor.
+ * The API allows admins, the track's lead and co-instructors, and the item's
+ * own instructor; anyone else gets "You can only modify your own content".
  */
 export type CanManage = (owner: unknown) => boolean;
 

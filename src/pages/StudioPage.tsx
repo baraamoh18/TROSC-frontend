@@ -111,10 +111,12 @@ const StudioPage = () => {
     if (!user || !isStaff) return;
     setTracksLoading(true);
     try {
-      const res = await api.getTracks("limit=100&sort=-createdAt");
-      const all = res.data?.tracks ?? [];
-      // Admins manage every track; instructors only the tracks they own.
-      setTracks(user.role === "admin" ? all : all.filter((t) => refId(t.instructor) === user._id));
+      // Admins manage every track; instructors the ones they lead or co-instruct.
+      // Both lists include the caller's drafts.
+      const res = await api.getTracks(
+        user.role === "admin" ? "limit=100&sort=-createdAt" : `instructor=${user._id}&limit=100&sort=-createdAt`,
+      );
+      setTracks(res.data?.tracks ?? []);
     } catch {
       setTracks([]);
     } finally {
@@ -136,7 +138,12 @@ const StudioPage = () => {
   const active = requested ?? available.find((s) => s.id === (isAdmin ? "overview" : "requests"))!;
   const section = active.id;
   const isTrackSection = active.group === "track";
-  const canManage: CanManage = (owner) => isAdmin || (!!user && refId(owner) === user._id);
+  // Lead and co-instructors manage everything in their track; others only their own items.
+  const isTrackStaff =
+    !!user &&
+    !!track &&
+    (refId(track.instructor) === user._id || (track.instructors ?? []).some((u) => u._id === user._id));
+  const canManage: CanManage = (owner) => isAdmin || isTrackStaff || (!!user && refId(owner) === user._id);
 
   const setParam = (changes: Record<string, string | null>) =>
     setParams(
@@ -191,7 +198,7 @@ const StudioPage = () => {
   const counts = useMemo<Partial<Record<SectionId, number>>>(
     () => ({
       requests: pendingStudents.length + pendingLeaves.length,
-      grading: assignments.reduce((n, a) => n + (a.submissions?.filter((s) => s.grade == null).length ?? 0), 0),
+      grading: assignments.reduce((n, a) => n + (a.ungradedCount ?? 0), 0),
     }),
     [pendingStudents, pendingLeaves, assignments],
   );
@@ -253,7 +260,7 @@ const StudioPage = () => {
           message={
             isAdmin
               ? "There are no tracks yet. Create one under Tracks & courses."
-              : "You don't own any tracks yet. Once an admin assigns you a track, it shows up here."
+              : "You don't lead or co-instruct a track yet. Once an admin adds you to one, it shows up here."
           }
           action={
             isAdmin ? (
@@ -343,7 +350,7 @@ const StudioPage = () => {
             <p className="mt-1 text-neutral-dark">
               {isAdmin
                 ? "Track content and grading, plus users, the catalog, events and announcements."
-                : "Join requests, sessions, assignments, grading and weekly tasks for your tracks."}
+                : "Join requests, sessions, assignments, grading and weekly tasks for the tracks you lead or co-instruct."}
             </p>
           </div>
           {isTrackSection && tracks.length > 0 && (

@@ -21,7 +21,7 @@ interface StudioAssignmentsProps {
 const StudioAssignments = ({ assignments, courses, sessions, canManage, onChanged, onGrade }: StudioAssignmentsProps) => {
   const [editing, setEditing] = useState<BackendAssignment | "new" | null>(null);
   const sorted = [...assignments].sort((a, b) => Date.parse(a.deadline) - Date.parse(b.deadline));
-  // Assignments can only be added to courses and sessions the person owns.
+  // Assignments can only be added to courses and sessions the person manages.
   const ownCourses = courses.filter((c) => canManage(c.instructor));
   const ownSessions = sessions.filter((s) => canManage(s.instructor));
   const canCreate = ownCourses.length > 0 || ownSessions.length > 0;
@@ -56,7 +56,7 @@ const StudioAssignments = ({ assignments, courses, sessions, canManage, onChange
 
       {!canCreate && (
         <p className="mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Assignments belong to a course or a session you created. Create a session in this track first, then add assignments to it.
+          Assignments belong to a course or a session. Create a session in this track first, then add assignments to it.
         </p>
       )}
 
@@ -65,8 +65,9 @@ const StudioAssignments = ({ assignments, courses, sessions, canManage, onChange
       ) : (
         <ul className="space-y-3">
           {sorted.map((a) => {
-            const submitted = a.submissions?.length ?? 0;
-            const ungraded = a.submissions?.filter((s) => s.grade == null).length ?? 0;
+            // The API sends these counts only to people who manage the assignment.
+            const submitted = a.submissionCount;
+            const ungraded = a.ungradedCount ?? 0;
             const past = Date.parse(a.deadline) < Date.now();
             return (
               <li key={a._id} className={`${cardCls} p-4`}>
@@ -79,13 +80,15 @@ const StudioAssignments = ({ assignments, courses, sessions, canManage, onChange
                         .join(" · ")}
                     </p>
                     {canManage(a.instructor) ? (
-                      <p className="mt-1 text-xs font-semibold text-gray-700">
-                        {submitted} submission{submitted === 1 ? "" : "s"}
-                        {ungraded > 0 && <span className="text-primary"> · {ungraded} to grade</span>}
-                      </p>
+                      submitted !== undefined && (
+                        <p className="mt-1 text-xs font-semibold text-gray-700">
+                          {submitted} submission{submitted === 1 ? "" : "s"}
+                          {ungraded > 0 && <span className="text-primary"> · {ungraded} to grade</span>}
+                        </p>
+                      )
                     ) : (
                       <p className="mt-1 text-xs text-gray-600">
-                        Created by {ownerName(a.instructor)}. Only they or an admin can grade or change it.
+                        Belongs to {ownerName(a.instructor)}. Only they, this track's instructors or an admin can grade or change it.
                       </p>
                     )}
                   </div>

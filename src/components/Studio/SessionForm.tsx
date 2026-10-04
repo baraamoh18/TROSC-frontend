@@ -4,12 +4,16 @@ import toast from "react-hot-toast";
 import * as api from "../../services/api";
 import type { BackendCourse, BackendSession, SessionPayload } from "../../services/api";
 import Modal from "../Modal";
+import { useAuth } from "../../context/useAuth";
+import useStaffUsers from "../../hooks/useStaffUsers";
+import { hostListLabel, linkProblem, useTrustedHosts } from "../../utils/trustedHosts";
 import {
   errorMessage,
   fromLocalInput,
   inputCls,
   labelCls,
   primaryBtn,
+  refId,
   secondaryBtn,
   smallBtn,
   toLocalInput,
@@ -24,17 +28,14 @@ interface SessionFormProps {
   onSaved: () => void;
 }
 
-const isUrl = (value: string) => {
-  try {
-    const u = new URL(value);
-    return u.protocol === "http:" || u.protocol === "https:";
-  } catch {
-    return false;
-  }
-};
-
 const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFormProps) => {
   const editing = !!session;
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+  const staff = useStaffUsers(isAdmin);
+  const hosts = useTrustedHosts();
+  // Admin only: who runs the session. Empty keeps the current one (or the creator).
+  const [instructorId, setInstructorId] = useState(refId(session?.instructor) ?? "");
   const [title, setTitle] = useState(session?.title ?? "");
   const [description, setDescription] = useState(session?.description ?? "");
   const [url, setUrl] = useState(session?.url ?? "");
@@ -53,12 +54,14 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
   const validate = () => {
     const next: Record<string, string> = {};
     if (title.trim().length < 3) next.title = "Use at least 3 characters.";
-    if (url.trim() && !isUrl(url.trim())) next.url = "Enter a full link starting with https://";
+    const urlProblem = url.trim() ? linkProblem(url.trim(), hosts) : null;
+    if (urlProblem) next.url = urlProblem;
     if (duration && (!Number.isFinite(Number(duration)) || Number(duration) <= 0)) {
       next.duration = "Enter the length in minutes.";
     }
     resources.forEach((r, i) => {
-      if (!r.url.trim() || !isUrl(r.url.trim())) next[`res-${i}`] = "Enter a full link starting with https://";
+      const problem = r.url.trim() ? linkProblem(r.url.trim(), hosts) : "Add the link to this material.";
+      if (problem) next[`res-${i}`] = problem;
     });
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -76,6 +79,7 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
       resources: resources.map((r, i) => ({ title: r.title.trim() || `Material ${i + 1}`, url: r.url.trim() })),
     };
     if (url.trim()) payload.url = url.trim();
+    if (isAdmin && instructorId) payload.instructor = instructorId;
     if (duration) payload.duration = Number(duration);
     // The API validates startDate as a date, so leave it out rather than send null.
     const start = fromLocalInput(startDate);
@@ -179,10 +183,32 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               aria-invalid={!!errors.url}
-              aria-describedby={errors.url ? "url-error" : undefined}
+              aria-describedby={errors.url ? "url-error s-hosts" : "s-hosts"}
             />
             {fieldError("url")}
+            <p id="s-hosts" className="mt-1 text-xs text-gray-600">
+              Links must start with https:// and be on one of these hosts: {hostListLabel(hosts)}.
+            </p>
           </div>
+
+          {isAdmin && (
+            <div>
+              <label htmlFor="s-instructor" className={labelCls}>Instructor</label>
+              <select
+                id="s-instructor"
+                className={inputCls}
+                value={instructorId}
+                onChange={(e) => setInstructorId(e.target.value)}
+              >
+                <option value="">{editing ? "Keep current instructor" : "Me (default)"}</option>
+                {staff.map((u) => (
+                  <option key={u._id} value={u._id}>
+                    {u.name} · {u.role === "admin" ? "Admin" : "Instructor"}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {!editing && (
             <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-3 text-sm">
@@ -275,7 +301,7 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
           <fieldset>
             <legend className={labelCls}>Materials</legend>
             <p className="mb-2 text-xs text-gray-600">
-              Links must be on a trusted host such as YouTube, Google Drive, GitHub or Cloudinary.
+              The same link rules apply: https:// on one of the hosts listed above.
             </p>
             <div className="space-y-3">
               {resources.map((r, i) => (

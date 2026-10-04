@@ -118,8 +118,9 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
     </>
   );
 
+  // The public catalog has no instructor, so that column only shows for members and staff.
   const instructorName = (session: BackendSession | SessionCatalogItem) =>
-    ("instructor" in session ? session.instructor?.name : undefined) ?? "TBA";
+    isFullSession(session) ? session.instructor?.name ?? "TBA" : "";
 
   return (
     <div>
@@ -164,7 +165,7 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
                   <th scope="col" className="py-3 px-4 text-center font-bold text-gray-900 w-12">#</th>
                   <th scope="col" className="py-3 px-4 text-left font-bold text-gray-900">Title</th>
                   <th scope="col" className="py-3 px-4 text-left font-bold text-gray-900">Description</th>
-                  <th scope="col" className="py-3 px-4 text-left font-bold text-gray-900">Instructor</th>
+                  {canWatch && <th scope="col" className="py-3 px-4 text-left font-bold text-gray-900">Instructor</th>}
                   <th scope="col" className="py-3 px-4 text-left font-bold text-gray-900">Date</th>
                 </tr>
               </thead>
@@ -179,9 +180,11 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
                     <td className="py-4 px-4 text-sm text-gray-700 align-top w-2/5">
                       {session.description}
                     </td>
-                    <td className="py-4 px-4 text-sm text-gray-800 align-top">
-                      {instructorName(session)}
-                    </td>
+                    {canWatch && (
+                      <td className="py-4 px-4 text-sm text-gray-800 align-top">
+                        {instructorName(session)}
+                      </td>
+                    )}
                     <td className="py-4 px-4 text-sm text-gray-800 align-top">
                       <div>{formatDate(session.startDate)}</div>
                       <div className="text-xs text-gray-600">{formatDuration(session.duration)}</div>

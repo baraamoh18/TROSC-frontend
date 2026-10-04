@@ -16,8 +16,8 @@ import {
 } from "lucide-react";
 import * as api from "../../services/api";
 import SharedModal from "../Modal";
+import useStaffUsers from "../../hooks/useStaffUsers";
 import type {
-  AuthUser,
   BackendTrack,
   BackendCourse,
   BackendEvent,
@@ -187,21 +187,20 @@ const TracksPanel: React.FC<{
     level: "all",
     published: false,
   });
-  // Instructors and admins the track can be assigned to (admin-only field).
-  const [staff, setStaff] = useState<AuthUser[]>([]);
-  useEffect(() => {
-    if (!showForm || staff.length > 0) return;
-    Promise.all([
-      api.getAllUsers("role=instructor&limit=100&sort=name"),
-      api.getAllUsers("role=admin&limit=100&sort=name"),
-    ])
-      .then(([i, a]) => setStaff([...(i.data?.users ?? []), ...(a.data?.users ?? [])]))
-      .catch(() => setStaff([]));
-  }, [showForm, staff.length]);
+  // Instructors and admins the track can be assigned to (admin-only fields).
+  const staff = useStaffUsers(showForm);
+  // The lead can't also be a co-instructor; the API drops them from the list.
+  const leadId = form.instructor ?? editingTrack?.instructor?._id;
+  const coInstructors = (form.instructors ?? []).filter((id) => id !== leadId);
+  const toggleCoInstructor = (id: string) =>
+    setForm((f) => {
+      const current = f.instructors ?? [];
+      return { ...f, instructors: current.includes(id) ? current.filter((x) => x !== id) : [...current, id] };
+    });
 
   const openCreate = () => {
     setEditingTrack(null);
-    setForm({ title: "", description: "", level: "all", published: false });
+    setForm({ title: "", description: "", level: "all", published: false, instructors: [] });
     setShowForm(true);
   };
 
@@ -213,6 +212,7 @@ const TracksPanel: React.FC<{
       level: (t.level as TrackPayload["level"]) ?? "all",
       published: t.published ?? false,
       instructor: t.instructor?._id,
+      instructors: (t.instructors ?? []).map((u) => u._id),
     });
     setShowForm(true);
   };
@@ -224,12 +224,14 @@ const TracksPanel: React.FC<{
       return;
     }
     setSaving(true);
+    // instructors replaces the whole list, so always send it in full.
+    const payload: TrackPayload = { ...form, instructors: coInstructors };
     try {
       if (editingTrack) {
-        await api.updateTrack(editingTrack._id, form);
+        await api.updateTrack(editingTrack._id, payload);
         toast.success("Track updated!");
       } else {
-        await api.createTrack(form);
+        await api.createTrack(payload);
         toast.success("Track created!");
       }
       setShowForm(false);
@@ -276,6 +278,7 @@ const TracksPanel: React.FC<{
                 <p className="text-xs text-neutral-dark capitalize">
                   {t.level} · {t.studentCount} students · {t.published ? "Published" : "Draft"}
                   {t.instructor?.name ? ` · ${t.instructor.name}` : ""}
+                  {t.instructors?.length ? ` + ${t.instructors.map((u) => u.name).join(", ")}` : ""}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -345,6 +348,34 @@ const TracksPanel: React.FC<{
                 ))}
               </select>
             </div>
+            <fieldset>
+              <legend className="mb-1 block text-sm font-semibold text-neutral-darker">Co-instructors</legend>
+              <p className="mb-2 text-xs text-neutral-dark">
+                They can edit the track, handle join and leave requests, and manage its courses, sessions and grading.
+                Only admins can delete a track.
+              </p>
+              {staff.length === 0 ? (
+                <p className="text-xs text-neutral-dark">Loading instructors…</p>
+              ) : (
+                <ul className="max-h-40 space-y-1 overflow-y-auto rounded-lg border border-neutral-light-active p-2">
+                  {staff
+                    .filter((u) => u._id !== leadId)
+                    .map((u) => (
+                      <li key={u._id}>
+                        <label className="flex min-h-8 cursor-pointer items-center gap-2 rounded px-1 text-sm text-neutral-darker hover:bg-neutral-light">
+                          <input
+                            type="checkbox"
+                            checked={coInstructors.includes(u._id)}
+                            onChange={() => toggleCoInstructor(u._id)}
+                            className="h-4 w-4 rounded accent-primary"
+                          />
+                          {u.name} · {u.role === "admin" ? "Admin" : "Instructor"}
+                        </label>
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </fieldset>
             <label className="flex items-center gap-2 text-sm font-semibold text-neutral-darker cursor-pointer">
               <input
                 type="checkbox"
@@ -396,6 +427,7 @@ const CoursesPanel: React.FC<{
     published: false,
     access: "track-only",
   });
+  const staff = useStaffUsers(showForm);
 
   const openCreate = () => {
     setEditingCourse(null);
@@ -412,6 +444,7 @@ const CoursesPanel: React.FC<{
       published: c.published ?? false,
       access: (c.access as CoursePayload["access"]) ?? "track-only",
       track: c.track ? (typeof c.track === "string" ? c.track : c.track._id) : undefined,
+      instructor: c.instructor?._id,
     });
     setShowForm(true);
   };
@@ -475,6 +508,7 @@ const CoursesPanel: React.FC<{
                 <p className="text-xs text-neutral-dark">
                   <span className="capitalize">{c.level}</span> · {c.published ? "Published" : "Draft"} · {c.access} ·{" "}
                   {c.track ? c.track.title : "No track"}
+                  {c.instructor?.name ? ` · ${c.instructor.name}` : ""}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -523,6 +557,22 @@ const CoursesPanel: React.FC<{
                   <option value="private">Private</option>
                 </select>
               </div>
+            </div>
+            <div>
+              <label htmlFor="course-instructor" className="mb-1 block text-sm font-semibold text-neutral-darker">Instructor</label>
+              <select
+                id="course-instructor"
+                className={selectCls}
+                value={form.instructor ?? ""}
+                onChange={(e) => setForm((f) => ({ ...f, instructor: e.target.value || undefined }))}
+              >
+                <option value="">{editingCourse ? "Keep current instructor" : "Me (default)"}</option>
+                {staff.map((u) => (
+                  <option key={u._id} value={u._id}>
+                    {u.name} · {u.role === "admin" ? "Admin" : "Instructor"}
+                  </option>
+                ))}
+              </select>
             </div>
             {tracks.length > 0 && (
               <div>
