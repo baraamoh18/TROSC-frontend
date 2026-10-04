@@ -66,7 +66,7 @@ const StudioAssignments = ({
 
       {!canCreate && (
         <p className="mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Assignments belong to a course or a session. Create one in {scope} first, then add assignments to it.
+          Assignments belong to a course or a session. Create one first, then add assignments to it.
         </p>
       )}
 
