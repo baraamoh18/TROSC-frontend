@@ -88,9 +88,24 @@ const Footer: React.FC = () => {
           </nav>
         </div>
 
-        <p className="mt-10 border-t border-white/10 pt-6 text-xs text-gray-400">
-          © {new Date().getFullYear()} TROSC. A student team at the Faculty of Computers and Information.
-        </p>
+        <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            © {new Date().getFullYear()} TROSC. A student team at the Faculty of Computers and Information, Suez Canal
+            University.
+          </p>
+          <ul className="flex gap-5">
+            <li>
+              <Link to="/privacy" className="inline-flex min-h-8 items-center hover:text-white transition-colors">
+                Privacy
+              </Link>
+            </li>
+            <li>
+              <Link to="/terms" className="inline-flex min-h-8 items-center hover:text-white transition-colors">
+                Terms
+              </Link>
+            </li>
+          </ul>
+        </div>
       </div>
     </footer>
   );

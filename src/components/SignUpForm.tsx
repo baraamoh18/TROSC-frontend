@@ -199,6 +199,17 @@ function SignUpForm() {
         >
           {isSubmitting ? "Signing Up..." : "Sign Up"}
         </button>
+        <p className="mt-3 text-center text-xs text-neutral-dark">
+          By signing up, you agree to the{" "}
+          <Link to="/terms" className="font-semibold text-primary hover:text-primary-hover">
+            terms
+          </Link>{" "}
+          and{" "}
+          <Link to="/privacy" className="font-semibold text-primary hover:text-primary-hover">
+            privacy policy
+          </Link>
+          .
+        </p>
       </form>
 
       {/* Sign In Link */}
