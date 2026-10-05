@@ -74,7 +74,7 @@ const ConfirmButton: React.FC<{
           onConfirm();
         } else setArmed(true);
       }}
-      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border px-3.5 py-1.5 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+      className={`inline-flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-lg border px-3.5 py-1.5 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
         armed && danger
           ? "border-primary-dark bg-primary-dark text-white"
           : armed
@@ -305,7 +305,8 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
         </span>
       </div>
 
-      {/* Table */}
+      {/* Table from lg up. Below that each row stacks into a card, with the
+          actions on their own line, so nothing scrolls sideways. */}
       {loading ? (
         <div className="space-y-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -321,22 +322,20 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
               : "No users found."}
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-neutral-light-active bg-white shadow-sm">
-          <table className="w-full text-sm">
-            <thead>
+        <div className="rounded-xl border border-neutral-light-active bg-white shadow-sm">
+          <table className="block w-full text-sm lg:table">
+            <thead className="hidden lg:table-header-group">
               <tr className="border-b border-neutral-light-active bg-neutral-light">
                 <th scope="col" className="px-4 py-3 text-left font-semibold text-neutral-dark">User</th>
-                <th className="hidden px-4 py-3 text-left font-semibold text-neutral-dark sm:table-cell">
-                  Email
-                </th>
-                <th className="hidden px-4 py-3 text-left font-semibold text-neutral-dark sm:table-cell">Role</th>
-                <th className="px-4 py-3 text-right font-semibold text-neutral-dark">Actions</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold text-neutral-dark">Email</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold text-neutral-dark">Role</th>
+                <th scope="col" className="px-4 py-3 text-right font-semibold text-neutral-dark">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="block divide-y divide-gray-100 lg:table-row-group">
               {users.map((user) => (
-                <tr key={user._id} className="transition-colors hover:bg-neutral-light/50">
-                  <td className="px-4 py-3">
+                <tr key={user._id} className="block transition-colors hover:bg-neutral-light/50 lg:table-row">
+                  <td className="block px-4 pb-2 pt-3 lg:table-cell lg:py-3">
                     <div className="flex items-center gap-3">
                       {!isDefaultPhoto(user.photo) ? (
                         <img loading="lazy"
@@ -349,23 +348,22 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
                       )}
                       <div className="min-w-0">
                         <span className="font-semibold text-neutral-darker">{user.name}</span>
-                        {/* Email column is hidden on phones; show it here instead. */}
-                        <p className="truncate text-xs text-neutral-dark sm:hidden">{user.email}</p>
-                        {/* Role column is hidden on phones too. */}
-                        <div className="mt-1 sm:hidden">
+                        {/* The email and role columns only show from lg; put them here below that. */}
+                        <p className="break-all text-xs text-neutral-dark lg:hidden">{user.email}</p>
+                        <div className="mt-1 lg:hidden">
                           <RoleBadge role={user.role} />
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td className="hidden px-4 py-3 text-neutral-dark sm:table-cell">
+                  <td className="hidden px-4 py-3 text-neutral-dark lg:table-cell">
                     {user.email}
                   </td>
-                  <td className="hidden px-4 py-3 sm:table-cell">
+                  <td className="hidden px-4 py-3 lg:table-cell">
                     <RoleBadge role={user.role} />
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="inline-flex flex-wrap items-center justify-end gap-2">
+                  <td className="block px-4 pb-3 pl-16 lg:table-cell lg:py-3 lg:pl-4 lg:text-right">
+                    <div className="flex flex-wrap items-center gap-2 lg:inline-flex lg:justify-end">
                     {status === "inactive" ? (
                       <ConfirmButton
                         label="Reactivate"
@@ -383,7 +381,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
                         disabled={busyId !== null}
                         onClick={() => setRoleTarget(user)}
                         aria-label={`Change role for ${user.name}`}
-                        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-light-active bg-white px-3.5 py-1.5 text-xs font-bold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-light-active bg-white px-3.5 py-1.5 text-xs font-bold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {busyId === user._id ? (
                           <Loader2 size={12} className="animate-spin" />
