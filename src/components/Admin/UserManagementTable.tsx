@@ -93,7 +93,7 @@ type ChangeableRole = "student" | "instructor";
 const ROLE_INFO: Record<ChangeableRole, { label: string; detail: string }> = {
   student: {
     label: "Student",
-    detail: "Joins tracks, courses and sessions, and submits assignments. Loses Studio and anything they managed as an instructor.",
+    detail: "Joins tracks, courses and sessions, and submits assignments.",
   },
   instructor: {
     label: "Instructor",
@@ -159,7 +159,11 @@ const RoleDialog: React.FC<{
                 {ROLE_INFO[r].label}
                 {r === current && <span className="font-normal text-neutral-dark"> (current)</span>}
               </span>
-              <span className="text-neutral-dark">{ROLE_INFO[r].detail}</span>
+              <span className="text-neutral-dark">
+                {ROLE_INFO[r].detail}
+                {r === "student" && current === "instructor" &&
+                  " They lose the Studio and anything they managed as an instructor."}
+              </span>
             </span>
           </label>
         ))}
@@ -181,7 +185,7 @@ const RoleDialog: React.FC<{
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving && <Loader2 size={14} className="animate-spin" />}
-          {role === current ? "No change" : `Make ${user.name.split(" ")[0]} ${role === "instructor" ? "an instructor" : "a student"}`}
+          {role === current ? "No change" : `Make ${user.name} ${role === "instructor" ? "an instructor" : "a student"}`}
         </button>
       </div>
     </Modal>
