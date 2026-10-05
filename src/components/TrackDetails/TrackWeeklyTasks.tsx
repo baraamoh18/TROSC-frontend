@@ -31,7 +31,7 @@ const ItemTypeIcon = ({ type }: { type: WeeklyTaskItem["type"] }) => {
 
 // ── Single task item row ──────────────────────────────────────
 
-const TaskItemRow = ({
+export const TaskItemRow = ({
   item,
   taskId,
   onToggle,

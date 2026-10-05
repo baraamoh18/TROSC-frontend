@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   UserCircle,
@@ -26,6 +26,7 @@ import type { EnrollmentsResponse, BackendEvent, ActivityLog } from "../services
 import { useAuth } from "../context/useAuth";
 import usePageTitle from "../hooks/usePageTitle";
 import { isStandaloneCourse } from "../utils/catalog";
+import NextUp from "../components/Dashboard/NextUp";
 
 const PLACEHOLDER_IMAGE = "https://placehold.co/800x400?text=Trosc+Event";
 const MAX_SOURCE_FILE_SIZE_MB = 5;
@@ -314,6 +315,12 @@ const DashboardPage = () => {
 
   const userId = user?._id;
 
+  // Kept stable so Next up doesn't reload on every render.
+  const ownSessions = useMemo(
+    () => (enrollments?.sessions ?? []).filter((s) => s.published && standaloneSessionIds.has(s._id)),
+    [enrollments, standaloneSessionIds],
+  );
+
   useEffect(() => {
     if (!userId) return;
     const cancelEnrollments = loadEnrollments();
@@ -357,7 +364,12 @@ const DashboardPage = () => {
 
         </div>
 
-        {/* My Track — students only */}
+        {/* Next up: students only, once we know their track */}
+        {user.role === "student" && !enrollmentsLoading && !enrollmentsError && (
+          <NextUp user={user} trackId={enrollments?.tracks?.[0]?._id ?? null} ownSessions={ownSessions} />
+        )}
+
+        {/* My Track: students only */}
         {user.role === "student" && (
           <section className="mb-10">
             <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">
@@ -421,12 +433,9 @@ const DashboardPage = () => {
           </section>
         )}
 
-        {/* Courses and sessions joined outside a track — students only */}
+        {/* Courses and sessions joined outside a track: students only */}
         {user.role === "student" && !enrollmentsLoading && !enrollmentsError && (() => {
           const ownCourses = (enrollments?.courses ?? []).filter((c) => c.published && isStandaloneCourse(c));
-          const ownSessions = (enrollments?.sessions ?? []).filter(
-            (s) => s.published && standaloneSessionIds.has(s._id),
-          );
           return (
             <section className="mb-10">
               <h2 className="mb-1 text-2xl font-extrabold text-primary-darker">On their own</h2>
