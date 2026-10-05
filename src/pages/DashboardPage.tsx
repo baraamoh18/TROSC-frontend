@@ -316,6 +316,10 @@ const DashboardPage = () => {
   const userId = user?._id;
 
   // Kept stable so Next up doesn't reload on every render.
+  const ownCourses = useMemo(
+    () => (enrollments?.courses ?? []).filter((c) => c.published && isStandaloneCourse(c)),
+    [enrollments],
+  );
   const ownSessions = useMemo(
     () => (enrollments?.sessions ?? []).filter((s) => s.published && standaloneSessionIds.has(s._id)),
     [enrollments, standaloneSessionIds],
@@ -366,7 +370,12 @@ const DashboardPage = () => {
 
         {/* Next up: students only, once we know their track */}
         {user.role === "student" && !enrollmentsLoading && !enrollmentsError && (
-          <NextUp user={user} trackId={enrollments?.tracks?.[0]?._id ?? null} ownSessions={ownSessions} />
+          <NextUp
+            user={user}
+            trackId={enrollments?.tracks?.[0]?._id ?? null}
+            ownCourses={ownCourses}
+            ownSessions={ownSessions}
+          />
         )}
 
         {/* My Track: students only */}
@@ -435,7 +444,6 @@ const DashboardPage = () => {
 
         {/* Courses and sessions joined outside a track: students only */}
         {user.role === "student" && !enrollmentsLoading && !enrollmentsError && (() => {
-          const ownCourses = (enrollments?.courses ?? []).filter((c) => c.published && isStandaloneCourse(c));
           return (
             <section className="mb-10">
               <h2 className="mb-1 text-2xl font-extrabold text-primary-darker">On their own</h2>

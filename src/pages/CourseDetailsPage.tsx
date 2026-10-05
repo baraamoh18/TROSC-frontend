@@ -25,6 +25,7 @@ import type { BackendCourse, BackendSession } from "../services/api";
 import { canSelfEnrollInCourse, isStaffUser } from "../utils/catalog";
 import { isDefaultPhoto } from "../utils/photoUtils";
 import { useAuth } from "../context/useAuth";
+import MemberAssignments from "../components/MemberAssignments";
 import FeedbackPanel from "../components/FeedbackPanel";
 import usePageTitle from "../hooks/usePageTitle";
 
@@ -235,6 +236,8 @@ const CourseDetailsPage = () => {
       ? course.coverImage
       : null;
   const isEnrolled = !!user && (user.enrolledCourses ?? []).includes(course._id);
+  // Members of the course's track can use its assignments too.
+  const isMember = isEnrolled || (!!user && !!course.track && user.enrolledTrack === course.track._id);
 
   return (
     <div className="bg-gray-50 min-h-screen pb-20 pt-16">
@@ -443,6 +446,15 @@ const CourseDetailsPage = () => {
                 </ul>
               )}
             </section>
+          )}
+
+          {/* Assignments: members only, hidden when there are none */}
+          {isMember && !isStaffUser(user) && (
+            <MemberAssignments
+              loadKey={course._id}
+              load={() => api.getAssignmentsByCourse(course._id)}
+              canSubmit
+            />
           )}
 
           {/* Enrollment */}

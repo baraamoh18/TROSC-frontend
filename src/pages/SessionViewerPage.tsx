@@ -17,6 +17,7 @@ import { ApiError } from "../services/api";
 import type { BackendSession } from "../services/api";
 import ProgressToggle from "../components/Session/ProgressToggle";
 import FeedbackPanel from "../components/FeedbackPanel";
+import MemberAssignments from "../components/MemberAssignments";
 import { useAuth } from "../context/useAuth";
 import usePageTitle from "../hooks/usePageTitle";
 import { isStandaloneSession } from "../utils/catalog";
@@ -373,6 +374,17 @@ const SessionViewerPage = () => {
               ))}
             </ul>
           </div>
+        )}
+
+        {/* Assignments: members only, hidden when there are none */}
+        {canTrackProgress && !isStaff && (
+          <MemberAssignments
+            loadKey={session._id}
+            load={() => api.getAssignmentsBySession(session._id)}
+            canSubmit
+            className="mt-6"
+            headingClassName="text-xl font-bold text-neutral-darker"
+          />
         )}
 
         {/* Reviews */}

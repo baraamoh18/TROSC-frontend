@@ -2,7 +2,14 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { CalendarClock, CheckCircle2, Circle, ClipboardList, ListChecks, Pin, X } from "lucide-react";
 import * as api from "../../services/api";
-import type { AuthUser, BackendAnnouncement, BackendAssignment, BackendSession, WeeklyTask } from "../../services/api";
+import type {
+  AuthUser,
+  BackendAnnouncement,
+  BackendAssignment,
+  BackendCourse,
+  BackendSession,
+  WeeklyTask,
+} from "../../services/api";
 import { TaskItemRow } from "../TrackDetails/TrackWeeklyTasks";
 import { isDefaultPhoto } from "../../utils/photoUtils";
 
@@ -10,9 +17,13 @@ interface NextUpProps {
   user: AuthUser;
   /** The student's track, if they're in one. */
   trackId: string | null;
-  /** Open sessions they joined outside a track. */
+  /** Courses and open sessions they joined outside a track. */
+  ownCourses: BackendCourse[];
   ownSessions: BackendSession[];
 }
+
+/** An assignment plus the page where it can be submitted. */
+type DueAssignment = BackendAssignment & { to: string };
 
 const cardCls = "rounded-xl border border-neutral-light-active bg-white p-5 shadow-sm";
 const cardTitle = "mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-neutral-dark";
@@ -44,10 +55,10 @@ const readHidden = (userId: string) => {
  * The student's home: the next session, assignments due, this week's tasks,
  * pinned announcements, and a getting-started checklist for new members.
  */
-const NextUp = ({ user, trackId, ownSessions }: NextUpProps) => {
+const NextUp = ({ user, trackId, ownCourses, ownSessions }: NextUpProps) => {
   const [trackSessions, setTrackSessions] = useState<BackendSession[]>([]);
   const [watchedAny, setWatchedAny] = useState<boolean | null>(null);
-  const [assignments, setAssignments] = useState<BackendAssignment[]>([]);
+  const [assignments, setAssignments] = useState<DueAssignment[]>([]);
   const [tasks, setTasks] = useState<WeeklyTask[]>([]);
   const [pinned, setPinned] = useState<BackendAnnouncement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,11 +75,27 @@ const NextUp = ({ user, trackId, ownSessions }: NextUpProps) => {
           api.getWeeklyTasksByTrack(trackId),
         ])
       : Promise.resolve(null);
-    Promise.all([track, api.getFeed().catch(() => null)]).then(async ([t, feed]) => {
+    // Assignments on courses and open sessions joined outside the track.
+    const own = Promise.allSettled([
+      ...ownCourses.map((c) =>
+        api.getAssignmentsByCourse(c._id).then((r) => r.data.assignments.map((a) => ({ ...a, to: `/courses/${c._id}` }))),
+      ),
+      ...ownSessions.map((s) =>
+        api.getAssignmentsBySession(s._id).then((r) => r.data.assignments.map((a) => ({ ...a, to: `/sessions/${s._id}` }))),
+      ),
+    ]);
+    Promise.all([track, api.getFeed().catch(() => null), own]).then(async ([t, feed, ownLists]) => {
       if (cancelled) return;
       const sessions = t?.[0].status === "fulfilled" ? t[0].value.data.sessions.filter((s) => s.published) : [];
       setTrackSessions(sessions);
-      setAssignments(t?.[1].status === "fulfilled" ? t[1].value.data.assignments : []);
+      const trackAssignments: DueAssignment[] =
+        t?.[1].status === "fulfilled"
+          ? t[1].value.data.assignments.map((a) => ({ ...a, to: `/track/${trackId}?tab=assignments` }))
+          : [];
+      setAssignments([
+        ...trackAssignments,
+        ...ownLists.flatMap((r) => (r.status === "fulfilled" ? r.value : [])),
+      ]);
       setTasks(t?.[2].status === "fulfilled" ? [...t[2].value.data.weeklyTasks].sort((a, b) => a.week - b.week) : []);
       setPinned((feed?.data.announcements ?? []).filter((a) => a.isPinned).slice(0, 2));
       setLoading(false);
@@ -82,7 +109,7 @@ const NextUp = ({ user, trackId, ownSessions }: NextUpProps) => {
     return () => {
       cancelled = true;
     };
-  }, [trackId, ownSessions]);
+  }, [trackId, ownCourses, ownSessions]);
 
   const now = Date.now();
   // Sessions that started in the last two hours still count: they may be running now.
@@ -92,7 +119,8 @@ const NextUp = ({ user, trackId, ownSessions }: NextUpProps) => {
   const due = assignments
     .filter((a) => !a.mySubmission && Date.parse(a.deadline) > now)
     .sort((a, b) => Date.parse(a.deadline) - Date.parse(b.deadline));
-  const overdue = assignments.filter((a) => !a.mySubmission && Date.parse(a.deadline) <= now).length;
+  const overdueList = assignments.filter((a) => !a.mySubmission && Date.parse(a.deadline) <= now);
+  const overdue = overdueList.length;
   // "This week" is the first week that still has something left to do.
   const week = tasks.find((t) => t.items.some((i) => !i.done)) ?? null;
   const allTasksDone = tasks.length > 0 && !week;
@@ -106,7 +134,7 @@ const NextUp = ({ user, trackId, ownSessions }: NextUpProps) => {
     },
     { label: "Watch your first session", done: !!watchedAny, to: trackId ? `/track/${trackId}?tab=sessions` : "/explore" },
     ...(assignments.length > 0
-      ? [{ label: "Submit your first assignment", done: assignments.some((a) => a.mySubmission), to: `/track/${trackId}?tab=assignments` }]
+      ? [{ label: "Submit your first assignment", done: assignments.some((a) => a.mySubmission), to: assignments[0].to }]
       : []),
   ];
   const stepsLeft = steps.filter((s) => !s.done).length;
@@ -226,7 +254,7 @@ const NextUp = ({ user, trackId, ownSessions }: NextUpProps) => {
             )}
           </div>
 
-          {trackId && (
+          {(trackId || ownCourses.length > 0 || ownSessions.length > 0) && (
             <div className={cardCls}>
               <p className={cardTitle}>
                 <ClipboardList size={16} aria-hidden="true" />
@@ -238,7 +266,7 @@ const NextUp = ({ user, trackId, ownSessions }: NextUpProps) => {
                 <ul className="space-y-2">
                   {due.slice(0, 3).map((a) => (
                     <li key={a._id} className="flex items-baseline justify-between gap-3 text-sm">
-                      <Link to={`/track/${trackId}?tab=assignments`} className="min-w-0 truncate font-semibold text-neutral-darker hover:text-primary">
+                      <Link to={a.to} className="min-w-0 truncate font-semibold text-neutral-darker hover:text-primary">
                         {a.title}
                       </Link>
                       <span className="shrink-0 font-semibold text-primary">due {fromNow(a.deadline)}</span>
@@ -247,8 +275,8 @@ const NextUp = ({ user, trackId, ownSessions }: NextUpProps) => {
                   {overdue > 0 && (
                     <li className="text-sm font-semibold text-red-700">
                       {overdue} past the deadline and not submitted.{" "}
-                      <Link to={`/track/${trackId}?tab=assignments`} className={linkCls}>
-                        Open assignments
+                      <Link to={overdueList[0].to} className={linkCls}>
+                        Open {overdue === 1 ? "it" : "the first"}
                       </Link>
                     </li>
                   )}

@@ -9,6 +9,7 @@ import {
   Star,
   AlertCircle,
   FileText,
+  Paperclip,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import * as api from "../../services/api";
@@ -199,12 +200,15 @@ interface TrackAssignmentsProps {
   assignments: BackendAssignment[];
   isEnrolled: boolean;
   onSubmissionUpdate?: (assignmentId: string, submission: Submission) => void;
+  /** Leave the heading to the page around it. */
+  hideHeading?: boolean;
 }
 
 const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
   assignments,
   isEnrolled,
   onSubmissionUpdate,
+  hideHeading = false,
 }) => {
   const { user } = useAuth();
   const [selectedAssignment, setSelectedAssignment] =
@@ -213,7 +217,7 @@ const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
   if (assignments.length === 0) {
     return (
       <div>
-        <h2 className="mb-6 text-2xl font-bold text-primary-darker">Assignments</h2>
+        {!hideHeading && <h2 className="mb-6 text-2xl font-bold text-primary-darker">Assignments</h2>}
         <EmptyState icon={FileText} message="No assignments have been added to this track yet." />
       </div>
     );
@@ -221,7 +225,7 @@ const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
 
   return (
     <div>
-      <h2 className="mb-6 text-2xl font-bold text-primary-darker">Assignments</h2>
+      {!hideHeading && <h2 className="mb-6 text-2xl font-bold text-primary-darker">Assignments</h2>}
 
       <div className="space-y-4">
         {assignments.map((assignment, index) => {
@@ -263,6 +267,24 @@ const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
                       Deadline: {deadlineLabel}
                     </span>
                   </div>
+
+                  {(assignment.attachments?.length ?? 0) > 0 && (
+                    <ul className="mt-2 space-y-1" aria-label={`Attachments for ${assignment.title}`}>
+                      {assignment.attachments.map((url, i) => (
+                        <li key={`${url}-${i}`}>
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex min-h-6 max-w-full items-center gap-1 text-xs font-semibold text-primary hover:text-primary-hover"
+                          >
+                            <Paperclip className="h-3 w-3 shrink-0" aria-hidden="true" />
+                            <span className="truncate">{url.replace(/^https?:\/\//, "")}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
 
                   {hasSub && assignment.mySubmission?.file && (
                     <p className="mt-2 text-xs text-gray-600">
