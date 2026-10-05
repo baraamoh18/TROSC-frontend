@@ -305,7 +305,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
         </span>
       </div>
 
-      {/* Table from lg up. Below that each row stacks into a card, with the
+      {/* Table from xl up. Below that each row stacks into a card, with the
           actions on their own line, so nothing scrolls sideways. */}
       {loading ? (
         <div className="space-y-3">
@@ -323,8 +323,8 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
         </div>
       ) : (
         <div className="rounded-xl border border-neutral-light-active bg-white shadow-sm">
-          <table className="block w-full text-sm lg:table">
-            <thead className="hidden lg:table-header-group">
+          <table className="block w-full text-sm xl:table">
+            <thead className="hidden xl:table-header-group">
               <tr className="border-b border-neutral-light-active bg-neutral-light">
                 <th scope="col" className="px-4 py-3 text-left font-semibold text-neutral-dark">User</th>
                 <th scope="col" className="px-4 py-3 text-left font-semibold text-neutral-dark">Email</th>
@@ -332,10 +332,10 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
                 <th scope="col" className="px-4 py-3 text-right font-semibold text-neutral-dark">Actions</th>
               </tr>
             </thead>
-            <tbody className="block divide-y divide-gray-100 lg:table-row-group">
+            <tbody className="block divide-y divide-gray-100 xl:table-row-group">
               {users.map((user) => (
-                <tr key={user._id} className="block transition-colors hover:bg-neutral-light/50 lg:table-row">
-                  <td className="block px-4 pb-2 pt-3 lg:table-cell lg:py-3">
+                <tr key={user._id} className="block transition-colors hover:bg-neutral-light/50 xl:table-row">
+                  <td className="block px-4 pb-2 pt-3 xl:table-cell xl:py-3">
                     <div className="flex items-center gap-3">
                       {!isDefaultPhoto(user.photo) ? (
                         <img loading="lazy"
@@ -348,22 +348,22 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
                       )}
                       <div className="min-w-0">
                         <span className="font-semibold text-neutral-darker">{user.name}</span>
-                        {/* The email and role columns only show from lg; put them here below that. */}
-                        <p className="break-all text-xs text-neutral-dark lg:hidden">{user.email}</p>
-                        <div className="mt-1 lg:hidden">
+                        {/* The email and role columns only show from xl; put them here below that. */}
+                        <p className="break-all text-xs text-neutral-dark xl:hidden">{user.email}</p>
+                        <div className="mt-1 xl:hidden">
                           <RoleBadge role={user.role} />
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td className="hidden px-4 py-3 text-neutral-dark lg:table-cell">
+                  <td className="hidden px-4 py-3 text-neutral-dark xl:table-cell">
                     {user.email}
                   </td>
-                  <td className="hidden px-4 py-3 lg:table-cell">
+                  <td className="hidden px-4 py-3 xl:table-cell">
                     <RoleBadge role={user.role} />
                   </td>
-                  <td className="block px-4 pb-3 pl-16 lg:table-cell lg:py-3 lg:pl-4 lg:text-right">
-                    <div className="flex flex-wrap items-center gap-2 lg:inline-flex lg:justify-end">
+                  <td className="block px-4 pb-3 pl-16 xl:table-cell xl:py-3 xl:pl-4 xl:text-right">
+                    <div className="flex flex-wrap items-center gap-2 xl:inline-flex xl:justify-end">
                     {status === "inactive" ? (
                       <ConfirmButton
                         label="Reactivate"
