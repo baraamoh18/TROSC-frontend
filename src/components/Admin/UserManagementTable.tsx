@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useId, useState } from "react";
 import toast from "react-hot-toast";
 import {
   UserCircle,
@@ -11,8 +11,11 @@ import {
   ChevronRight,
   UserX,
   UserCheck,
+  UserCog,
+  X,
 } from "lucide-react";
 import * as api from "../../services/api";
+import Modal from "../Modal";
 import { isDefaultPhoto } from "../../utils/photoUtils";
 import type { AuthUser } from "../../services/api";
 
@@ -85,6 +88,106 @@ const ConfirmButton: React.FC<{
   );
 };
 
+type ChangeableRole = "student" | "instructor";
+
+const ROLE_INFO: Record<ChangeableRole, { label: string; detail: string }> = {
+  student: {
+    label: "Student",
+    detail: "Joins tracks, courses and sessions, and submits assignments. Loses Studio and anything they managed as an instructor.",
+  },
+  instructor: {
+    label: "Instructor",
+    detail:
+      "Opens the Studio, creates their own courses and sessions, and grades their work. An admin can also add them to a track as lead or co-instructor.",
+  },
+};
+
+/** Picks a new role and saves only on an explicit confirm. */
+const RoleDialog: React.FC<{
+  user: AuthUser;
+  onClose: () => void;
+  onConfirm: (role: ChangeableRole) => Promise<void>;
+}> = ({ user, onClose, onConfirm }) => {
+  const titleId = useId();
+  const current = user.role as ChangeableRole;
+  const [role, setRole] = useState<ChangeableRole>(current === "student" ? "instructor" : "student");
+  const [saving, setSaving] = useState(false);
+
+  const confirm = async () => {
+    setSaving(true);
+    try {
+      await onConfirm(role);
+      onClose();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal onClose={() => !saving && onClose()} labelledBy={titleId} className="max-w-md p-6">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <h3 id={titleId} className="text-lg font-bold text-neutral-darker">Change role</h3>
+          <p className="mt-0.5 text-sm text-neutral-dark">
+            {user.name} is {current === "instructor" ? "an instructor" : "a student"} now.
+          </p>
+        </div>
+        <button type="button" onClick={onClose} aria-label="Close" className="rounded-full p-1.5 text-neutral hover:bg-neutral-light">
+          <X size={18} />
+        </button>
+      </div>
+
+      <fieldset className="space-y-2">
+        <legend className="sr-only">New role</legend>
+        {(Object.keys(ROLE_INFO) as ChangeableRole[]).map((r) => (
+          <label
+            key={r}
+            className={`flex cursor-pointer gap-3 rounded-lg border p-3 text-sm ${
+              role === r ? "border-primary bg-primary-light/40" : "border-neutral-light-active"
+            }`}
+          >
+            <input
+              type="radio"
+              name="new-role"
+              value={r}
+              checked={role === r}
+              onChange={() => setRole(r)}
+              className="mt-0.5 h-4 w-4 accent-primary"
+            />
+            <span>
+              <span className="block font-semibold text-neutral-darker">
+                {ROLE_INFO[r].label}
+                {r === current && <span className="font-normal text-neutral-dark"> (current)</span>}
+              </span>
+              <span className="text-neutral-dark">{ROLE_INFO[r].detail}</span>
+            </span>
+          </label>
+        ))}
+      </fieldset>
+
+      <div className="mt-5 flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={saving}
+          className="rounded-lg border border-neutral-light-active px-4 py-2 text-sm font-bold text-neutral-dark hover:bg-neutral-light"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={confirm}
+          disabled={saving || role === current}
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {saving && <Loader2 size={14} className="animate-spin" />}
+          {role === current ? "No change" : `Make ${user.name.split(" ")[0]} ${role === "instructor" ? "an instructor" : "a student"}`}
+        </button>
+      </div>
+    </Modal>
+  );
+};
+
 const PAGE_SIZE = 15;
 
 type StatusFilter = "active" | "inactive";
@@ -98,6 +201,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
   const [status, setStatus] = useState<StatusFilter>("active");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [roleTarget, setRoleTarget] = useState<AuthUser | null>(null);
 
   // Wait for a pause in typing before asking the server.
   useEffect(() => {
@@ -146,11 +250,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
     }
   };
 
-  const handleChangeRole = async (
-    userId: string,
-    name: string,
-    role: "student" | "instructor",
-  ) => {
+  const handleChangeRole = async (userId: string, name: string, role: ChangeableRole) => {
     setBusyId(userId);
     try {
       await api.updateUserAdmin(userId, { role });
@@ -273,34 +373,20 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
                       />
                     ) : (
                     <>
-                    {user.role === "student" && (
+                    {user.role !== "admin" && (
                       <button
                         type="button"
                         disabled={busyId !== null}
-                        onClick={() => handleChangeRole(user._id, user.name, "instructor")}
-                        className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-primary px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {busyId === user._id ? (
-                          <Loader2 size={12} className="animate-spin" />
-                        ) : (
-                          <GraduationCap size={12} />
-                        )}
-                        Make Instructor
-                      </button>
-                    )}
-                    {user.role === "instructor" && (
-                      <button
-                        type="button"
-                        disabled={busyId !== null}
-                        onClick={() => handleChangeRole(user._id, user.name, "student")}
+                        onClick={() => setRoleTarget(user)}
+                        aria-label={`Change role for ${user.name}`}
                         className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-light-active bg-white px-3.5 py-1.5 text-xs font-bold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {busyId === user._id ? (
                           <Loader2 size={12} className="animate-spin" />
                         ) : (
-                          <User size={12} />
+                          <UserCog size={12} />
                         )}
-                        Make Student
+                        Change role
                       </button>
                     )}
                     {user.role !== "admin" && user._id !== currentUserId && (
@@ -315,7 +401,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
                       />
                     )}
                     {user.role === "admin" && (
-                      <span className="text-xs text-neutral-dark">—</span>
+                      <span className="text-xs text-neutral-dark">No actions</span>
                     )}
                     </>
                     )}
@@ -326,6 +412,14 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
             </tbody>
           </table>
         </div>
+      )}
+
+      {roleTarget && (
+        <RoleDialog
+          user={roleTarget}
+          onClose={() => setRoleTarget(null)}
+          onConfirm={(role) => handleChangeRole(roleTarget._id, roleTarget.name, role)}
+        />
       )}
 
       {/* Pagination */}
