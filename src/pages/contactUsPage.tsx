@@ -13,11 +13,11 @@ const ContactUsPage: React.FC = () => {
           <div className="lg:w-5/12 flex flex-col">
 
 
-            <h1 className="font-bold text-4xl md:text-5xl leading-tight text-neutral-darker mt-8 mb-6">
+            <h1 className="mt-8 mb-3 text-3xl font-extrabold text-primary-darker">
               Contact us
             </h1>
 
-            <p className="text-lg md:text-xl leading-relaxed text-neutral-dark-active mb-6 max-w-md">
+            <p className="mb-6 max-w-md text-base leading-relaxed text-neutral-dark">
               Questions about a track, an event, or joining TROSC? Send us a
               message, call, or email and a team member will get back to you.
             </p>
@@ -26,10 +26,9 @@ const ContactUsPage: React.FC = () => {
 
               <a
                 href="tel:+201201864338"
-                className="flex items-center gap-3 group w-fit"
-                aria-label="Call us"
+                className="flex min-h-10 items-center gap-3 group w-fit"
               >
-                <span className="flex items-center justify-center w-7 h-7 text-neutral-darker group-hover:text-primary transition-colors duration-200">
+                <span aria-hidden="true" className="flex items-center justify-center w-7 h-7 text-neutral-darker group-hover:text-primary transition-colors duration-200">
                   <Phone size={22} strokeWidth={2} />
                 </span>
                 <span className="font-semibold text-base text-neutral-darker group-hover:text-primary transition-colors duration-200">
@@ -39,10 +38,9 @@ const ContactUsPage: React.FC = () => {
 
               <a
                 href="mailto:troscscu2@gmail.com"
-                className="flex items-center gap-3 group w-fit"
-                aria-label="Email us"
+                className="flex min-h-10 items-center gap-3 group w-fit"
               >
-                <span className="flex items-center justify-center w-7 h-7 text-neutral-darker group-hover:text-primary transition-colors duration-200">
+                <span aria-hidden="true" className="flex items-center justify-center w-7 h-7 text-neutral-darker group-hover:text-primary transition-colors duration-200">
                   <Mail size={22} strokeWidth={2} />
                 </span>
                 <span className="font-semibold text-base text-neutral-darker group-hover:text-primary transition-colors duration-200">
