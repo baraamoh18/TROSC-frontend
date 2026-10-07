@@ -475,6 +475,7 @@ export interface TrackPayload {
   instructor?: string;
   /** Admin only: co-instructor ids. Replaces the whole list; [] clears it. */
   instructors?: string[];
+  coverImage?: string;
 }
 
 export function createTrack(
@@ -738,6 +739,12 @@ export interface CoursePayload {
   access?: "public" | "track-only" | "private";
   /** Admin only: user id of an instructor or admin. Ignored for other roles. */
   instructor?: string;
+  coverImage?: string;
+  /** Estimated total length in hours. */
+  duration?: number;
+  syllabus?: SyllabusItem[];
+  /** Trusted-host https links. */
+  attachments?: string[];
 }
 
 export function createCourse(
@@ -823,6 +830,9 @@ export interface EventPayload {
   locationAddress?: string;
   track?: string;
   course?: string;
+  coverImage?: string;
+  /** Trusted-host https links. */
+  attachments?: string[];
 }
 
 export function createEvent(

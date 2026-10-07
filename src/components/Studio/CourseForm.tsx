@@ -2,9 +2,11 @@ import { useState, type FormEvent } from "react";
 import { Loader2, X } from "lucide-react";
 import toast from "react-hot-toast";
 import * as api from "../../services/api";
-import type { BackendCourse, CoursePayload } from "../../services/api";
+import type { BackendCourse, CoursePayload, SyllabusItem } from "../../services/api";
 import Modal from "../Modal";
 import { errorMessage, inputCls, labelCls, primaryBtn, secondaryBtn } from "./studioUi";
+import { CoverImageField, LinkListField, SyllabusEditor } from "./ContentFields";
+import { cleanSyllabus, coverProblem, realCover, useLinkList } from "../../utils/contentFields";
 
 interface CourseFormProps {
   /** Omit to create a new standalone course. */
@@ -26,6 +28,10 @@ const CourseForm = ({ course, onClose, onSaved }: CourseFormProps) => {
   // Without a track, only public courses can be joined, so that's the default.
   const [access, setAccess] = useState<CoursePayload["access"]>(course?.access ?? "public");
   const [published, setPublished] = useState(course?.published ?? false);
+  const [cover, setCover] = useState(realCover(course?.coverImage));
+  const [duration, setDuration] = useState(course?.duration ? String(course.duration) : "");
+  const [syllabus, setSyllabus] = useState<SyllabusItem[]>(course?.syllabus ?? []);
+  const attachments = useLinkList(course?.attachments ?? []);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -34,10 +40,25 @@ const CourseForm = ({ course, onClose, onSaved }: CourseFormProps) => {
     const next: Record<string, string> = {};
     if (title.trim().length < 3) next.title = "Use at least 3 characters.";
     if (description.trim().length < 10) next.description = "Use at least 10 characters.";
+    if (duration && (!Number.isFinite(Number(duration)) || Number(duration) <= 0)) {
+      next.duration = "Enter the length in hours.";
+    }
+    if (coverProblem(cover)) next.cover = "Fix the cover image link.";
+    if (attachments.problem) next.attachments = "Fix the attachment links.";
     setErrors(next);
     if (Object.keys(next).length) return;
 
-    const payload: CoursePayload = { title: title.trim(), description: description.trim(), level, access, published };
+    const payload: CoursePayload = {
+      title: title.trim(),
+      description: description.trim(),
+      level,
+      access,
+      published,
+      syllabus: cleanSyllabus(syllabus),
+      attachments: attachments.links,
+    };
+    if (cover.trim()) payload.coverImage = cover.trim();
+    if (duration) payload.duration = Number(duration);
     setSaving(true);
     try {
       if (editing) {
@@ -145,6 +166,28 @@ const CourseForm = ({ course, onClose, onSaved }: CourseFormProps) => {
           <p id="c-access-hint" className="rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-700">
             {accessHint}
           </p>
+
+          <div className="sm:w-1/2">
+            <label htmlFor="c-duration" className={labelCls}>Length in hours (optional)</label>
+            <input
+              id="c-duration"
+              type="number"
+              min={1}
+              inputMode="numeric"
+              className={inputCls}
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              aria-invalid={!!errors.duration}
+              aria-describedby={errors.duration ? "c-duration-error" : undefined}
+            />
+            {fieldError("duration")}
+          </div>
+
+          <CoverImageField id="c-cover" value={cover} onChange={setCover} inputCls={inputCls} labelCls={labelCls} />
+
+          <SyllabusEditor items={syllabus} onChange={setSyllabus} inputCls={inputCls} labelCls={labelCls} />
+
+          <LinkListField id="c-attachments" list={attachments} inputCls={inputCls} labelCls={labelCls} />
 
           <label className="flex items-center gap-2 text-sm font-semibold text-gray-800">
             <input

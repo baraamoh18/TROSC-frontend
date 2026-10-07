@@ -17,6 +17,8 @@ import {
 import * as api from "../../services/api";
 import SharedModal from "../Modal";
 import useStaffUsers from "../../hooks/useStaffUsers";
+import { CoverImageField, LinkListField, SyllabusEditor } from "../Studio/ContentFields";
+import { cleanSyllabus, coverProblem, realCover, useLinkList } from "../../utils/contentFields";
 import type {
   BackendTrack,
   BackendCourse,
@@ -154,7 +156,7 @@ const Modal: React.FC<{ title: string; onClose: () => void; children: React.Reac
 }) => {
   const titleId = useId();
   return (
-    <SharedModal onClose={onClose} labelledBy={titleId} className="max-w-md p-6">
+    <SharedModal onClose={onClose} labelledBy={titleId} className="max-h-[90vh] max-w-lg overflow-y-auto p-6">
       <div className="mb-5 flex items-center justify-between">
         <h3 id={titleId} className="text-lg font-bold text-neutral-darker">{title}</h3>
         <button
@@ -172,6 +174,8 @@ const Modal: React.FC<{ title: string; onClose: () => void; children: React.Reac
 };
 
 // ── Tracks panel ──────────────────────────────────────────────
+
+const fieldLabelCls = "mb-1 block text-sm font-semibold text-neutral-darker";
 
 const TracksPanel: React.FC<{
   tracks: BackendTrack[];
@@ -200,7 +204,7 @@ const TracksPanel: React.FC<{
 
   const openCreate = () => {
     setEditingTrack(null);
-    setForm({ title: "", description: "", level: "all", published: false, instructors: [] });
+    setForm({ title: "", description: "", level: "all", published: false, instructors: [], coverImage: "" });
     setShowForm(true);
   };
 
@@ -213,6 +217,7 @@ const TracksPanel: React.FC<{
       published: t.published ?? false,
       instructor: t.instructor?._id,
       instructors: (t.instructors ?? []).map((u) => u._id),
+      coverImage: realCover(t.coverImage),
     });
     setShowForm(true);
   };
@@ -223,9 +228,18 @@ const TracksPanel: React.FC<{
       toast.error("Title and description are required.");
       return;
     }
+    if (coverProblem(form.coverImage ?? "")) {
+      toast.error("Fix the cover image link.");
+      return;
+    }
     setSaving(true);
     // instructors replaces the whole list, so always send it in full.
-    const payload: TrackPayload = { ...form, instructors: coInstructors };
+    const { coverImage, ...rest } = form;
+    const payload: TrackPayload = {
+      ...rest,
+      instructors: coInstructors,
+      ...(coverImage?.trim() ? { coverImage: coverImage.trim() } : {}),
+    };
     try {
       if (editingTrack) {
         await api.updateTrack(editingTrack._id, payload);
@@ -348,6 +362,13 @@ const TracksPanel: React.FC<{
                 ))}
               </select>
             </div>
+            <CoverImageField
+              id="track-cover"
+              value={form.coverImage ?? ""}
+              onChange={(v) => setForm((f) => ({ ...f, coverImage: v }))}
+              inputCls={inputCls}
+              labelCls={fieldLabelCls}
+            />
             <fieldset>
               <legend className="mb-1 block text-sm font-semibold text-neutral-darker">Co-instructors</legend>
               <p className="mb-2 text-xs text-neutral-dark">
@@ -428,10 +449,14 @@ const CoursesPanel: React.FC<{
     access: "track-only",
   });
   const staff = useStaffUsers(showForm);
+  const [durationText, setDurationText] = useState("");
+  const attachments = useLinkList();
 
   const openCreate = () => {
     setEditingCourse(null);
-    setForm({ title: "", description: "", level: "beginner", published: false, access: "track-only" });
+    setForm({ title: "", description: "", level: "beginner", published: false, access: "track-only", coverImage: "", syllabus: [] });
+    setDurationText("");
+    attachments.setText("");
     setShowForm(true);
   };
 
@@ -445,7 +470,11 @@ const CoursesPanel: React.FC<{
       access: (c.access as CoursePayload["access"]) ?? "track-only",
       track: c.track ? (typeof c.track === "string" ? c.track : c.track._id) : undefined,
       instructor: c.instructor?._id,
+      coverImage: realCover(c.coverImage),
+      syllabus: c.syllabus ?? [],
     });
+    setDurationText(c.duration ? String(c.duration) : "");
+    attachments.setText((c.attachments ?? []).join("\n"));
     setShowForm(true);
   };
 
@@ -455,13 +484,29 @@ const CoursesPanel: React.FC<{
       toast.error("Title and description are required.");
       return;
     }
+    if (durationText && (!Number.isFinite(Number(durationText)) || Number(durationText) <= 0)) {
+      toast.error("Enter the course length in hours.");
+      return;
+    }
+    if (coverProblem(form.coverImage ?? "") || attachments.problem) {
+      toast.error("Fix the highlighted links first.");
+      return;
+    }
+    const { coverImage, syllabus, ...rest } = form;
+    const payload: CoursePayload = {
+      ...rest,
+      syllabus: cleanSyllabus(syllabus ?? []),
+      attachments: attachments.links,
+      ...(coverImage?.trim() ? { coverImage: coverImage.trim() } : {}),
+      ...(durationText ? { duration: Number(durationText) } : {}),
+    };
     setSaving(true);
     try {
       if (editingCourse) {
-        await api.updateCourse(editingCourse._id, form);
+        await api.updateCourse(editingCourse._id, payload);
         toast.success("Course updated!");
       } else {
-        await api.createCourse(form);
+        await api.createCourse(payload);
         toast.success("Course created!");
       }
       setShowForm(false);
@@ -593,6 +638,25 @@ const CoursesPanel: React.FC<{
                     : "No track and private: students can't find or enroll in this course on their own."}
               </p>
             )}
+            <div className="sm:w-1/2">
+              <label htmlFor="course-duration" className={fieldLabelCls}>Length in hours (optional)</label>
+              <input id="course-duration" type="number" min={1} inputMode="numeric" className={inputCls}
+                value={durationText} onChange={(e) => setDurationText(e.target.value)} />
+            </div>
+            <CoverImageField
+              id="course-cover"
+              value={form.coverImage ?? ""}
+              onChange={(v) => setForm((f) => ({ ...f, coverImage: v }))}
+              inputCls={inputCls}
+              labelCls={fieldLabelCls}
+            />
+            <SyllabusEditor
+              items={form.syllabus ?? []}
+              onChange={(items) => setForm((f) => ({ ...f, syllabus: items }))}
+              inputCls={inputCls}
+              labelCls={fieldLabelCls}
+            />
+            <LinkListField id="course-attachments" list={attachments} inputCls={inputCls} labelCls={fieldLabelCls} />
             <label className="flex items-center gap-2 text-sm font-semibold text-neutral-darker cursor-pointer">
               <input type="checkbox" checked={form.published}
                 onChange={(e) => setForm((f) => ({ ...f, published: e.target.checked }))}
@@ -635,10 +699,12 @@ const EventsPanel: React.FC<{
     locationLink: "",
     locationAddress: "",
   });
+  const attachments = useLinkList();
 
   const openCreate = () => {
     setEditingEvent(null);
-    setForm({ title: "", description: "", date: "", locationType: "online" });
+    setForm({ title: "", description: "", date: "", locationType: "online", coverImage: "" });
+    attachments.setText("");
     setShowForm(true);
   };
 
@@ -651,7 +717,9 @@ const EventsPanel: React.FC<{
       locationType: ev.locationType ?? "online",
       locationLink: ev.locationLink ?? "",
       locationAddress: ev.locationAddress ?? "",
+      coverImage: realCover(ev.coverImage),
     });
+    attachments.setText((ev.attachments ?? []).join("\n"));
     setShowForm(true);
   };
 
@@ -661,12 +729,19 @@ const EventsPanel: React.FC<{
       toast.error("Title, description and date are required.");
       return;
     }
+    if (coverProblem(form.coverImage ?? "") || attachments.problem) {
+      toast.error("Fix the highlighted links first.");
+      return;
+    }
     setSaving(true);
     try {
-      const payload = {
-        ...form,
+      const { coverImage, ...rest } = form;
+      const payload: EventPayload = {
+        ...rest,
         locationLink: form.locationLink?.trim() || undefined,
         locationAddress: form.locationAddress?.trim() || undefined,
+        attachments: attachments.links,
+        ...(coverImage?.trim() ? { coverImage: coverImage.trim() } : {}),
       };
 
       if (editingEvent) {
@@ -776,6 +851,14 @@ const EventsPanel: React.FC<{
                   value={form.locationAddress ?? ""} onChange={(e) => setForm((f) => ({ ...f, locationAddress: e.target.value }))} />
               </div>
             )}
+            <CoverImageField
+              id="event-cover"
+              value={form.coverImage ?? ""}
+              onChange={(v) => setForm((f) => ({ ...f, coverImage: v }))}
+              inputCls={inputCls}
+              labelCls={fieldLabelCls}
+            />
+            <LinkListField id="event-attachments" list={attachments} inputCls={inputCls} labelCls={fieldLabelCls} />
             <div className="flex gap-3 pt-2">
               <button type="submit" disabled={saving}
                 className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark disabled:opacity-50">
