@@ -144,16 +144,6 @@ const Navbar: React.FC = () => {
               />
             ) : user ? (
               <div className="hidden sm:flex items-center gap-3">
-                {(user.role === "admin" || user.role === "instructor") && (
-                  <Link
-                    to="/studio"
-                    title="Studio"
-                    aria-label="Studio"
-                    className="flex min-h-10 min-w-10 items-center justify-center text-gray-800 hover:text-primary transition-colors"
-                  >
-                    <LayoutGrid size={22} />
-                  </Link>
-                )}
                 <UserDropdown user={user} onLogout={handleLogout} />
               </div>
             ) : (
@@ -199,7 +189,7 @@ const Navbar: React.FC = () => {
             <>
               <div className="flex items-center justify-between px-3 py-2">
                 <Link
-                  to="/dashboard"
+                  to={user.role === "student" ? "/dashboard" : "/settings"}
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-1.5 text-sm font-semibold text-gray-800 hover:text-primary transition-colors"
                 >

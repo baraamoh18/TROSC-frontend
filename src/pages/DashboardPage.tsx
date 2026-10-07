@@ -1,251 +1,31 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  UserCircle,
-  GraduationCap,
-  BookOpen,
-  Video,
-  CalendarCheck,
-  Mail,
-  Camera,
-  Loader2,
-  Activity,
-  LogIn,
-  UserCheck,
-  ClipboardList,
-  Star,
-  UploadCloud,
-  AlertCircle,
-  RotateCw,
-  LayoutGrid,
-} from "lucide-react";
-import toast from "react-hot-toast";
-import { isDefaultPhoto } from "../utils/photoUtils";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, Navigate } from "react-router-dom";
+import { GraduationCap, BookOpen, Video, Settings } from "lucide-react";
 import * as api from "../services/api";
-import type { EnrollmentsResponse, BackendEvent, ActivityLog } from "../services/api";
+import type { EnrollmentsResponse } from "../services/api";
 import { useAuth } from "../context/useAuth";
 import usePageTitle from "../hooks/usePageTitle";
 import { isStandaloneCourse } from "../utils/catalog";
 import NextUp from "../components/Dashboard/NextUp";
+import SectionError from "../components/Settings/SectionError";
 
-const PLACEHOLDER_IMAGE = "https://placehold.co/800x400?text=Trosc+Event";
-const MAX_SOURCE_FILE_SIZE_MB = 5;
-// The API accepts a base64 photo inside its JSON request body (100 KB max).
-// Resize client-side so a normal phone photo can still be used as an avatar.
-const MAX_AVATAR_BYTES = 70 * 1024;
-const MAX_AVATAR_DIMENSION = 512;
-
-// ── Avatar upload section ─────────────────────────────────────
-
-const compressAvatar = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const image = new Image();
-    const objectUrl = URL.createObjectURL(file);
-
-    image.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      const scale = Math.min(
-        1,
-        MAX_AVATAR_DIMENSION / Math.max(image.width, image.height),
-      );
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.max(1, Math.round(image.width * scale));
-      canvas.height = Math.max(1, Math.round(image.height * scale));
-      canvas.getContext("2d")?.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-      let quality = 0.9;
-      const encode = (): void => {
-        const dataUrl = canvas.toDataURL("image/jpeg", quality);
-        if (dataUrl.length <= MAX_AVATAR_BYTES || quality <= 0.4) {
-          resolve(dataUrl);
-          return;
-        }
-        quality -= 0.1;
-        encode();
-      };
-      encode();
-    };
-    image.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      reject(new Error("The selected image could not be read."));
-    };
-    image.src = objectUrl;
-  });
-
-const AvatarUpload = () => {
-  const { user, setUser } = useAuth();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-
-  if (!user) return null;
-
-  const displaySrc = preview ?? user.photo ?? null;
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!new Set(["image/jpeg", "image/png", "image/webp"]).has(file.type)) {
-      toast.error("Choose a JPG, PNG, or WebP image.");
-      return;
-    }
-
-    if (file.size > MAX_SOURCE_FILE_SIZE_MB * 1024 * 1024) {
-      toast.error(`Image must be smaller than ${MAX_SOURCE_FILE_SIZE_MB} MB.`);
-      return;
-    }
-
-    setUploading(true);
-    try {
-      const dataUrl = await compressAvatar(file);
-      setPreview(dataUrl);
-      await uploadPhoto(dataUrl);
-    } catch (err) {
-      setPreview(null);
-      toast.error(
-        err instanceof Error ? err.message : "Failed to process the image.",
-      );
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  };
-
-  const uploadPhoto = async (dataUrl: string) => {
-    try {
-      const res = await api.updateMe({ photo: dataUrl });
-      setUser(res.data.user);
-      setPreview(null); // let the AuthContext photo take over
-      toast.success("Profile picture updated!");
-    } catch (err) {
-      setPreview(null); // revert preview on failure
-      toast.error(
-        err instanceof Error ? err.message : "Failed to update photo.",
-      );
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <div className="relative h-24 w-24 shrink-0">
-      {/* Avatar */}
-      {displaySrc && !isDefaultPhoto(displaySrc) ? (
-        <img
-          src={displaySrc}
-          alt={user.name}
-          className="h-24 w-24 rounded-full object-cover ring-4 ring-primary-light shadow-md"
-        />
-      ) : (
-        <UserCircle
-          size={96}
-          className="text-primary-light"
-          strokeWidth={1}
-        />
-      )}
-
-      {/* Upload spinner overlay */}
-      {uploading && (
-        <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center">
-          <Loader2 size={24} className="text-white animate-spin" />
-        </div>
-      )}
-
-      {/* The visible camera control works equally well on mouse and touch devices. */}
-      {!uploading && (
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          aria-label="Change profile picture"
-          title="Change profile picture"
-          className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-md transition-colors hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-        >
-          <Camera size={17} aria-hidden="true" />
-        </button>
-      )}
-
-      {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        className="hidden"
-        onChange={handleFileChange}
-      />
-    </div>
-  );
-};
-
-// ── Dashboard Page ────────────────────────────────────────────
-
-// ── Activity icon helper ─────────────────────────────────────
-
-const getActivityIcon = (action: string) => {
-  const cls = "w-4 h-4";
-  if (action.includes("login")) return <LogIn className={cls} />;
-  if (action.includes("enroll")) return <UserCheck className={cls} />;
-  if (action.includes("submit") || action.includes("assignment")) return <ClipboardList className={cls} />;
-  if (action.includes("review")) return <Star className={cls} />;
-  if (action.includes("upload") || action.includes("photo")) return <UploadCloud className={cls} />;
-  return <Activity className={cls} />;
-};
-
-const formatRelative = (isoDate: string) => {
-  const diff = Date.now() - new Date(isoDate).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(isoDate).toLocaleDateString(undefined, { month: "short", day: "numeric" });
-};
-
-// Shown instead of a section's empty state when its request failed, so a
-// failed load isn't mistaken for "you have nothing here".
-const SectionError = ({ what, onRetry }: { what: string; onRetry: () => void }) => (
-  <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
-    <p className="flex items-center gap-2">
-      <AlertCircle size={18} className="text-primary" />
-      Couldn't load {what}.
-    </p>
-    <button
-      type="button"
-      onClick={onRetry}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-light-active px-4 py-1.5 text-sm font-semibold text-neutral-darker transition-colors hover:bg-neutral-light"
-    >
-      <RotateCw size={14} />
-      Retry
-    </button>
-  </div>
-);
-
-// ── Dashboard Page ────────────────────────────────────────────
-
+/**
+ * The student home. Profile, events and activity live in Settings; staff
+ * work from the Studio, so they're sent there.
+ */
 const DashboardPage = () => {
   usePageTitle("My Dashboard");
   const { user } = useAuth();
+  const isStudent = user?.role === "student";
 
-  const [enrollments, setEnrollments] = useState<
-    EnrollmentsResponse["data"] | null
-  >(null);
+  const [enrollments, setEnrollments] = useState<EnrollmentsResponse["data"] | null>(null);
   const [enrollmentsLoading, setEnrollmentsLoading] = useState(true);
   const [enrollmentsError, setEnrollmentsError] = useState(false);
   /** Ids of standalone sessions; enrollments don't say which sessions are in a track. */
   const [standaloneSessionIds, setStandaloneSessionIds] = useState<Set<string>>(new Set());
 
-  const [rsvpEvents, setRsvpEvents] = useState<BackendEvent[]>([]);
-  const [eventsLoading, setEventsLoading] = useState(true);
-  const [eventsError, setEventsError] = useState(false);
-
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
-  const [activityLoading, setActivityLoading] = useState(true);
-  const [activityError, setActivityError] = useState(false);
-
-  // Each loader returns a cancel function so effects can ignore stale
-  // responses after unmount; Retry buttons call the same loaders directly.
+  // Returns a cancel function so the effect can ignore stale responses;
+  // the Retry button calls it directly.
   const loadEnrollments = useCallback(() => {
     let cancelled = false;
     setEnrollmentsLoading(true);
@@ -271,49 +51,11 @@ const DashboardPage = () => {
     };
   }, []);
 
-  // Uses the dedicated /events/my-events endpoint instead of loading all
-  // events and filtering client-side.
-  const loadEvents = useCallback(() => {
-    let cancelled = false;
-    setEventsLoading(true);
-    setEventsError(false);
-    api
-      .getMyEvents()
-      .then((res) => {
-        if (!cancelled) setRsvpEvents(res.data?.events || []);
-      })
-      .catch(() => {
-        if (!cancelled) setEventsError(true);
-      })
-      .finally(() => {
-        if (!cancelled) setEventsLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const loadActivity = useCallback(() => {
-    let cancelled = false;
-    setActivityLoading(true);
-    setActivityError(false);
-    api
-      .getMyActivityLogs("limit=10")
-      .then((res) => {
-        if (!cancelled) setActivityLogs(res.data?.logs || []);
-      })
-      .catch(() => {
-        if (!cancelled) setActivityError(true);
-      })
-      .finally(() => {
-        if (!cancelled) setActivityLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   const userId = user?._id;
+  useEffect(() => {
+    if (!userId || !isStudent) return;
+    return loadEnrollments();
+  }, [userId, isStudent, loadEnrollments]);
 
   // Kept stable so Next up doesn't reload on every render.
   const ownCourses = useMemo(
@@ -325,298 +67,118 @@ const DashboardPage = () => {
     [enrollments, standaloneSessionIds],
   );
 
-  useEffect(() => {
-    if (!userId) return;
-    const cancelEnrollments = loadEnrollments();
-    const cancelEvents = loadEvents();
-    const cancelActivity = loadActivity();
-    return () => {
-      cancelEnrollments();
-      cancelEvents();
-      cancelActivity();
-    };
-  }, [userId, loadEnrollments, loadEvents, loadActivity]);
-
   if (!user) return null;
+  if (!isStudent) return <Navigate to="/studio" replace />;
+
+  const firstName = user.name.trim().split(/\s+/)[0];
+  const enrolledTrack = enrollments?.tracks?.[0] ?? null;
+  const ready = !enrollmentsLoading && !enrollmentsError;
 
   return (
     <div className="min-h-screen bg-neutral-light pt-24 pb-20">
       <div className="mx-auto w-full max-w-5xl px-6">
-        {/* Profile header */}
-        <div className="mb-10 flex flex-col items-start gap-6 rounded-xl bg-white p-6 shadow-sm sm:flex-row sm:items-center">
-          {/* Clickable avatar with camera overlay */}
-          <AvatarUpload />
-
-          <div className="flex-1">
-            <h1 className="text-2xl font-extrabold text-neutral-darker">
-              {user.name}
-            </h1>
-            <p className="mt-1 flex items-center gap-1.5 text-sm text-neutral-dark">
-              <Mail size={16} />
-              {user.email}
-            </p>
-            {user.bio && (
-              <p className="mt-2 text-sm leading-relaxed text-neutral-dark">
-                {user.bio}
-              </p>
-            )}
-            <span className="mt-2 inline-block rounded-full bg-primary-light px-3 py-1 text-xs font-semibold capitalize text-primary-dark">
-              {user.role}
-            </span>
-          </div>
-
-
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
+          <h1 className="text-3xl font-extrabold text-primary-darker">Hi, {firstName}</h1>
+          <Link
+            to="/settings"
+            className="inline-flex min-h-10 items-center gap-1.5 text-sm font-semibold text-neutral-dark hover:text-primary"
+          >
+            <Settings size={16} aria-hidden="true" />
+            Profile and settings
+          </Link>
         </div>
 
-        {/* Next up: students only, once we know their track */}
-        {user.role === "student" && !enrollmentsLoading && !enrollmentsError && (
-          <NextUp
-            user={user}
-            trackId={enrollments?.tracks?.[0]?._id ?? null}
-            ownCourses={ownCourses}
-            ownSessions={ownSessions}
-          />
-        )}
+        {ready && <NextUp user={user} trackId={enrolledTrack?._id ?? null} ownCourses={ownCourses} ownSessions={ownSessions} />}
 
-        {/* My Track: students only */}
-        {user.role === "student" && (
-          <section className="mb-10">
-            <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">
-              My Track
-            </h2>
-
-            {enrollmentsLoading ? (
-              <div className="h-24 animate-pulse rounded-xl bg-gray-200" />
-            ) : enrollmentsError ? (
-              <SectionError what="your track" onRetry={loadEnrollments} />
-            ) : (() => {
-              const enrolledTrack = enrollments?.tracks?.[0] ?? null;
-              return enrolledTrack ? (
-                <div className="flex flex-col gap-4 rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h3 className="mb-1 text-xl font-bold text-neutral-darker">
-                      {enrolledTrack.title}
-                    </h3>
-                    <p className="flex flex-wrap gap-4 text-sm text-neutral-dark">
-                      <span className="flex items-center gap-1.5">
-                        <BookOpen size={16} /> {enrollments!.courses?.length || 0} course
-                        {(enrollments!.courses?.length || 0) === 1 ? "" : "s"}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <Video size={16} /> {enrollments!.sessions?.length || 0} session
-                        {(enrollments!.sessions?.length || 0) === 1 ? "" : "s"}
-                      </span>
-                    </p>
-                  </div>
-                  <Link
-                    to={`/track/${enrolledTrack._id}`}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-base font-bold text-white transition-colors hover:bg-primary-hover"
-                  >
-                    <GraduationCap size={18} />
-                    Go to Track
-                  </Link>
-                </div>
-              ) : user.pendingTrack ? (
-                <div className="rounded-xl border border-dashed border-amber-300 bg-amber-50 p-6 text-center text-amber-800">
-                  Your request to join a track is waiting for approval.{" "}
-                  <Link
-                    to={`/track/${user.pendingTrack}`}
-                    className="font-semibold text-primary hover:text-primary-hover"
-                  >
-                    View track
-                  </Link>
-                </div>
-              ) : (
-                <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
-                  You haven't joined a track yet.{" "}
-                  <Link
-                    to="/explore"
-                    className="font-semibold text-primary hover:text-primary-hover"
-                  >
-                    Browse tracks
-                  </Link>{" "}
-                  to get started.
-                </div>
-              );
-            })()}
-          </section>
-        )}
-
-        {/* Courses and sessions joined outside a track: students only */}
-        {user.role === "student" && !enrollmentsLoading && !enrollmentsError && (() => {
-          return (
-            <section className="mb-10">
-              <h2 className="mb-1 text-2xl font-extrabold text-primary-darker">On their own</h2>
-              <p className="mb-4 text-sm text-neutral-dark">
-                Courses and open sessions you joined outside a track.
-              </p>
-              {ownCourses.length + ownSessions.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
-                  Nothing here yet.{" "}
-                  <Link to="/explore#courses" className="font-semibold text-primary hover:text-primary-hover">
-                    Find a course or open session
-                  </Link>
-                  .
-                </div>
-              ) : (
-                <ul className="divide-y divide-neutral-light-active overflow-hidden rounded-xl border border-neutral-light-active bg-white shadow-sm">
-                  {ownCourses.map((c) => (
-                    <li key={c._id}>
-                      <Link
-                        to={`/courses/${c._id}`}
-                        className="flex items-center gap-3 px-5 py-4 font-semibold text-neutral-darker transition-colors hover:bg-neutral-light hover:text-primary"
-                      >
-                        <BookOpen size={18} className="shrink-0 text-primary" aria-hidden="true" />
-                        <span className="min-w-0 flex-1 truncate">{c.title}</span>
-                        <span className="text-xs font-semibold text-neutral-dark">Course</span>
-                      </Link>
-                    </li>
-                  ))}
-                  {ownSessions.map((sess) => (
-                    <li key={sess._id}>
-                      <Link
-                        to={`/sessions/${sess._id}`}
-                        className="flex items-center gap-3 px-5 py-4 font-semibold text-neutral-darker transition-colors hover:bg-neutral-light hover:text-primary"
-                      >
-                        <Video size={18} className="shrink-0 text-primary" aria-hidden="true" />
-                        <span className="min-w-0 flex-1 truncate">{sess.title}</span>
-                        <span className="text-xs font-semibold text-neutral-dark">Session</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          );
-        })()}
-
-        {/* Role-specific shortcuts: instructors & admins */}
-        {(user.role === "instructor" || user.role === "admin") && (
-          <section className="mb-10">
-            <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">Staff tools</h2>
+        <section className="mb-10">
+          <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">My Track</h2>
+          {enrollmentsLoading ? (
+            <div className="h-24 animate-pulse rounded-xl bg-gray-200" />
+          ) : enrollmentsError ? (
+            <SectionError what="your track" onRetry={loadEnrollments} />
+          ) : enrolledTrack ? (
             <div className="flex flex-col gap-4 rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-neutral-dark">
-                {user.role === "admin"
-                  ? "The Studio has track content and grading, plus users, the catalog, events, announcements and statistics."
-                  : "Use the Studio for join requests, sessions, assignments, grading and weekly tasks."}
-              </p>
-              <div className="flex shrink-0 flex-wrap gap-2">
-                <Link
-                  to="/studio"
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-base font-bold text-white transition-colors hover:bg-primary-hover"
-                >
-                  <LayoutGrid size={18} aria-hidden="true" />
-                  Open Studio
-                </Link>
+              <div>
+                <h3 className="mb-1 text-xl font-bold text-neutral-darker">{enrolledTrack.title}</h3>
+                <p className="flex flex-wrap gap-4 text-sm text-neutral-dark">
+                  <span className="flex items-center gap-1.5">
+                    <BookOpen size={16} aria-hidden="true" /> {enrollments!.courses?.length || 0} course
+                    {(enrollments!.courses?.length || 0) === 1 ? "" : "s"}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Video size={16} aria-hidden="true" /> {enrollments!.sessions?.length || 0} session
+                    {(enrollments!.sessions?.length || 0) === 1 ? "" : "s"}
+                  </span>
+                </p>
               </div>
+              <Link
+                to={`/track/${enrolledTrack._id}`}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-base font-bold text-white transition-colors hover:bg-primary-hover"
+              >
+                <GraduationCap size={18} aria-hidden="true" />
+                Go to Track
+              </Link>
             </div>
+          ) : user.pendingTrack ? (
+            <div className="rounded-xl border border-dashed border-amber-300 bg-amber-50 p-6 text-center text-amber-800">
+              Your request to join a track is waiting for approval.{" "}
+              <Link to={`/track/${user.pendingTrack}`} className="font-semibold text-primary hover:text-primary-hover">
+                View track
+              </Link>
+            </div>
+          ) : (
+            <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
+              You haven't joined a track yet.{" "}
+              <Link to="/explore" className="font-semibold text-primary hover:text-primary-hover">
+                Browse tracks
+              </Link>{" "}
+              to get started.
+            </div>
+          )}
+        </section>
+
+        {ready && (
+          <section>
+            <h2 className="mb-1 text-2xl font-extrabold text-primary-darker">On their own</h2>
+            <p className="mb-4 text-sm text-neutral-dark">Courses and open sessions you joined outside a track.</p>
+            {ownCourses.length + ownSessions.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
+                Nothing here yet.{" "}
+                <Link to="/explore#courses" className="font-semibold text-primary hover:text-primary-hover">
+                  Find a course or open session
+                </Link>
+                .
+              </div>
+            ) : (
+              <ul className="divide-y divide-neutral-light-active overflow-hidden rounded-xl border border-neutral-light-active bg-white shadow-sm">
+                {ownCourses.map((c) => (
+                  <li key={c._id}>
+                    <Link
+                      to={`/courses/${c._id}`}
+                      className="flex items-center gap-3 px-5 py-4 font-semibold text-neutral-darker transition-colors hover:bg-neutral-light hover:text-primary"
+                    >
+                      <BookOpen size={18} className="shrink-0 text-primary" aria-hidden="true" />
+                      <span className="min-w-0 flex-1 truncate">{c.title}</span>
+                      <span className="text-xs font-semibold text-neutral-dark">Course</span>
+                    </Link>
+                  </li>
+                ))}
+                {ownSessions.map((sess) => (
+                  <li key={sess._id}>
+                    <Link
+                      to={`/sessions/${sess._id}`}
+                      className="flex items-center gap-3 px-5 py-4 font-semibold text-neutral-darker transition-colors hover:bg-neutral-light hover:text-primary"
+                    >
+                      <Video size={18} className="shrink-0 text-primary" aria-hidden="true" />
+                      <span className="min-w-0 flex-1 truncate">{sess.title}</span>
+                      <span className="text-xs font-semibold text-neutral-dark">Session</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
         )}
-
-        {/* RSVP'd events */}
-        <section>
-          <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">
-            My Events
-          </h2>
-
-          {eventsLoading ? (
-            <div className="space-y-4">
-              {[1, 2].map((n) => (
-                <div key={n} className="h-24 animate-pulse rounded-xl bg-gray-200" />
-              ))}
-            </div>
-          ) : eventsError ? (
-            <SectionError what="your events" onRetry={loadEvents} />
-          ) : (rsvpEvents?.length || 0) === 0 ? (
-            <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
-              You haven't RSVP'd to any events yet.{" "}
-              <Link
-                to="/#events"
-                className="font-semibold text-primary hover:text-primary-hover"
-              >
-                Browse events
-              </Link>{" "}
-              to find something you like.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {(rsvpEvents || []).map((event) => {
-                const dateLabel = new Date(event.date).toLocaleDateString(
-                  undefined,
-                  { year: "numeric", month: "long", day: "numeric" },
-                );
-                return (
-                  <div
-                    key={event._id}
-                    className="flex flex-col gap-4 rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center"
-                  >
-                    <img loading="lazy"
-                      src={event.coverImage || PLACEHOLDER_IMAGE}
-                      alt={event.title}
-                      className="h-24 w-full shrink-0 rounded-xl object-cover sm:w-40"
-                    />
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-neutral-darker">
-                        {event.title}
-                      </h3>
-                      <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-primary">
-                        <CalendarCheck size={16} />
-                        {dateLabel}
-                        {event.locationType === "offline" && event.locationAddress
-                          ? ` · ${event.locationAddress}`
-                          : event.locationType === "online"
-                            ? " · Online"
-                            : ""}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
-
-        {/* Recent Activity */}
-        <section className="mt-10">
-          <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">
-            Recent Activity
-          </h2>
-
-          {activityLoading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map((n) => (
-                <div key={n} className="h-12 animate-pulse rounded-xl bg-gray-200" />
-              ))}
-            </div>
-          ) : activityError ? (
-            <SectionError what="your recent activity" onRetry={loadActivity} />
-          ) : (activityLogs?.length || 0) === 0 ? (
-            <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
-              No activity recorded yet.
-            </div>
-          ) : (
-            <div className="rounded-xl border border-neutral-light-active bg-white shadow-sm divide-y divide-gray-100">
-              {(activityLogs || []).map((log) => (
-                <div
-                  key={log._id}
-                  className="flex items-center gap-3 px-5 py-3.5"
-                >
-                  <span className="shrink-0 rounded-full bg-primary/10 text-primary p-2">
-                    {getActivityIcon(log.action)}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-800 capitalize leading-snug">
-                      {log.action.replace(/_/g, " ")}
-                    </p>
-                  </div>
-                  <span className="shrink-0 text-xs text-gray-500">
-                    {formatRelative(log.createdAt)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
       </div>
     </div>
   );

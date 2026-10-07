@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { LogOut, Settings, UserRound, GraduationCap, Shield } from "lucide-react";
+import { LogOut, Settings, UserRound, GraduationCap, Shield, LayoutGrid, LayoutDashboard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { AuthUser } from "../services/api";
 import { isDefaultPhoto } from "../utils/photoUtils";
@@ -12,8 +12,9 @@ import { isDefaultPhoto } from "../utils/photoUtils";
  * neutral greys, Poppins.
  *
  * The pill shows the user's avatar + first name; hovering, focusing or
- * clicking/tapping it reveals three circular icon actions: Profile,
- * Settings, Log out. Escape or a click outside closes it.
+ * clicking/tapping it reveals three circular icon actions: the Studio for
+ * staff (their dashboard for students), Settings, Log out. Profile, events
+ * and activity live in Settings. Escape or a click outside closes it.
  */
 
 const UserDropdown = ({ user, onLogout }: { user: AuthUser; onLogout: () => void }) => {
@@ -76,11 +77,11 @@ const UserDropdown = ({ user, onLogout }: { user: AuthUser; onLogout: () => void
             <button
               type="button"
               className="menu-icon icon-profile"
-              title="My profile"
-              aria-label="My profile"
-              onClick={() => choose(() => navigate("/dashboard"))}
+              title={isStaff ? "Studio" : "My dashboard"}
+              aria-label={isStaff ? "Studio" : "My dashboard"}
+              onClick={() => choose(() => navigate(isStaff ? "/studio" : "/dashboard"))}
             >
-              <UserRound size={18} />
+              {isStaff ? <LayoutGrid size={18} /> : <LayoutDashboard size={18} />}
             </button>
             <button
               type="button"
