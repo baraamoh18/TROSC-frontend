@@ -66,12 +66,7 @@ const ContactUsForm = () => {
 
   return (
     <div className="w-full">
-      <p className="font-semibold text-2xl md:text-3xl leading-normal text-neutral-darker mb-1">
-        We'd love to hear from you!
-      </p>
-      <p className="font-semibold text-2xl md:text-3xl leading-normal text-neutral-darker mb-4">
-        Let's get in touch
-      </p>
+      <h2 className="mb-4 text-xl font-bold text-neutral-darker">Send us a message</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         <div>
