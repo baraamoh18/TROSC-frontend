@@ -99,12 +99,12 @@ const StudioMine = ({ userId }: { userId: string }) => {
   }
 
   const sectionHead = (id: string, title: string, note: string, action: ReactNode) => (
-    <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-      <div>
+    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="min-w-0 flex-1">
         <h3 id={id} className="text-lg font-bold text-gray-900">{title}</h3>
         <p className="text-sm text-gray-600">{note}</p>
       </div>
-      {action}
+      <div className="shrink-0">{action}</div>
     </div>
   );
 
