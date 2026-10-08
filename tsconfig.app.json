@@ -18,6 +18,9 @@
 
     /* Linting */
     "strict": true,
+
+    /* shadcn/ui imports use @/ for src/ */
+    "paths": { "@/*": ["./src/*"] },
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,

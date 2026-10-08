@@ -1,11 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { Menu, X, LogOut, UserCircle, Settings, LayoutGrid } from "lucide-react";
 import TroscLogo from "../../assets/Trosc4x.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { smoothScrollToId } from "../utils/smoothScroll";
 import { useAuth } from "../context/useAuth";
-import UserDropdown from "./UserDropdown";
+import { lazyWithReload } from "../utils/lazyWithReload";
 import ThemeToggle from "./ThemeToggle/ThemeToggle";
+
+// The account menu (and the Radix code behind it) only downloads for
+// signed-in visitors; guests never load it.
+const UserDropdown = lazyWithReload(() => import("./UserDropdown"));
 
 type NavLink = {
   name: string;
@@ -108,6 +112,10 @@ const Navbar: React.FC = () => {
     { name: "Contact us", href: "/contact" },
   ];
 
+  const accountPlaceholder = (
+    <div className="hidden sm:block h-10 w-28 animate-pulse rounded-lg bg-gray-200" aria-hidden="true" />
+  );
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-nav shadow-sm dark:border-b dark:border-neutral-light-active">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -140,14 +148,13 @@ const Navbar: React.FC = () => {
             {loading ? (
               // Placeholder while the session check runs, so signed-in users
               // don't see "Log In" flash before their avatar appears.
-              <div
-                className="hidden sm:block h-10 w-28 animate-pulse rounded-full bg-gray-200"
-                aria-hidden="true"
-              />
+              accountPlaceholder
             ) : user ? (
-              <div className="hidden sm:flex items-center gap-3">
-                <UserDropdown user={user} onLogout={handleLogout} />
-              </div>
+              <Suspense fallback={accountPlaceholder}>
+                <div className="hidden sm:flex items-center gap-3">
+                  <UserDropdown user={user} onLogout={handleLogout} />
+                </div>
+              </Suspense>
             ) : (
               <Link
                 to="/signin"

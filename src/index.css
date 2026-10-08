@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Enter/exit animations used by the shadcn/ui components (CSS only) */
+@import "tw-animate-css";
 
 
 
@@ -73,6 +75,21 @@
   --color-warning-line: #fcd34d;
   --color-info-ink: #0369a1;
   --color-info-tint: #e0f2fe;
+}
+
+/* shadcn/ui names, pointed at our tokens so its components follow the
+   light and dark themes. "inline" so they resolve per element. */
+@theme inline {
+  --color-background: var(--color-page);
+  --color-foreground: var(--color-neutral-darker);
+  --color-popover: var(--color-surface);
+  --color-popover-foreground: var(--color-neutral-darker);
+  --color-accent: var(--color-primary-light);
+  --color-accent-foreground: var(--color-brand-darker);
+  --color-muted-foreground: var(--color-neutral-dark);
+  --color-border: var(--color-neutral-light-active);
+  --color-ring: var(--color-primary);
+  --color-destructive: var(--color-danger-ink);
 }
 
 /* Lets components opt into one-off dark styles with dark:… */
@@ -257,5 +274,11 @@
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  /* Menus and dialogs appear instantly */
+  .animate-in,
+  .animate-out {
+    animation: none !important;
   }
 }

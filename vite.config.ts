@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import path from "node:path";
 
 // Dev proxy target for /v1/* requests. Defaults to a local backend so that
 // `npm run dev` never reads or writes production data. To point the dev
@@ -17,6 +18,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), tailwindcss()],
+    resolve: {
+      alias: { "@": path.resolve(__dirname, "./src") },
+    },
     base: "/",
     server: {
       proxy: {

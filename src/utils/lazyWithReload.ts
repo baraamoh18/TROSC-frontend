@@ -20,14 +20,14 @@ export function reloadForStaleChunk(): boolean {
   return true;
 }
 
-export function lazyWithReload<T extends ComponentType<object>>(
-  factory: () => Promise<{ default: T }>,
+export function lazyWithReload<P extends object>(
+  factory: () => Promise<{ default: ComponentType<P> }>,
 ) {
   return lazy(() =>
     factory().catch((err: unknown) => {
       if (reloadForStaleChunk()) {
         // Keep Suspense showing its fallback while the page reloads.
-        return new Promise<{ default: T }>(() => {});
+        return new Promise<{ default: ComponentType<P> }>(() => {});
       }
       throw err;
     }),

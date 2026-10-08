@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import StudioNav from "../components/Studio/StudioNav";
 import {
   BarChart3,
   BookOpen,
@@ -57,12 +58,6 @@ interface SectionDef {
    */
   group: "track" | "mine" | "platform";
 }
-
-const GROUP_LABELS: Record<SectionDef["group"], string> = {
-  track: "Track",
-  mine: "Your own",
-  platform: "Platform",
-};
 
 const SECTIONS: SectionDef[] = [
   { id: "requests", name: "Requests", icon: Inbox, group: "track" },
@@ -401,44 +396,12 @@ const StudioPage = () => {
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[210px_1fr]">
             <nav aria-label="Studio sections" className="md:sticky md:top-24 md:self-start">
-              {(["track", "mine", "platform"] as const)
-                .filter((g) => available.some((x) => x.group === g))
-                .map((g) => (
-                  <div key={g} className="mb-2 md:mb-5">
-                    <p className="mb-1 hidden px-3 text-xs font-bold uppercase tracking-wide text-gray-600 md:block">
-                      {GROUP_LABELS[g]}
-                    </p>
-                    <ul className="flex gap-1 overflow-x-auto [scrollbar-width:none] md:flex-col md:overflow-visible">
-                      {available
-                        .filter((x) => x.group === g)
-                        .map(({ id, name, icon: Icon }) => {
-                          const selected = id === section;
-                          const count = counts[id] ?? 0;
-                          return (
-                            <li key={id} className="shrink-0">
-                              <button
-                                type="button"
-                                aria-current={selected ? "page" : undefined}
-                                onClick={() => setParam({ section: id })}
-                                className={`flex min-h-11 w-full items-center gap-2.5 whitespace-nowrap rounded-lg px-3 text-sm font-semibold transition-colors ${
-                                  selected ? "bg-surface text-gray-900 shadow-sm ring-1 ring-gray-200" : "text-gray-700 hover:bg-surface/70"
-                                }`}
-                              >
-                                <Icon size={17} className={selected ? "text-brand" : "text-gray-500"} aria-hidden="true" />
-                                {name}
-                                {count > 0 && (
-                                  <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-white">
-                                    {count}
-                                    <span className="sr-only"> need attention</span>
-                                  </span>
-                                )}
-                              </button>
-                            </li>
-                          );
-                        })}
-                    </ul>
-                  </div>
-                ))}
+              <StudioNav
+                sections={available}
+                activeId={section}
+                counts={counts}
+                onSelect={(id) => setParam({ section: id })}
+              />
             </nav>
 
             <div className="min-w-0">
