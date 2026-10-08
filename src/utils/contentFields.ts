@@ -7,6 +7,19 @@ import { linkProblem, useTrustedHosts } from "./trustedHosts";
 /** Placeholder covers the API fills in when none is set; treat them as empty. */
 export const realCover = (url?: string) => (url && !url.includes("placehold.co") ? url : "");
 
+/** What the API takes to drop a cover and go back to its default. */
+export const COVER_CLEAR = "";
+
+/**
+ * The coverImage to send on save: the new link; COVER_CLEAR when an existing
+ * cover was removed; undefined (leave it out) when there was none to begin with.
+ */
+export const coverForSave = (value: string, original?: string): string | undefined => {
+  const v = value.trim();
+  if (v) return v;
+  return realCover(original) ? COVER_CLEAR : undefined;
+};
+
 /** Why a cover link would be refused, or null. */
 export const coverProblem = (value: string): string | null => {
   if (!value.trim()) return null;

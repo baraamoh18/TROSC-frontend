@@ -21,7 +21,7 @@ import * as api from "../../services/api";
 import SharedModal from "../Modal";
 import useStaffUsers from "../../hooks/useStaffUsers";
 import { CoverImageField, LinkListField, SyllabusEditor } from "../Studio/ContentFields";
-import { cleanSyllabus, coverProblem, realCover, useLinkList } from "../../utils/contentFields";
+import { cleanSyllabus, coverForSave, coverProblem, realCover, useLinkList } from "../../utils/contentFields";
 import type {
   BackendTrack,
   BackendCourse,
@@ -32,6 +32,12 @@ import type {
   CoursePayload,
   EventPayload,
 } from "../../services/api";
+
+// coverImage for the payload: see coverForSave
+const withCover = (value: string, original?: string) => {
+  const cover = coverForSave(value, original);
+  return cover === undefined ? {} : { coverImage: cover };
+};
 
 // ── shared helpers ────────────────────────────────────────────
 
@@ -241,7 +247,8 @@ const TracksPanel: React.FC<{
     const payload: TrackPayload = {
       ...rest,
       instructors: coInstructors,
-      ...(coverImage?.trim() ? { coverImage: coverImage.trim() } : {}),
+      // New link, an explicit clear when a cover was removed, or nothing
+      ...withCover(coverImage ?? "", editingTrack?.coverImage),
     };
     try {
       if (editingTrack) {
@@ -498,7 +505,8 @@ const CoursesPanel: React.FC<{
       ...rest,
       syllabus: cleanSyllabus(syllabus ?? []),
       attachments: attachments.links,
-      ...(coverImage?.trim() ? { coverImage: coverImage.trim() } : {}),
+      // New link, an explicit clear when a cover was removed, or nothing
+      ...withCover(coverImage ?? "", editingCourse?.coverImage),
       ...(durationText ? { duration: Number(durationText) } : {}),
     };
     setSaving(true);
@@ -746,7 +754,8 @@ const EventsPanel: React.FC<{
         locationLink: form.locationLink?.trim() || undefined,
         locationAddress: form.locationAddress?.trim() || undefined,
         attachments: attachments.links,
-        ...(coverImage?.trim() ? { coverImage: coverImage.trim() } : {}),
+        // New link, an explicit clear when a cover was removed, or nothing
+        ...withCover(coverImage ?? "", editingEvent?.coverImage),
       };
 
       if (editingEvent) {

@@ -6,7 +6,7 @@ import type { BackendCourse, CoursePayload, SyllabusItem } from "../../services/
 import Modal from "../Modal";
 import { errorMessage, inputCls, labelCls, primaryBtn, secondaryBtn } from "./studioUi";
 import { CoverImageField, LinkListField, SyllabusEditor } from "./ContentFields";
-import { cleanSyllabus, coverProblem, realCover, useLinkList } from "../../utils/contentFields";
+import { cleanSyllabus, coverForSave, coverProblem, realCover, useLinkList } from "../../utils/contentFields";
 
 interface CourseFormProps {
   /** Omit to create a new standalone course. */
@@ -57,7 +57,8 @@ const CourseForm = ({ course, onClose, onSaved }: CourseFormProps) => {
       syllabus: cleanSyllabus(syllabus),
       attachments: attachments.links,
     };
-    if (cover.trim()) payload.coverImage = cover.trim();
+    const coverValue = coverForSave(cover, course?.coverImage);
+    if (coverValue !== undefined) payload.coverImage = coverValue;
     if (duration) payload.duration = Number(duration);
     setSaving(true);
     try {
