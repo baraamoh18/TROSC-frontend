@@ -6,6 +6,8 @@ import type { BackendAssignment, BackendCourse, BackendSession, Submission } fro
 import EmptyState from "../EmptyState";
 import { assignmentTarget, cardCls, errorMessage, formatDateTime, inputCls, labelCls, primaryBtn, refId } from "./studioUi";
 import type { CanManage } from "./studioUi";
+import { studentOf, visibleSubmissions } from "../../utils/gradingList";
+import type { GradeFilter, GradeOrder } from "../../utils/gradingList";
 
 interface StudioGradingProps {
   assignments: BackendAssignment[];
@@ -18,11 +20,8 @@ interface StudioGradingProps {
   onGraded: () => void;
 }
 
-type Filter = "all" | "ungraded" | "graded";
-type Order = "newest" | "oldest" | "name";
-
-const studentOf = (s: Submission) =>
-  typeof s.student === "string" ? { _id: s.student, name: "Student", email: undefined } : s.student;
+type Filter = GradeFilter;
+type Order = GradeOrder;
 
 const GradeRow = ({ assignmentId, submission, onSaved }: { assignmentId: string; submission: Submission; onSaved: (s: Submission) => void }) => {
   const student = studentOf(submission);
@@ -187,20 +186,8 @@ const StudioGrading = ({ assignments: all, courses, sessions, canManage, selecte
     ungraded: submissions.filter((s) => s.grade == null).length,
     graded: submissions.filter((s) => s.grade != null).length,
   };
-  const studentOf = (s: Submission) => (typeof s.student === "string" ? { name: "", email: "" } : s.student);
-  const needle = studentQuery.trim().toLowerCase();
-  const shown = submissions
-    .filter((s) => (filter === "all" ? true : filter === "graded" ? s.grade != null : s.grade == null))
-    .filter((s) => {
-      if (!needle) return true;
-      const st = studentOf(s);
-      return `${st.name} ${st.email ?? ""}`.toLowerCase().includes(needle);
-    })
-    .sort((a, b) => {
-      if (order === "name") return studentOf(a).name.localeCompare(studentOf(b).name);
-      const diff = new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime();
-      return order === "oldest" ? diff : -diff;
-    });
+  const needle = studentQuery.trim();
+  const shown = visibleSubmissions(submissions, { filter, query: studentQuery, order });
 
   const handleSaved = (updated: Submission) => {
     setDetail((prev) =>
@@ -242,21 +229,21 @@ const StudioGrading = ({ assignments: all, courses, sessions, canManage, selecte
       </div>
 
       <div className="mb-5 flex flex-wrap items-center gap-3">
-      <div role="group" aria-label="Filter submissions" className="flex flex-wrap gap-2">
-        {filters.map((f) => (
-          <button
-            key={f.id}
-            type="button"
-            aria-pressed={filter === f.id}
-            onClick={() => setFilter(f.id)}
-            className={`min-h-9 rounded-lg px-3 text-sm font-bold transition-colors ${
-              filter === f.id ? "bg-inverse text-on-inverse" : "bg-surface text-gray-700 ring-1 ring-gray-300 hover:bg-gray-50"
-            }`}
-          >
-            {f.label} ({counts[f.id]})
-          </button>
-        ))}
-      </div>
+        <div role="group" aria-label="Filter submissions" className="flex flex-wrap gap-2">
+          {filters.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              aria-pressed={filter === f.id}
+              onClick={() => setFilter(f.id)}
+              className={`min-h-9 rounded-lg px-3 text-sm font-bold transition-colors ${
+                filter === f.id ? "bg-inverse text-on-inverse" : "bg-surface text-gray-700 ring-1 ring-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              {f.label} ({counts[f.id]})
+            </button>
+          ))}
+        </div>
         <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
           <label htmlFor="grade-search" className="sr-only">Find a student</label>
           <input
@@ -298,7 +285,7 @@ const StudioGrading = ({ assignments: all, courses, sessions, canManage, selecte
           icon={ClipboardCheck}
           message={
             needle
-              ? `No submissions from a student matching "${studentQuery.trim()}".`
+              ? `No submissions from a student matching "${needle}".`
               : filter === "ungraded"
                 ? "Every submission is graded."
                 : "No graded submissions yet."
