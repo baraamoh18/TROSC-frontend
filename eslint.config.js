@@ -21,6 +21,11 @@ export default defineConfig([
     },
   },
   {
+    // Vercel functions and middleware run on Node
+    files: ['api/**/*.ts', 'middleware.ts'],
+    languageOptions: { globals: globals.node },
+  },
+  {
     // shadcn/ui files export style helpers (e.g. buttonVariants) beside components
     files: ['src/components/ui/**/*.tsx'],
     rules: { 'react-refresh/only-export-components': 'off' },

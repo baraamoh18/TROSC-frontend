@@ -5,7 +5,11 @@
       "destination": "https://trosc.onrender.com/v1/:path*"
     },
     {
-      "source": "/((?!assets/).*)",
+      "source": "/sitemap.xml",
+      "destination": "/api/seo?sitemap"
+    },
+    {
+      "source": "/((?!assets/|api/).*)",
       "destination": "/index.html"
     }
   ]
