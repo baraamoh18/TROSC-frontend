@@ -17,7 +17,8 @@ interface ModalProps {
 /**
  * Accessible modal dialog: closes on Escape and backdrop click, locks page
  * scroll, keeps Tab focus inside the dialog, and returns focus to the
- * element that opened it.
+ * element that opened it. On phones it is a bottom sheet (full width,
+ * slides up, buttons within thumb reach); from sm up a centred dialog.
  */
 const Modal = ({ onClose, labelledBy, label, className = "", children }: ModalProps) => {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -84,7 +85,7 @@ const Modal = ({ onClose, labelledBy, label, className = "", children }: ModalPr
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className="anim-fade fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center sm:p-4"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -96,8 +97,10 @@ const Modal = ({ onClose, labelledBy, label, className = "", children }: ModalPr
         aria-labelledby={labelledBy}
         aria-label={labelledBy ? undefined : label}
         tabIndex={-1}
-        className={`w-full rounded-xl bg-surface shadow-2xl focus:outline-none ${className}`}
+        className={`anim-sheet w-full rounded-t-2xl bg-surface pb-[env(safe-area-inset-bottom)] shadow-2xl focus:outline-none sm:rounded-xl sm:pb-0 ${className} max-sm:max-h-[92dvh] max-sm:max-w-none`}
       >
+        {/* Grab bar: marks the sheet on phones */}
+        <div aria-hidden="true" className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-gray-300 sm:hidden" />
         {children}
       </div>
     </div>
