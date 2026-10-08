@@ -10,7 +10,10 @@ import usePrefersReducedMotion from "../hooks/usePrefersReducedMotion";
 import { smoothScrollToId } from "../utils/smoothScroll";
 import { delay } from "../utils/motion";
 
-const HEADLINE = ["Not", "just", "a", "team.", "A", "family", "of"];
+// Two lines: the first in full colour, the second muted up to "growth."
+const LINE_ONE = ["Not", "just", "a", "team."];
+const LINE_TWO = ["A", "family", "of"];
+const HEADLINE = [...LINE_ONE, ...LINE_TWO];
 
 const AREAS = ["Frontend & UI/UX", "Backend", "Mobile", "Cyber Security", "AI", "3D"];
 
@@ -69,21 +72,46 @@ function Hero() {
             Student-led tech team
           </p>
 
-          <h1 className="text-4xl font-extrabold leading-[1.1] text-brand-darker sm:text-5xl lg:text-6xl">
-            {HEADLINE.map((word, i) => (
-              <span key={i}>
-                <span className="anim-rise inline-block" style={wordDelay(i)}>
-                  {word}
-                </span>{" "}
+          <h1 className="font-display text-[clamp(2.4rem,8vw,3.75rem)] leading-[1.02] font-extrabold tracking-[-0.035em] text-brand-darker dark:text-neutral-darker lg:text-[clamp(2.5rem,4.2vw,3.5rem)]">
+            <span className="block">
+              {LINE_ONE.map((word, i) => (
+                <span key={i}>
+                  <span className="anim-rise inline-block" style={wordDelay(i)}>
+                    {word}
+                  </span>{" "}
+                </span>
+              ))}
+            </span>
+            <span className="block text-neutral-dark">
+              {LINE_TWO.map((word, i) => (
+                <span key={i}>
+                  <span className="anim-rise inline-block" style={wordDelay(LINE_ONE.length + i)}>
+                    {word}
+                  </span>{" "}
+                </span>
+              ))}
+              <span className="anim-rise relative inline-block text-brand-vivid" style={wordDelay(HEADLINE.length)}>
+                growth.
+                {/* Hand-drawn swoosh, drawn left to right once the words are in */}
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 200 14"
+                  preserveAspectRatio="none"
+                  className="absolute top-[94%] -left-[3%] h-[0.2em] w-[108%] overflow-visible"
+                >
+                  <path
+                    d="M3 9.5C48 4.5 118 2.5 197 8"
+                    pathLength={1}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={3.2}
+                    strokeLinecap="round"
+                    vectorEffect="non-scaling-stroke"
+                    className="anim-stroke opacity-85"
+                    style={delay(afterHeadline + 150)}
+                  />
+                </svg>
               </span>
-            ))}
-            <span className="anim-rise relative isolate inline-block text-brand" style={wordDelay(HEADLINE.length)}>
-              growth.
-              <span
-                aria-hidden="true"
-                className="anim-draw absolute inset-x-0 bottom-[0.06em] -z-10 h-[0.22em] rounded-sm bg-primary-light-active"
-                style={delay(afterHeadline + 150)}
-              />
             </span>
           </h1>
 

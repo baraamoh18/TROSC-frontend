@@ -7,6 +7,8 @@
 @theme {
   /* Tailwind's default stack, used by preflight and font-sans */
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  /* Hero headline only */
+  --font-display: "Bricolage Grotesque", "Poppins", ui-sans-serif, sans-serif;
 
   /* Primary (Red) palette */
   --color-primary-light: #fce8eb;
@@ -50,6 +52,9 @@
   --color-brand-dark: #ae2c2c;
   --color-brand-darker: #511515;
   --color-brand-light: #fce8eb;
+  /* Red for large display text; the logo red in dark mode (4.7:1 on the
+     page, fine for text this size) */
+  --color-brand-vivid: #d32f2f;
 
   /* Dark chip / selected state with light text, flips in dark mode */
   --color-inverse: #101828;
@@ -118,6 +123,7 @@
   --color-brand-dark: #ff9999;
   --color-brand-darker: #ffd6d6;
   --color-brand-light: #8a2a22;
+  --color-brand-vivid: #e83b3b;
 
   /* Light greys become maroon surfaces; dark greys become warm whites */
   --color-neutral-light: #240704; /* inputs sit darker than cards */
@@ -244,6 +250,22 @@
   animation-delay: calc(var(--d, 0) * 1ms);
 }
 
+/* Stroke draw for SVG paths with pathLength="1" */
+@keyframes draw-stroke {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.anim-stroke {
+  stroke-dasharray: 1;
+  animation: draw-stroke 0.9s cubic-bezier(0.65, 0, 0.35, 1) both;
+  animation-delay: calc(var(--d, 0) * 1ms);
+}
+
 .anim-nudge {
   animation: nudge 1.8s ease-in-out infinite;
 }
@@ -266,6 +288,7 @@
 @media (prefers-reduced-motion: reduce) {
   .anim-rise,
   .anim-draw,
+  .anim-stroke,
   .anim-nudge {
     animation: none;
   }
