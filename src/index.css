@@ -95,6 +95,10 @@
   --color-border: var(--color-neutral-light-active);
   --color-ring: var(--color-primary);
   --color-destructive: var(--color-danger-ink);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--color-neutral-light-active);
+  --color-secondary-foreground: var(--color-neutral-darker);
+  --color-input: var(--color-neutral-light-active);
 }
 
 /* Lets components opt into one-off dark styles with dark:… */

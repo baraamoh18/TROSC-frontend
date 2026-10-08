@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useId, useState } from "react";
+import DateTimeField from "../DateTimeField";
+import { fromLocalInput, toLocalInput } from "../Studio/studioUi";
 import toast from "react-hot-toast";
 import {
   Plus,
@@ -713,7 +715,8 @@ const EventsPanel: React.FC<{
     setForm({
       title: ev.title,
       description: ev.description ?? "",
-      date: ev.date ? new Date(ev.date).toISOString().slice(0, 16) : "",
+      // Local time, not UTC: the field shows what the person will see
+      date: toLocalInput(ev.date),
       locationType: ev.locationType ?? "online",
       locationLink: ev.locationLink ?? "",
       locationAddress: ev.locationAddress ?? "",
@@ -738,6 +741,8 @@ const EventsPanel: React.FC<{
       const { coverImage, ...rest } = form;
       const payload: EventPayload = {
         ...rest,
+        // The field holds local time; send it as a real instant
+        date: fromLocalInput(rest.date)!,
         locationLink: form.locationLink?.trim() || undefined,
         locationAddress: form.locationAddress?.trim() || undefined,
         attachments: attachments.links,
@@ -826,8 +831,8 @@ const EventsPanel: React.FC<{
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="mb-1 block text-sm font-semibold text-neutral-darker">Date & Time *</label>
-                <input id="event-date" type="datetime-local" className={inputCls}
-                  value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} />
+                <DateTimeField id="event-date" fieldClassName={inputCls} value={form.date}
+                  onChange={(date) => setForm((f) => ({ ...f, date }))} defaultTime="18:00" />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-semibold text-neutral-darker">Location type</label>

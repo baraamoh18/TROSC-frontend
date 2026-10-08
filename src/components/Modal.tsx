@@ -37,7 +37,17 @@ const Modal = ({ onClose, labelledBy, label, className = "", children }: ModalPr
     const firstField = panel?.querySelector<HTMLElement>("input, select, textarea");
     (firstField ?? panel)?.focus();
 
+    // Popups opened from the form (date picker, menus) are portalled outside
+    // the panel and handle their own Escape and Tab; Escape there should close
+    // only the popup, not the whole form. They may already be gone by the time
+    // the key reaches handleKey, so note it on the way down (capture phase).
+    const fromPopup = new WeakSet<KeyboardEvent>();
+    const notePopupKey = (e: KeyboardEvent) => {
+      if ((e.target as Element | null)?.closest?.("[data-radix-popper-content-wrapper]")) fromPopup.add(e);
+    };
+
     const handleKey = (e: KeyboardEvent) => {
+      if (fromPopup.has(e)) return;
       if (e.key === "Escape") {
         e.stopPropagation();
         onCloseRef.current();
@@ -62,9 +72,11 @@ const Modal = ({ onClose, labelledBy, label, className = "", children }: ModalPr
 
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", notePopupKey, true);
     document.addEventListener("keydown", handleKey);
     return () => {
       document.body.style.overflow = prevOverflow;
+      document.removeEventListener("keydown", notePopupKey, true);
       document.removeEventListener("keydown", handleKey);
       opener?.focus?.();
     };

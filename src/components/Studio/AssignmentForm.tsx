@@ -6,6 +6,7 @@ import type { AssignmentPayload, BackendAssignment, BackendCourse, BackendSessio
 import Modal from "../Modal";
 import { hostListLabel, linkProblem, useTrustedHosts } from "../../utils/trustedHosts";
 import { errorMessage, fromLocalInput, inputCls, labelCls, primaryBtn, secondaryBtn, toLocalInput } from "./studioUi";
+import DateTimeField from "../DateTimeField";
 
 interface AssignmentFormProps {
   courses: BackendCourse[];
@@ -154,14 +155,14 @@ const AssignmentForm = ({ courses, sessions, assignment, onClose, onSaved }: Ass
 
           <div>
             <label htmlFor="a-deadline" className={labelCls}>Deadline</label>
-            <input
+            <DateTimeField
               id="a-deadline"
-              type="datetime-local"
-              className={inputCls}
+              fieldClassName={inputCls}
               value={deadline}
-              onChange={(e) => setDeadline(e.target.value)}
-              aria-invalid={!!errors.deadline}
-              aria-describedby={describedBy("deadline")}
+              onChange={setDeadline}
+              defaultTime="23:59"
+              invalid={!!errors.deadline}
+              describedBy={describedBy("deadline")}
             />
             {fieldError("deadline")}
           </div>

@@ -18,6 +18,7 @@ import {
   smallBtn,
   toLocalInput,
 } from "./studioUi";
+import DateTimeField from "../DateTimeField";
 
 interface SessionFormProps {
   /** The track a new session joins. Omit for sessions run outside any track. */
@@ -251,13 +252,7 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="s-start" className={labelCls}>Date and time</label>
-              <input
-                id="s-start"
-                type="datetime-local"
-                className={inputCls}
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
+              <DateTimeField id="s-start" fieldClassName={inputCls} value={startDate} onChange={setStartDate} />
             </div>
             <div>
               <label htmlFor="s-duration" className={labelCls}>Length (minutes)</label>
