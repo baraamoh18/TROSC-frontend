@@ -82,6 +82,7 @@ const sections: LegalSection[] = [
         <p>We don't sell your information or share it with advertisers. A few services help us run the site:</p>
         <ul>
           <li>Vercel hosts the website, and Render runs the server that stores your data.</li>
+          <li>Cloudinary stores the images uploaded to the site, such as profile photos and cover images.</li>
           <li>Google Fonts supplies the site's font, so your browser loads it from Google.</li>
           <li>
             Session videos and materials are embedded from, or link to, services such as YouTube and Google Drive.
@@ -149,7 +150,7 @@ const sections: LegalSection[] = [
 const PrivacyPage = () => (
   <LegalPage
     title="Privacy policy"
-    updated="5 October 2026"
+    updated="8 October 2026"
     intro={
       <p>
         TROSC is a student team at the Faculty of Computers and Information, Suez Canal University. We run this
