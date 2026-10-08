@@ -25,9 +25,11 @@ function LandingPage() {
       <section id="events">
         <Events />
       </section>
-      <Suspense fallback={null}>
-        <Faq />
-      </Suspense>
+      <section id="faq">
+        <Suspense fallback={null}>
+          <Faq />
+        </Suspense>
+      </section>
     </>
   );
 }

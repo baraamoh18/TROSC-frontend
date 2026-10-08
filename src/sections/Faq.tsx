@@ -40,28 +40,37 @@ const FaqList = ({ items }: { items: Item[] }) => (
   </div>
 );
 
-const Faq = () => (
-  <section id="faq" className="w-full bg-page-alt px-4 py-20 sm:px-6 lg:px-8">
-    <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
-      <Reveal className="self-start">
-        <p className="mb-4 text-sm font-bold uppercase tracking-widest text-brand">Questions</p>
-        <h2 className="text-3xl font-extrabold leading-tight text-brand-darker md:text-4xl">
-          What students ask before joining.
-        </h2>
-      </Reveal>
-      <FaqList items={faq.en.questions} />
-    </div>
+interface Block {
+  eyebrow: string;
+  heading: string;
+  questions: Item[];
+}
 
-    <div
-      lang="ar"
-      dir="rtl"
-      className="mx-auto mt-16 grid w-full max-w-6xl gap-10 border-t border-gray-200 pt-16 font-arabic lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16"
-    >
-      <Reveal className="self-start">
-        <p className="max-w-md text-lg leading-loose text-neutral-dark">{faq.ar.about}</p>
-      </Reveal>
-      <FaqList items={faq.ar.questions} />
-    </div>
+/** One language's heading and questions; the Arabic one is the same layout mirrored. */
+const FaqBlock = ({ block, arabic = false }: { block: Block; arabic?: boolean }) => (
+  <div
+    lang={arabic ? "ar" : undefined}
+    dir={arabic ? "rtl" : undefined}
+    className={`mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16 ${arabic ? "font-arabic" : ""}`}
+  >
+    <Reveal className="self-start">
+      {/* Letter spacing would break up joined Arabic letters */}
+      <p className={`mb-4 font-bold text-brand ${arabic ? "text-base" : "text-sm uppercase tracking-widest"}`}>{block.eyebrow}</p>
+      <h2 className={`text-3xl font-extrabold text-brand-darker md:text-4xl ${arabic ? "leading-snug" : "leading-tight"}`}>
+        {block.heading}
+      </h2>
+    </Reveal>
+    <FaqList items={block.questions} />
+  </div>
+);
+
+// The landing page wraps this in the #faq anchor, so the navbar link
+// works while this chunk is still loading.
+const Faq = () => (
+  <section className="w-full bg-page-alt px-4 py-20 sm:px-6 lg:px-8">
+    <FaqBlock block={faq.en} />
+    <div className="mx-auto my-16 w-full max-w-6xl border-t border-gray-200" />
+    <FaqBlock block={faq.ar} arabic />
   </section>
 );
 

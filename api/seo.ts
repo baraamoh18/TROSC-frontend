@@ -71,9 +71,14 @@ export interface FaqItem {
   link?: { to: string; label: string };
 }
 /** src/content/faq.json, published by the build as /faq.json */
+interface FaqBlock {
+  eyebrow: string;
+  heading: string;
+  questions: FaqItem[];
+}
 export interface Faq {
-  en: { questions: FaqItem[] };
-  ar: { about: string; questions: FaqItem[] };
+  en: FaqBlock;
+  ar: FaqBlock;
 }
 
 export class NotFound extends Error {}
@@ -217,9 +222,9 @@ async function homePage(get: Fetcher, faq?: Faq): Promise<Page> {
       events.length
         ? `<h2>Upcoming events</h2>${linkList(events.map((e) => ({ href: `/events/${e._id}`, title: e.title, text: cairoDate(e.date) })))}`
         : "",
-      faq ? `<h2>Questions</h2>${faqText(faq.en.questions)}` : "",
+      faq ? `<h2>${esc(faq.en.heading)}</h2>${faqText(faq.en.questions)}` : "",
       faq
-        ? `<section lang="ar" dir="rtl"><p>${esc(faq.ar.about)}</p>${faqText(faq.ar.questions)}</section>`
+        ? `<section lang="ar" dir="rtl"><h2>${esc(faq.ar.heading)}</h2>${faqText(faq.ar.questions)}</section>`
         : "",
       nav,
     ].join(""),

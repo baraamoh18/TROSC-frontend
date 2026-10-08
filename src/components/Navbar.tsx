@@ -38,7 +38,7 @@ const Navbar: React.FC = () => {
     const hash = location.hash || "#home";
     setActiveLink(`/${hash}`);
 
-    const sections = ["home", "events"];
+    const sections = ["home", "events", "faq"];
 
     const handleScroll = () => {
       let current = "home";
@@ -109,6 +109,7 @@ const Navbar: React.FC = () => {
     { name: "Home", href: "/#home" },
     { name: "Explore", href: "/explore" },
     { name: "Events", href: "/#events" },
+    { name: "FAQ", href: "/#faq" },
     { name: "Contact us", href: "/contact" },
   ];
 
