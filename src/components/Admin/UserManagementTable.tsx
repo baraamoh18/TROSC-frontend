@@ -1,19 +1,6 @@
 import React, { useCallback, useEffect, useId, useState } from "react";
 import toast from "react-hot-toast";
-import {
-  UserCircle,
-  Shield,
-  GraduationCap,
-  User,
-  Loader2,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  UserX,
-  UserCheck,
-  UserCog,
-  X,
-} from "lucide-react";
+import { UserCircle, Shield, GraduationCap, User, Loader2, Search, ChevronLeft, ChevronRight, UserX, UserCheck, UserCog, X, ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import * as api from "../../services/api";
 import Modal from "../Modal";
 import { isDefaultPhoto } from "../../utils/photoUtils";
@@ -195,6 +182,15 @@ const RoleDialog: React.FC<{
 const PAGE_SIZE = 15;
 
 type StatusFilter = "active" | "inactive";
+type RoleFilter = "" | "student" | "instructor" | "admin";
+type SortKey = "-createdAt" | "createdAt" | "name" | "-name";
+
+const SORTS: { id: SortKey; label: string }[] = [
+  { id: "-createdAt", label: "Newest first" },
+  { id: "createdAt", label: "Oldest first" },
+  { id: "name", label: "Name A to Z" },
+  { id: "-name", label: "Name Z to A" },
+];
 
 const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUserId }) => {
   const [users, setUsers] = useState<AuthUser[]>([]);
@@ -203,6 +199,8 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<StatusFilter>("active");
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>("");
+  const [sort, setSort] = useState<SortKey>("-createdAt");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [roleTarget, setRoleTarget] = useState<AuthUser | null>(null);
@@ -222,9 +220,10 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
       const params = new URLSearchParams({
         limit: String(PAGE_SIZE),
         page: String(page),
-        sort: "-createdAt",
+        sort,
       });
       if (query) params.set("search", query);
+      if (roleFilter) params.set("role", roleFilter);
       if (status === "inactive") params.set("active", "false");
       const res = await api.getAllUsers(params.toString());
       setUsers(res.data?.users ?? []);
@@ -235,7 +234,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
     } finally {
       setLoading(false);
     }
-  }, [page, query, status]);
+  }, [page, query, status, roleFilter, sort]);
 
   useEffect(() => {
     void fetchUsers();
@@ -272,8 +271,8 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
   return (
     <div>
       {/* Search bar */}
-      <div className="mb-5 flex items-center gap-3">
-        <div className="relative flex-1">
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <div className="relative min-w-60 flex-1">
           <Search
             size={16}
             className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral"
@@ -299,6 +298,37 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
         >
           <option value="active">Active</option>
           <option value="inactive">Deactivated</option>
+        </select>
+        <label htmlFor="user-role" className="sr-only">Role</label>
+        <select
+          id="user-role"
+          value={roleFilter}
+          onChange={(e) => {
+            setRoleFilter(e.target.value as RoleFilter);
+            setPage(1);
+          }}
+          className="shrink-0 rounded-lg border border-neutral-light-active bg-surface px-3 py-2.5 text-sm font-semibold text-neutral-darker focus:border-primary focus:outline-none"
+        >
+          <option value="">All roles</option>
+          <option value="student">Students</option>
+          <option value="instructor">Instructors</option>
+          <option value="admin">Admins</option>
+        </select>
+        <label htmlFor="user-sort" className="sr-only">Sort</label>
+        <select
+          id="user-sort"
+          value={sort}
+          onChange={(e) => {
+            setSort(e.target.value as SortKey);
+            setPage(1);
+          }}
+          className="shrink-0 rounded-lg border border-neutral-light-active bg-surface px-3 py-2.5 text-sm font-semibold text-neutral-darker focus:border-primary focus:outline-none"
+        >
+          {SORTS.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.label}
+            </option>
+          ))}
         </select>
         <span className="hidden shrink-0 text-sm text-neutral-dark sm:inline">
           {total} user{total !== 1 ? "s" : ""}
@@ -326,7 +356,29 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
           <table className="block w-full text-sm xl:table">
             <thead className="hidden xl:table-header-group">
               <tr className="border-b border-neutral-light-active bg-neutral-light">
-                <th scope="col" className="px-4 py-3 text-left font-semibold text-neutral-dark">User</th>
+                <th
+                  scope="col"
+                  aria-sort={sort === "name" ? "ascending" : sort === "-name" ? "descending" : "none"}
+                  className="px-4 py-3 text-left font-semibold text-neutral-dark"
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSort(sort === "name" ? "-name" : "name");
+                      setPage(1);
+                    }}
+                    className="inline-flex items-center gap-1 rounded hover:text-neutral-darker focus-visible:outline-2 focus-visible:outline-primary"
+                  >
+                    User
+                    {sort === "name" ? (
+                      <ArrowUp size={14} aria-hidden="true" />
+                    ) : sort === "-name" ? (
+                      <ArrowDown size={14} aria-hidden="true" />
+                    ) : (
+                      <ArrowUpDown size={14} className="opacity-50" aria-hidden="true" />
+                    )}
+                  </button>
+                </th>
                 <th scope="col" className="px-4 py-3 text-left font-semibold text-neutral-dark">Email</th>
                 <th scope="col" className="px-4 py-3 text-left font-semibold text-neutral-dark">Role</th>
                 <th scope="col" className="px-4 py-3 text-right font-semibold text-neutral-dark">Actions</th>

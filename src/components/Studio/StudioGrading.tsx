@@ -19,6 +19,7 @@ interface StudioGradingProps {
 }
 
 type Filter = "all" | "ungraded" | "graded";
+type Order = "newest" | "oldest" | "name";
 
 const studentOf = (s: Submission) =>
   typeof s.student === "string" ? { _id: s.student, name: "Student", email: undefined } : s.student;
@@ -140,6 +141,8 @@ const StudioGrading = ({ assignments: all, courses, sessions, canManage, selecte
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState("");
   const [filter, setFilter] = useState<Filter>("ungraded");
+  const [studentQuery, setStudentQuery] = useState("");
+  const [order, setOrder] = useState<Order>("newest");
   const activeId = selectedId && assignments.some((a) => a._id === selectedId) ? selectedId : assignments[0]?._id;
 
   useEffect(() => {
@@ -184,9 +187,20 @@ const StudioGrading = ({ assignments: all, courses, sessions, canManage, selecte
     ungraded: submissions.filter((s) => s.grade == null).length,
     graded: submissions.filter((s) => s.grade != null).length,
   };
-  const shown = submissions.filter((s) =>
-    filter === "all" ? true : filter === "graded" ? s.grade != null : s.grade == null,
-  );
+  const studentOf = (s: Submission) => (typeof s.student === "string" ? { name: "", email: "" } : s.student);
+  const needle = studentQuery.trim().toLowerCase();
+  const shown = submissions
+    .filter((s) => (filter === "all" ? true : filter === "graded" ? s.grade != null : s.grade == null))
+    .filter((s) => {
+      if (!needle) return true;
+      const st = studentOf(s);
+      return `${st.name} ${st.email ?? ""}`.toLowerCase().includes(needle);
+    })
+    .sort((a, b) => {
+      if (order === "name") return studentOf(a).name.localeCompare(studentOf(b).name);
+      const diff = new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime();
+      return order === "oldest" ? diff : -diff;
+    });
 
   const handleSaved = (updated: Submission) => {
     setDetail((prev) =>
@@ -227,7 +241,8 @@ const StudioGrading = ({ assignments: all, courses, sessions, canManage, selecte
         )}
       </div>
 
-      <div role="group" aria-label="Filter submissions" className="mb-5 flex flex-wrap gap-2">
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+      <div role="group" aria-label="Filter submissions" className="flex flex-wrap gap-2">
         {filters.map((f) => (
           <button
             key={f.id}
@@ -241,6 +256,29 @@ const StudioGrading = ({ assignments: all, courses, sessions, canManage, selecte
             {f.label} ({counts[f.id]})
           </button>
         ))}
+      </div>
+        <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
+          <label htmlFor="grade-search" className="sr-only">Find a student</label>
+          <input
+            id="grade-search"
+            type="search"
+            placeholder="Find a student…"
+            value={studentQuery}
+            onChange={(e) => setStudentQuery(e.target.value)}
+            className={`${inputCls} min-w-44 flex-1 sm:max-w-60`}
+          />
+          <label htmlFor="grade-order" className="sr-only">Sort submissions</label>
+          <select
+            id="grade-order"
+            value={order}
+            onChange={(e) => setOrder(e.target.value as Order)}
+            className={`${inputCls} w-auto`}
+          >
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="name">Student A to Z</option>
+          </select>
+        </div>
       </div>
 
       {loading ? (
@@ -258,7 +296,13 @@ const StudioGrading = ({ assignments: all, courses, sessions, canManage, selecte
       ) : shown.length === 0 ? (
         <EmptyState
           icon={ClipboardCheck}
-          message={filter === "ungraded" ? "Every submission is graded." : "No graded submissions yet."}
+          message={
+            needle
+              ? `No submissions from a student matching "${studentQuery.trim()}".`
+              : filter === "ungraded"
+                ? "Every submission is graded."
+                : "No graded submissions yet."
+          }
         />
       ) : (
         <ul className="space-y-3">
