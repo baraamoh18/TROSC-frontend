@@ -6,6 +6,7 @@ import type { BackendCourse, BackendSession, SessionPayload } from "../../servic
 import Modal from "../Modal";
 import { useAuth } from "../../context/useAuth";
 import useStaffUsers from "../../hooks/useStaffUsers";
+import Combobox from "../Combobox";
 import { hostListLabel, linkProblem, useTrustedHosts } from "../../utils/trustedHosts";
 import {
   errorMessage,
@@ -216,19 +217,17 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
           {isAdmin && (
             <div>
               <label htmlFor="s-instructor" className={labelCls}>Instructor</label>
-              <select
+              <Combobox
                 id="s-instructor"
-                className={inputCls}
+                triggerClassName={inputCls}
                 value={instructorId}
-                onChange={(e) => setInstructorId(e.target.value)}
-              >
-                <option value="">{editing ? "Keep current instructor" : "Me (default)"}</option>
-                {staff.map((u) => (
-                  <option key={u._id} value={u._id}>
-                    {u.name} · {u.role === "admin" ? "Admin" : "Instructor"}
-                  </option>
-                ))}
-              </select>
+                onChange={setInstructorId}
+                searchPlaceholder="Search people…"
+                options={[
+                  { value: "", label: editing ? "Keep current instructor" : "Me (default)" },
+                  ...staff.map((u) => ({ value: u._id, label: u.name, hint: u.role === "admin" ? "Admin" : "Instructor" })),
+                ]}
+              />
             </div>
           )}
 

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useId, useState } from "react";
 import DateTimeField from "../DateTimeField";
+import Combobox from "../Combobox";
 import { fromLocalInput, toLocalInput } from "../Studio/studioUi";
 import toast from "react-hot-toast";
 import {
@@ -350,19 +351,17 @@ const TracksPanel: React.FC<{
             </div>
             <div>
               <label htmlFor="track-instructor" className="mb-1 block text-sm font-semibold text-neutral-darker">Instructor</label>
-              <select
+              <Combobox
                 id="track-instructor"
-                className={selectCls}
+                triggerClassName={selectCls}
                 value={form.instructor ?? ""}
-                onChange={(e) => setForm((f) => ({ ...f, instructor: e.target.value || undefined }))}
-              >
-                <option value="">{editingTrack ? "Keep current instructor" : "Me (default)"}</option>
-                {staff.map((u) => (
-                  <option key={u._id} value={u._id}>
-                    {u.name} · {u.role === "admin" ? "Admin" : "Instructor"}
-                  </option>
-                ))}
-              </select>
+                onChange={(v) => setForm((f) => ({ ...f, instructor: v || undefined }))}
+                searchPlaceholder="Search people…"
+                options={[
+                  { value: "", label: editingTrack ? "Keep current instructor" : "Me (default)" },
+                  ...staff.map((u) => ({ value: u._id, label: u.name, hint: u.role === "admin" ? "Admin" : "Instructor" })),
+                ]}
+              />
             </div>
             <CoverImageField
               id="track-cover"
@@ -607,28 +606,29 @@ const CoursesPanel: React.FC<{
             </div>
             <div>
               <label htmlFor="course-instructor" className="mb-1 block text-sm font-semibold text-neutral-darker">Instructor</label>
-              <select
+              <Combobox
                 id="course-instructor"
-                className={selectCls}
+                triggerClassName={selectCls}
                 value={form.instructor ?? ""}
-                onChange={(e) => setForm((f) => ({ ...f, instructor: e.target.value || undefined }))}
-              >
-                <option value="">{editingCourse ? "Keep current instructor" : "Me (default)"}</option>
-                {staff.map((u) => (
-                  <option key={u._id} value={u._id}>
-                    {u.name} · {u.role === "admin" ? "Admin" : "Instructor"}
-                  </option>
-                ))}
-              </select>
+                onChange={(v) => setForm((f) => ({ ...f, instructor: v || undefined }))}
+                searchPlaceholder="Search people…"
+                options={[
+                  { value: "", label: editingCourse ? "Keep current instructor" : "Me (default)" },
+                  ...staff.map((u) => ({ value: u._id, label: u.name, hint: u.role === "admin" ? "Admin" : "Instructor" })),
+                ]}
+              />
             </div>
             {tracks.length > 0 && (
               <div>
-                <label className="mb-1 block text-sm font-semibold text-neutral-darker">Assign to Track (optional)</label>
-                <select id="course-track" className={selectCls} value={form.track ?? ""}
-                  onChange={(e) => setForm((f) => ({ ...f, track: e.target.value || undefined }))}>
-                  <option value="">No track</option>
-                  {tracks.map((t) => <option key={t._id} value={t._id}>{t.title}</option>)}
-                </select>
+                <label htmlFor="course-track" className="mb-1 block text-sm font-semibold text-neutral-darker">Assign to Track (optional)</label>
+                <Combobox
+                  id="course-track"
+                  triggerClassName={selectCls}
+                  value={form.track ?? ""}
+                  onChange={(v) => setForm((f) => ({ ...f, track: v || undefined }))}
+                  searchPlaceholder="Search tracks…"
+                  options={[{ value: "", label: "No track" }, ...tracks.map((t) => ({ value: t._id, label: t.title }))]}
+                />
               </div>
             )}
             {!form.track && (
@@ -1056,21 +1056,27 @@ const AnnouncementsPanel: React.FC<{
             {form.audience === "track" && (
               <div>
                 <label htmlFor="announcement-track" className="mb-1 block text-sm font-semibold text-neutral-darker">Track *</label>
-                <select id="announcement-track" className={selectCls} value={form.targetTrack ?? ""}
-                  onChange={(e) => setForm((f) => ({ ...f, targetTrack: e.target.value || undefined }))}>
-                  <option value="">Choose a track…</option>
-                  {tracks.map((t) => <option key={t._id} value={t._id}>{t.title}</option>)}
-                </select>
+                <Combobox
+                  id="announcement-track"
+                  triggerClassName={selectCls}
+                  value={form.targetTrack ?? ""}
+                  onChange={(v) => setForm((f) => ({ ...f, targetTrack: v || undefined }))}
+                  searchPlaceholder="Search tracks…"
+                  options={[{ value: "", label: "Choose a track…" }, ...tracks.map((t) => ({ value: t._id, label: t.title }))]}
+                />
               </div>
             )}
             {form.audience === "course" && (
               <div>
                 <label htmlFor="announcement-course" className="mb-1 block text-sm font-semibold text-neutral-darker">Course *</label>
-                <select id="announcement-course" className={selectCls} value={form.targetCourse ?? ""}
-                  onChange={(e) => setForm((f) => ({ ...f, targetCourse: e.target.value || undefined }))}>
-                  <option value="">Choose a course…</option>
-                  {courses.map((c) => <option key={c._id} value={c._id}>{c.title}</option>)}
-                </select>
+                <Combobox
+                  id="announcement-course"
+                  triggerClassName={selectCls}
+                  value={form.targetCourse ?? ""}
+                  onChange={(v) => setForm((f) => ({ ...f, targetCourse: v || undefined }))}
+                  searchPlaceholder="Search courses…"
+                  options={[{ value: "", label: "Choose a course…" }, ...courses.map((c) => ({ value: c._id, label: c.title }))]}
+                />
               </div>
             )}
             <label className="flex items-center gap-2 text-sm font-semibold text-neutral-darker cursor-pointer">

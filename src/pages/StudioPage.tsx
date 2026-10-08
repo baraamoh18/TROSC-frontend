@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import StudioNav from "../components/Studio/StudioNav";
+import Combobox from "../components/Combobox";
 import {
   BarChart3,
   BookOpen,
@@ -367,19 +368,18 @@ const StudioPage = () => {
             <div className="flex flex-wrap items-end gap-3">
               <div className="w-72 max-w-full">
                 <label htmlFor="studio-track" className="mb-1 block text-sm font-semibold text-gray-800">Track</label>
-                <select
+                <Combobox
                   id="studio-track"
-                  className={inputCls}
+                  triggerClassName={inputCls}
                   value={trackId ?? ""}
-                  onChange={(e) => setParam({ track: e.target.value, assignment: null })}
-                >
-                  {tracks.map((t) => (
-                    <option key={t._id} value={t._id}>
-                      {t.title}
-                      {t.published === false ? " (draft)" : ""}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => v && setParam({ track: v, assignment: null })}
+                  searchPlaceholder="Search tracks…"
+                  options={tracks.map((t) => ({
+                    value: t._id,
+                    label: t.title,
+                    hint: t.published === false ? "Draft" : undefined,
+                  }))}
+                />
               </div>
               {track && (
                 <Link
