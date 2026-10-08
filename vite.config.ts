@@ -2,6 +2,7 @@ import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "node:path";
+import { readFileSync } from "node:fs";
 
 // Dev proxy target for /v1/* requests. Defaults to a local backend so that
 // `npm run dev` never reads or writes production data. To point the dev
@@ -17,7 +18,18 @@ export default defineConfig(({ mode }) => {
   const devApiOrigin = env.DEV_API_ORIGIN;
 
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      {
+        // The home page bundles the FAQ; api/seo.ts reads the same file as /faq.json
+        name: "publish-faq",
+        apply: "build",
+        generateBundle() {
+          this.emitFile({ type: "asset", fileName: "faq.json", source: readFileSync("src/content/faq.json", "utf8") });
+        },
+      },
+    ],
     resolve: {
       alias: { "@": path.resolve(__dirname, "./src") },
     },

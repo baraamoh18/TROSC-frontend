@@ -1,0 +1,80 @@
+{
+  "en": {
+    "questions": [
+      {
+        "q": "What is TROSC?",
+        "a": "TROSC is a student-led tech team at the Faculty of Computers and Information, Suez Canal University, in Ismailia, Egypt. Volunteers run learning tracks with live sessions, weekly tasks and instructors who review your work."
+      },
+      {
+        "q": "Who can join?",
+        "a": "Students at the Faculty of Computers and Information, Suez Canal University."
+      },
+      {
+        "q": "Does it cost anything?",
+        "a": "No. TROSC is free and run by volunteers."
+      },
+      {
+        "q": "Which tracks are there?",
+        "a": "Tracks cover Frontend and UI/UX, Backend, Mobile, Cyber Security, AI and 3D.",
+        "link": { "to": "/explore", "label": "See the tracks open now" }
+      },
+      {
+        "q": "How do I join a track?",
+        "a": "Create an account, open a track and send a join request. The track's instructor reviews it and lets you in. You can be in one track at a time."
+      },
+      {
+        "q": "Are sessions online or in person?",
+        "a": "Both. Some sessions are on campus at the faculty and some are online. They're taught in Arabic, and recordings let you catch up on any you miss."
+      },
+      {
+        "q": "Do I get a certificate?",
+        "a": "Yes. Members who finish a track get a certificate."
+      },
+      {
+        "q": "How do I contact you?",
+        "a": "Email troscscu2@gmail.com or send us a message from the contact page.",
+        "link": { "to": "/contact", "label": "Contact us" }
+      }
+    ]
+  },
+  "ar": {
+    "heading": "بالعربي",
+    "about": "TROSC فريق طلابي تقني في كلية الحاسبات والمعلومات بجامعة قناة السويس في الإسماعيلية. يدير الفريق متطوعون ينظمون مسارات تعليمية مجانية فيها محاضرات مباشرة ومهام أسبوعية ومدربون يراجعون أعمالك.",
+    "questions": [
+      {
+        "q": "ما هو TROSC؟",
+        "a": "فريق طلابي تقني يديره متطوعون في كلية الحاسبات والمعلومات بجامعة قناة السويس في الإسماعيلية. ننظم مسارات تعليمية فيها محاضرات مباشرة ومهام أسبوعية ومدربون يراجعون أعمالك."
+      },
+      {
+        "q": "من يمكنه الانضمام؟",
+        "a": "طلاب كلية الحاسبات والمعلومات بجامعة قناة السويس."
+      },
+      {
+        "q": "هل الاشتراك بمقابل؟",
+        "a": "لا. TROSC مجاني بالكامل ويديره متطوعون."
+      },
+      {
+        "q": "ما المسارات المتاحة؟",
+        "a": "تغطي المسارات تطوير الواجهات وتصميم UI/UX، والـ Backend، وتطبيقات الموبايل، والأمن السيبراني، والذكاء الاصطناعي، والتصميم ثلاثي الأبعاد.",
+        "link": { "to": "/explore", "label": "المسارات المفتوحة الآن" }
+      },
+      {
+        "q": "كيف أنضم إلى مسار؟",
+        "a": "أنشئ حسابًا، ثم افتح صفحة المسار وأرسل طلب انضمام. يراجع مدرب المسار طلبك ويقبله. يمكنك الاشتراك في مسار واحد فقط في كل مرة."
+      },
+      {
+        "q": "هل المحاضرات أونلاين أم حضورية؟",
+        "a": "الاثنان. بعض المحاضرات حضورية في الكلية وبعضها أونلاين. الشرح باللغة العربية، والتسجيلات متاحة لتعويض أي محاضرة فاتتك."
+      },
+      {
+        "q": "هل أحصل على شهادة؟",
+        "a": "نعم. يحصل الأعضاء الذين يُنهون المسار على شهادة."
+      },
+      {
+        "q": "كيف أتواصل معكم؟",
+        "a": "راسلنا على troscscu2@gmail.com أو أرسل رسالة من صفحة التواصل.",
+        "link": { "to": "/contact", "label": "تواصل معنا" }
+      }
+    ]
+  }
+}

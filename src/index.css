@@ -9,6 +9,8 @@
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
   /* Hero headline only */
   --font-display: "Bricolage Grotesque", "Poppins", ui-sans-serif, sans-serif;
+  /* Arabic text: Poppins has no Arabic letters, so use the system's Arabic font */
+  --font-arabic: "Segoe UI", "Noto Sans Arabic", "Geeza Pro", Tahoma, system-ui, sans-serif;
 
   /* Primary (Red) palette */
   --color-primary-light: #fce8eb;

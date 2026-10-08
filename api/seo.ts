@@ -65,6 +65,17 @@ export interface EventItem {
   updatedAt?: string;
 }
 
+export interface FaqItem {
+  q: string;
+  a: string;
+  link?: { to: string; label: string };
+}
+/** src/content/faq.json, published by the build as /faq.json */
+export interface Faq {
+  en: { questions: FaqItem[] };
+  ar: { heading: string; about: string; questions: FaqItem[] };
+}
+
 export class NotFound extends Error {}
 
 export type Fetcher = (path: string) => Promise<unknown>;
@@ -160,7 +171,26 @@ const trackItems = (tracks: Track[]) =>
 const courseItems = (courses: Course[]) =>
   courses.map((c) => ({ href: `/courses/${c._id}`, title: c.title, text: c.description }));
 
-async function homePage(get: Fetcher): Promise<Page> {
+const faqText = (items: FaqItem[]) =>
+  items
+    .map(
+      (i) =>
+        `<h3>${esc(i.q)}</h3><p>${esc(i.a)}${i.link ? ` <a href="${esc(i.link.to)}">${esc(i.link.label)}</a>` : ""}</p>`,
+    )
+    .join("");
+
+const faqPage = (items: FaqItem[], lang: string) => ({
+  "@type": "FAQPage",
+  "@id": `${SITE}/#faq-${lang}`,
+  inLanguage: lang,
+  mainEntity: items.map((i) => ({
+    "@type": "Question",
+    name: i.q,
+    acceptedAnswer: { "@type": "Answer", text: i.a },
+  })),
+});
+
+async function homePage(get: Fetcher, faq?: Faq): Promise<Page> {
   const now = new Date().toISOString();
   const [tracks, courses, events] = await Promise.all([
     list<Track>(get, "/tracks?published=true&limit=50&sort=title", "tracks"),
@@ -173,7 +203,11 @@ async function homePage(get: Fetcher): Promise<Page> {
     description: DEFAULT_DESCRIPTION,
     jsonLd: {
       "@context": "https://schema.org",
-      "@graph": [ORGANIZATION, { "@type": "WebSite", name: SITE_NAME, url: `${SITE}/`, publisher: PROVIDER }],
+      "@graph": [
+        ORGANIZATION,
+        { "@type": "WebSite", name: SITE_NAME, url: `${SITE}/`, publisher: PROVIDER, inLanguage: ["en", "ar"] },
+        ...(faq ? [faqPage(faq.en.questions, "en"), faqPage(faq.ar.questions, "ar")] : []),
+      ],
     },
     body: [
       `<h1>TROSC</h1>`,
@@ -182,6 +216,10 @@ async function homePage(get: Fetcher): Promise<Page> {
       courses.length ? `<h2>Courses</h2>${linkList(courseItems(courses))}` : "",
       events.length
         ? `<h2>Upcoming events</h2>${linkList(events.map((e) => ({ href: `/events/${e._id}`, title: e.title, text: cairoDate(e.date) })))}`
+        : "",
+      faq ? `<h2>Questions</h2>${faqText(faq.en.questions)}` : "",
+      faq
+        ? `<section lang="ar" dir="rtl"><h2>${esc(faq.ar.heading)}</h2><p>${esc(faq.ar.about)}</p>${faqText(faq.ar.questions)}</section>`
         : "",
       nav,
     ].join(""),
@@ -352,9 +390,9 @@ const notFoundPage = (): Page => ({
 });
 
 /** The page for a public path. Throws on API failures other than "not found". */
-export async function buildPage(path: string, get: Fetcher = apiFetch): Promise<Page> {
+export async function buildPage(path: string, get: Fetcher = apiFetch, faq?: Faq): Promise<Page> {
   try {
-    if (path === "/") return await homePage(get);
+    if (path === "/") return await homePage(get, faq);
     if (path === "/explore") return await explorePage(get);
     const fixed = STATIC[path];
     if (fixed) {
@@ -445,6 +483,16 @@ const cacheHeaders = (seconds: number) => ({
   "Vercel-CDN-Cache-Control": `max-age=${seconds}, stale-while-revalidate=86400`,
 });
 
+/** The home page FAQ; the page still works without it. */
+async function fetchFaq(origin: string, request: Request): Promise<Faq | undefined> {
+  try {
+    const res = await fetch(new URL("/faq.json", origin), { headers: { cookie: request.headers.get("cookie") ?? "" } });
+    return res.ok ? ((await res.json()) as Faq) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
 
@@ -471,8 +519,9 @@ export async function GET(request: Request): Promise<Response> {
     return new Response("Something went wrong. Reload the page.", { status: 502 });
   }
   const template = await templateRes.text();
+  const faq = path === "/" ? await fetchFaq(url.origin, request) : undefined;
   try {
-    const page = await buildPage(path);
+    const page = await buildPage(path, apiFetch, faq);
     return new Response(renderHtml(template, page, path), {
       status: page.status,
       headers: { "Content-Type": "text/html; charset=utf-8", ...cacheHeaders(page.status === 200 ? 600 : 60) },
