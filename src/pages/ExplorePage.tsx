@@ -24,7 +24,7 @@ const SECTIONS = [
 
 const SectionHeading = ({ id, title, text }: { id: string; title: string; text: string }) => (
   <Reveal className="mb-8">
-    <h2 id={`${id}-title`} className="text-3xl font-extrabold text-primary-darker">
+    <h2 id={`${id}-title`} className="text-3xl font-extrabold text-brand-darker">
       {title}
     </h2>
     <p className="mt-2 max-w-2xl text-neutral-dark">{text}</p>
@@ -40,7 +40,7 @@ const CardSkeletons = ({ count = 3, className = "h-72" }: { count?: number; clas
 );
 
 const JoinedBadge = ({ label }: { label: string }) => (
-  <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-800">
+  <span className="inline-flex items-center gap-1 rounded-md bg-success-soft px-2 py-0.5 text-xs font-bold text-success-ink">
     <CheckCircle2 size={13} aria-hidden="true" />
     {label}
   </span>
@@ -83,7 +83,7 @@ function TracksSection() {
   }, [loadPage]);
 
   return (
-    <section id="tracks" aria-labelledby="tracks-title" className="scroll-mt-20 bg-neutral-light px-4 py-16 sm:px-6 lg:px-8">
+    <section id="tracks" aria-labelledby="tracks-title" className="scroll-mt-20 bg-page px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-6xl">
         <SectionHeading
           id="tracks"
@@ -97,7 +97,7 @@ function TracksSection() {
             icon={Layers}
             message="We couldn't load the tracks."
             action={
-              <button type="button" onClick={() => loadPage(1)} className="font-semibold text-primary hover:text-primary-hover">
+              <button type="button" onClick={() => loadPage(1)} className="font-semibold text-brand hover:text-brand-hover">
                 Try again
               </button>
             }
@@ -119,7 +119,7 @@ function TracksSection() {
                   type="button"
                   onClick={() => loadPage(page + 1)}
                   disabled={loadingMore}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-neutral-light-active bg-white px-6 font-bold text-neutral-darker transition-colors hover:border-primary hover:text-primary disabled:opacity-60"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-neutral-light-active bg-surface px-6 font-bold text-neutral-darker transition-colors hover:border-primary hover:text-brand disabled:opacity-60"
                 >
                   {loadingMore && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
                   Show more tracks ({total - tracks.length})
@@ -139,7 +139,7 @@ const CourseCard = ({ course, enrolled }: { course: BackendCourse; enrolled: boo
   const cover = realImage(course.coverImage);
   const sessions = course.sessionCount ?? course.sessions?.length ?? 0;
   return (
-    <article className="group relative flex w-full flex-col overflow-hidden rounded-xl bg-white shadow-md transition-[box-shadow,translate] duration-300 hover:shadow-xl motion-safe:hover:-translate-y-1">
+    <article className="group relative flex w-full flex-col overflow-hidden rounded-xl bg-surface shadow-md transition-[box-shadow,translate] duration-300 hover:shadow-xl motion-safe:hover:-translate-y-1 card-glow">
       <div className="h-40 overflow-hidden">
         {cover ? (
           <img
@@ -159,12 +159,12 @@ const CourseCard = ({ course, enrolled }: { course: BackendCourse; enrolled: boo
       </div>
       <div className="flex flex-1 flex-col p-5">
         <div className="mb-2 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-primary">{course.level}</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-brand">{course.level}</span>
           {enrolled && <JoinedBadge label="Enrolled" />}
         </div>
         <h3 className="mb-2 text-lg font-bold text-neutral-darker">
           {/* The link covers the whole card. */}
-          <Link to={`/courses/${course._id}`} className="after:absolute after:inset-0 group-hover:text-primary">
+          <Link to={`/courses/${course._id}`} className="after:absolute after:inset-0 group-hover:text-brand">
             {course.title}
           </Link>
         </h3>
@@ -206,7 +206,7 @@ function CoursesSection() {
   }, []);
 
   return (
-    <section id="courses" aria-labelledby="courses-title" className="scroll-mt-20 bg-white px-4 py-16 sm:px-6 lg:px-8">
+    <section id="courses" aria-labelledby="courses-title" className="scroll-mt-20 bg-page-alt px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-6xl">
         <SectionHeading
           id="courses"
@@ -250,10 +250,10 @@ const SessionRow = ({ session, joined }: { session: BackendSession; joined: bool
   const start = session.startDate ? new Date(session.startDate) : null;
   const upcoming = !!start && start.getTime() >= Date.now();
   return (
-    <article className="group relative flex items-center gap-4 rounded-xl border border-neutral-light-active bg-white p-4 shadow-sm transition-[box-shadow,translate] duration-300 hover:shadow-lg motion-safe:hover:-translate-y-0.5 sm:p-5">
+    <article className="group relative flex items-center gap-4 rounded-xl border border-neutral-light-active bg-surface p-4 shadow-sm transition-[box-shadow,translate] duration-300 hover:shadow-lg motion-safe:hover:-translate-y-0.5 sm:p-5 card-glow">
       <div
         className={`flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-lg ${
-          upcoming ? "bg-primary text-white" : "bg-primary-light text-primary-dark"
+          upcoming ? "bg-primary text-white" : "bg-primary-light text-brand-dark"
         }`}
         aria-hidden="true"
       >
@@ -268,13 +268,13 @@ const SessionRow = ({ session, joined }: { session: BackendSession; joined: bool
       </div>
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-primary">
+          <span className="text-xs font-bold uppercase tracking-wider text-brand">
             {upcoming ? "Upcoming" : start ? "Recording" : session.level}
           </span>
           {joined && <JoinedBadge label="Joined" />}
         </div>
         <h3 className="font-bold text-neutral-darker">
-          <Link to={`/sessions/${session._id}`} className="after:absolute after:inset-0 group-hover:text-primary">
+          <Link to={`/sessions/${session._id}`} className="after:absolute after:inset-0 group-hover:text-brand">
             {session.title}
           </Link>
         </h3>
@@ -348,7 +348,7 @@ function SessionsSection() {
         icon={Video}
         message="We couldn't load the open sessions."
         action={
-          <button type="button" onClick={load} className="font-semibold text-primary hover:text-primary-hover">
+          <button type="button" onClick={load} className="font-semibold text-brand hover:text-brand-hover">
             Try again
           </button>
         }
@@ -371,7 +371,7 @@ function SessionsSection() {
   }
 
   return (
-    <section id="sessions" aria-labelledby="sessions-title" className="scroll-mt-20 bg-neutral-light px-4 py-16 sm:px-6 lg:px-8">
+    <section id="sessions" aria-labelledby="sessions-title" className="scroll-mt-20 bg-page px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-6xl">
         <SectionHeading
           id="sessions"
@@ -391,11 +391,11 @@ const ExplorePage = () => {
 
   return (
     <div className="pt-16">
-      <header className="bg-white px-4 pb-12 pt-14 sm:px-6 lg:px-8">
+      <header className="bg-page-alt px-4 pb-12 pt-14 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-6xl">
-          <p className="anim-rise mb-4 text-sm font-bold uppercase tracking-widest text-primary">Explore</p>
+          <p className="anim-rise mb-4 text-sm font-bold uppercase tracking-widest text-brand">Explore</p>
           <h1
-            className="anim-rise max-w-3xl text-4xl font-extrabold leading-tight text-primary-darker sm:text-5xl"
+            className="anim-rise max-w-3xl text-4xl font-extrabold leading-tight text-brand-darker sm:text-5xl"
             style={delay(80)}
           >
             Find what to learn next.
@@ -420,7 +420,7 @@ const ExplorePage = () => {
                   smoothScrollToId(s.id);
                   window.history.replaceState(null, "", `#${s.id}`);
                 }}
-                className="inline-flex min-h-11 items-center rounded-lg border border-neutral-light-active bg-white px-5 text-sm font-bold text-neutral-darker transition-colors hover:border-primary hover:text-primary"
+                className="inline-flex min-h-11 items-center rounded-lg border border-neutral-light-active bg-surface px-5 text-sm font-bold text-neutral-darker transition-colors hover:border-primary hover:text-brand"
               >
                 {s.label}
               </a>

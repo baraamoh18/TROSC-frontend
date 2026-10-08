@@ -4,7 +4,7 @@ import type { TrackItem } from "../data/tracksData";
 
 const TrackCard = ({ track }: { track: TrackItem }) => {
   return (
-    <div className="group relative w-full bg-white rounded-xl overflow-hidden shadow-md transition-[box-shadow,translate] duration-300 hover:shadow-xl motion-safe:hover:-translate-y-1 flex flex-col">
+    <div className="group relative w-full bg-surface rounded-xl overflow-hidden shadow-md transition-[box-shadow,translate] duration-300 hover:shadow-xl motion-safe:hover:-translate-y-1 flex flex-col card-glow">
       <div className="h-48 overflow-hidden">
       {track.imageUrl ? (
         <img loading="lazy"
@@ -38,7 +38,7 @@ const TrackCard = ({ track }: { track: TrackItem }) => {
         {/* The link covers the whole card. */}
         <Link
           to={`/track/${track.id}`}
-          className="inline-flex min-h-6 items-center gap-1 text-primary-dark font-semibold text-sm w-fit after:absolute after:inset-0 group-hover:text-primary"
+          className="inline-flex min-h-6 items-center gap-1 text-brand-dark font-semibold text-sm w-fit after:absolute after:inset-0 group-hover:text-brand"
         >
           View track
           <ArrowRight size={16} aria-hidden="true" className="transition-transform duration-300 motion-safe:group-hover:translate-x-1" />

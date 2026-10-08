@@ -86,7 +86,7 @@ function SignUpForm() {
             className="px-4 py-3 border-2 border-neutral-light-active rounded-lg bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors"
           />
           {errors.name && (
-            <span id="name-error" role="alert" className="text-xs text-red-600">{errors.name.message}</span>
+            <span id="name-error" role="alert" className="text-xs text-danger-ink">{errors.name.message}</span>
           )}
         </div>
 
@@ -115,7 +115,7 @@ function SignUpForm() {
             className="px-4 py-3 border-2 border-neutral-light-active rounded-lg bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors"
           />
           {errors.email && (
-            <span id="email-error" role="alert" className="text-xs text-red-600">{errors.email.message}</span>
+            <span id="email-error" role="alert" className="text-xs text-danger-ink">{errors.email.message}</span>
           )}
         </div>
 
@@ -158,7 +158,7 @@ function SignUpForm() {
             </div>
           )}
           {errors.password && (
-            <span id="password-error" role="alert" className="text-xs text-red-600">
+            <span id="password-error" role="alert" className="text-xs text-danger-ink">
               {errors.password.message}
             </span>
           )}
@@ -185,7 +185,7 @@ function SignUpForm() {
             placeholder="Confirm your password"
           />
           {errors.confirmPassword && (
-            <span id="confirmPassword-error" role="alert" className="text-xs text-red-600">
+            <span id="confirmPassword-error" role="alert" className="text-xs text-danger-ink">
               {errors.confirmPassword.message}
             </span>
           )}
@@ -201,11 +201,11 @@ function SignUpForm() {
         </button>
         <p className="mt-3 text-center text-xs text-neutral-dark">
           By signing up, you agree to the{" "}
-          <Link to="/terms" className="font-semibold text-primary hover:text-primary-hover">
+          <Link to="/terms" className="font-semibold text-brand hover:text-brand-hover">
             terms
           </Link>{" "}
           and{" "}
-          <Link to="/privacy" className="font-semibold text-primary hover:text-primary-hover">
+          <Link to="/privacy" className="font-semibold text-brand hover:text-brand-hover">
             privacy policy
           </Link>
           .
@@ -217,7 +217,7 @@ function SignUpForm() {
         <span className="text-neutral-darker">Already have an Account? </span>
         <Link
           to="/signin"
-          className="text-primary font-semibold hover:text-primary-hover transition-colors"
+          className="text-brand font-semibold hover:text-brand-hover transition-colors"
         >
           Sign In
         </Link>

@@ -19,7 +19,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   render() {
     if (!this.state.hasError) return this.props.children;
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-light px-4 pt-16 text-center">
+      <div className="flex min-h-screen items-center justify-center bg-page px-4 pt-16 text-center">
         <div>
           <h1 className="mb-3 text-2xl font-bold text-neutral-darker">Something went wrong</h1>
           <p className="mb-6 text-neutral-dark">

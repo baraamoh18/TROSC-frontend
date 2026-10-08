@@ -60,7 +60,7 @@ const ContactUsForm = () => {
   };
 
   const inputBase =
-    "w-full px-4 py-2.5 rounded-lg border-2 border-neutral-light-active bg-white text-sm text-neutral-darker placeholder:text-neutral focus:outline-none focus:border-primary transition-colors duration-200";
+    "w-full px-4 py-2.5 rounded-lg border-2 border-neutral-light-active bg-surface text-sm text-neutral-darker placeholder:text-neutral focus:outline-none focus:border-primary transition-colors duration-200";
 
   const errorClass = "border-primary-light-active focus:border-primary";
 
@@ -87,7 +87,7 @@ const ContactUsForm = () => {
             {...register("username", { required: "Name is required" })}
           />
           {errors.username && (
-            <p id="contact-username-error" role="alert" className="mt-1 text-xs text-primary-dark">
+            <p id="contact-username-error" role="alert" className="mt-1 text-xs text-brand-dark">
               {errors.username.message}
             </p>
           )}
@@ -118,7 +118,7 @@ const ContactUsForm = () => {
             <option value={GENERAL_TRACK}>{GENERAL_TRACK}</option>
           </select>
           {errors.track && (
-            <p id="contact-track-error" role="alert" className="mt-1 text-xs text-primary-dark">
+            <p id="contact-track-error" role="alert" className="mt-1 text-xs text-brand-dark">
               {errors.track.message}
             </p>
           )}
@@ -148,7 +148,7 @@ const ContactUsForm = () => {
             })}
           />
           {errors.email && (
-            <p id="contact-email-error" role="alert" className="mt-1 text-xs text-primary-dark">
+            <p id="contact-email-error" role="alert" className="mt-1 text-xs text-brand-dark">
               {errors.email.message}
             </p>
           )}
@@ -178,7 +178,7 @@ const ContactUsForm = () => {
             })}
           />
           {errors.phone && (
-            <p id="contact-phone-error" role="alert" className="mt-1 text-xs text-primary-dark">
+            <p id="contact-phone-error" role="alert" className="mt-1 text-xs text-brand-dark">
               {errors.phone.message}
             </p>
           )}
@@ -207,7 +207,7 @@ const ContactUsForm = () => {
             })}
           />
           {errors.message && (
-            <p id="contact-message-error" role="alert" className="mt-1 text-xs text-primary-dark">
+            <p id="contact-message-error" role="alert" className="mt-1 text-xs text-brand-dark">
               {errors.message.message}
             </p>
           )}

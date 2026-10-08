@@ -69,7 +69,7 @@ const RecentActivity = () => {
     <ul className="divide-y divide-gray-100">
       {logs.map((log) => (
         <li key={log._id} className="flex items-center gap-3 py-3">
-          <span className="shrink-0 rounded-full bg-primary/10 p-2 text-primary" aria-hidden="true">
+          <span className="shrink-0 rounded-full bg-primary/10 p-2 text-brand" aria-hidden="true">
             {activityIcon(log.action)}
           </span>
           <p className="min-w-0 flex-1 text-sm capitalize leading-snug text-gray-800">{log.action.replace(/_/g, " ")}</p>

@@ -3,9 +3,9 @@ import { AlertCircle, RotateCw } from "lucide-react";
 /** Shown instead of an empty state when a request failed, so a failed load
  *  isn't mistaken for "you have nothing here". */
 const SectionError = ({ what, onRetry }: { what: string; onRetry: () => void }) => (
-  <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
+  <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-neutral-light-active bg-surface p-6 text-center text-neutral-dark">
     <p className="flex items-center gap-2">
-      <AlertCircle size={18} className="text-primary" aria-hidden="true" />
+      <AlertCircle size={18} className="text-brand" aria-hidden="true" />
       Couldn't load {what}.
     </p>
     <button

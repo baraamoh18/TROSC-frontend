@@ -108,7 +108,7 @@ const TrendsChart: React.FC = () => {
     }`;
 
   return (
-    <section className="mt-8 rounded-xl border border-neutral-light-active bg-white p-5 shadow-sm sm:p-6">
+    <section className="mt-8 rounded-xl border border-neutral-light-active bg-surface p-5 shadow-sm sm:p-6">
       <h3 id={titleId} className="text-lg font-bold text-neutral-darker">
         Trends · {metricLabel}
       </h3>
@@ -127,7 +127,7 @@ const TrendsChart: React.FC = () => {
           <select
             value={metric}
             onChange={(e) => setMetric(e.target.value as MetricKey)}
-            className="rounded-lg border border-neutral-light-active bg-white px-3 py-1.5 text-xs font-semibold text-neutral-darker focus:border-primary focus:outline-none"
+            className="rounded-lg border border-neutral-light-active bg-surface px-3 py-1.5 text-xs font-semibold text-neutral-darker focus:border-primary focus:outline-none"
           >
             {METRICS.map((m) => (
               <option key={m.key} value={m.key}>{m.label}</option>
@@ -192,7 +192,7 @@ const TrendsChart: React.FC = () => {
 
             {active !== null && (
               <div
-                className="pointer-events-none absolute top-0 -translate-x-1/2 rounded-lg border border-neutral-light-active bg-white px-3 py-2 text-xs shadow-md"
+                className="pointer-events-none absolute top-0 -translate-x-1/2 rounded-lg border border-neutral-light-active bg-surface px-3 py-2 text-xs shadow-md"
                 style={{ left: `${(geometry.x(active) / WIDTH) * 100}%` }}
                 role="status"
               >

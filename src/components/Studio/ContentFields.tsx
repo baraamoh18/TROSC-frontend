@@ -9,7 +9,7 @@ import type { useLinkList } from "../../utils/contentFields";
 // instructors' course form. Each takes the input class of the form it sits in.
 
 const hintCls = "mt-1 text-xs text-gray-600";
-const errorCls = "mt-1 text-xs font-medium text-red-700";
+const errorCls = "mt-1 text-xs font-medium text-danger-ink";
 const smallBtn =
   "inline-flex min-h-8 items-center gap-1 rounded-lg px-2 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40";
 
@@ -166,7 +166,7 @@ export const SyllabusEditor = ({
               </button>
               <button
                 type="button"
-                className={`${smallBtn} text-red-700 hover:bg-red-50`}
+                className={`${smallBtn} text-danger-ink hover:bg-danger-soft`}
                 onClick={() => onChange(items.filter((_, j) => j !== i))}
                 aria-label={`Remove topic ${i + 1}`}
               >
@@ -178,7 +178,7 @@ export const SyllabusEditor = ({
       </ol>
       <button
         type="button"
-        className={`${smallBtn} mt-2 text-primary hover:bg-primary-light`}
+        className={`${smallBtn} mt-2 text-brand hover:bg-primary-light`}
         onClick={() => onChange([...items, { title: "", description: "" }])}
       >
         <Plus size={14} aria-hidden="true" />

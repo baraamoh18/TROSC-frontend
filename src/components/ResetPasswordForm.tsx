@@ -23,7 +23,7 @@ const ResetPasswordForm = ({ onSubmit }: ResetPasswordFormProps) => {
   return (
     <div className="w-full max-w-md bg-neutral-light px-8 py-12 rounded-xl shadow-lg">
       <div className="flex justify-center mb-6">
-        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary-light text-primary">
+        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary-light text-brand">
           <LockKeyhole size={28} aria-hidden="true" />
         </div>
       </div>
@@ -57,10 +57,10 @@ const ResetPasswordForm = ({ onSubmit }: ResetPasswordFormProps) => {
               },
             })}
             placeholder="Enter your new password"
-            className="bg-white"
+            className="bg-surface"
           />
           {errors.newPassword && (
-            <span id="newPassword-error" role="alert" className="text-xs text-red-600">
+            <span id="newPassword-error" role="alert" className="text-xs text-danger-ink">
               {errors.newPassword.message}
             </span>
           )}
@@ -85,10 +85,10 @@ const ResetPasswordForm = ({ onSubmit }: ResetPasswordFormProps) => {
                 value === watch("newPassword") || "Passwords do not match",
             })}
             placeholder="Confirm your new password"
-            className="bg-white"
+            className="bg-surface"
           />
           {errors.confirmPassword && (
-            <span id="confirmPassword-error" role="alert" className="text-xs text-red-600">
+            <span id="confirmPassword-error" role="alert" className="text-xs text-danger-ink">
               {errors.confirmPassword.message}
             </span>
           )}
@@ -111,7 +111,7 @@ const ResetPasswordForm = ({ onSubmit }: ResetPasswordFormProps) => {
         </span>
         <Link
           to="/signin"
-          className="text-primary font-semibold hover:text-primary-hover transition-colors text-sm"
+          className="text-brand font-semibold hover:text-brand-hover transition-colors text-sm"
         >
           Log In
         </Link>

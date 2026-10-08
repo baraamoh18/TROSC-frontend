@@ -32,6 +32,138 @@
   --color-neutral-dark-hover: #595959;
   --color-neutral-dark-active: #474747;
   --color-neutral-darker: #404040;
+
+  /* ── Theme-aware roles ──────────────────────────────────────
+     Same values as the old light classes; the dark theme below
+     redefines them. Prefer these over raw palette colours. */
+  --color-surface: #ffffff; /* cards, panels, dialogs */
+  --color-page: #f8f8f8; /* page wrappers and grey section bands */
+  --color-page-alt: #ffffff; /* white section bands */
+  --color-nav: #ffffff;
+
+  /* Red used AS TEXT. Light: the primary reds. Dark: pinks, because
+     red text on maroon fails contrast. Backgrounds keep bg-primary-*. */
+  --color-brand: #d32f2f;
+  --color-brand-hover: #b92828;
+  --color-brand-dark: #ae2c2c;
+  --color-brand-darker: #511515;
+  --color-brand-light: #fce8eb;
+
+  /* Dark chip / selected state with light text, flips in dark mode */
+  --color-inverse: #101828;
+  --color-inverse-hover: #000000;
+  --color-on-inverse: #ffffff;
+
+  /* Status: solid (white text on it), -ink (text), -soft / -tint
+     (backgrounds, 50 and 100 strength), -line (borders) */
+  --color-danger: #b91c1c;
+  --color-danger-hover: #991b1b;
+  --color-danger-ink: #b91c1c;
+  --color-danger-soft: #fef2f2;
+  --color-danger-tint: #fee2e2;
+  --color-danger-line: #fecaca;
+  --color-success: #059669;
+  --color-success-hover: #047857;
+  --color-success-ink: #047857;
+  --color-success-soft: #ecfdf5;
+  --color-success-tint: #d1fae5;
+  --color-warning-ink: #92400e;
+  --color-warning-soft: #fffbeb;
+  --color-warning-tint: #fef3c7;
+  --color-warning-line: #fcd34d;
+  --color-info-ink: #0369a1;
+  --color-info-tint: #e0f2fe;
+}
+
+/* Lets components opt into one-off dark styles with dark:… */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ── Dark theme ──────────────────────────────────────────────
+   Colours from the original TROSC design: warm black-brown at the
+   top falling into deep red, with pink and white for contrast.
+   Every text pairing below passes WCAG AA on every surface. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-surface: #3a0905;
+  --color-page: transparent; /* the fixed gradient shows through */
+  --color-page-alt: transparent;
+  --color-nav: #190a05;
+
+  /* Backgrounds behind white text stay red (5.0:1 or better);
+     the light tints become dark maroon tints. */
+  --color-primary-light: #4a0f0c;
+  --color-primary-light-hover: #5a1410;
+  --color-primary-light-active: #6e1d17;
+
+  --color-brand: #ff9999;
+  --color-brand-hover: #ffb8b8;
+  --color-brand-dark: #ff9999;
+  --color-brand-darker: #ffd6d6;
+  --color-brand-light: #8a2a22;
+
+  /* Light greys become maroon surfaces; dark greys become warm whites */
+  --color-neutral-light: #240704; /* inputs sit darker than cards */
+  --color-neutral-light-hover: #2e0805;
+  --color-neutral-light-active: #5a1410; /* borders, chips */
+  --color-neutral: #a8908d;
+  --color-neutral-hover: #b89a96;
+  --color-neutral-active: #c9a9a6;
+  --color-neutral-dark: #c9a9a6;
+  --color-neutral-dark-hover: #d6bcb9;
+  --color-neutral-dark-active: #e6d4d2;
+  --color-neutral-darker: #f7efee;
+
+  --color-gray-50: #2e0805;
+  --color-gray-100: #451009;
+  --color-gray-200: #5a1410;
+  --color-gray-300: #6e1d17;
+  --color-gray-400: #a8908d;
+  --color-gray-500: #b89a96;
+  --color-gray-600: #c9a9a6;
+  --color-gray-700: #dcc4c1;
+  --color-gray-800: #ece0de;
+  --color-gray-900: #f7efee;
+
+  --color-inverse: #f7efee;
+  --color-inverse-hover: #ffffff;
+  --color-on-inverse: #190a05;
+
+  /* Errors are told apart by brightness, icon and border, not hue */
+  --color-danger: #b3261e;
+  --color-danger-hover: #8f1d17;
+  --color-danger-ink: #ffb4ab;
+  --color-danger-soft: #4a0e0e;
+  --color-danger-tint: #5c1212;
+  --color-danger-line: #8a3a33;
+  --color-success: #15803d;
+  --color-success-hover: #166534;
+  --color-success-ink: #86efac;
+  --color-success-soft: #0f2a1a;
+  --color-success-tint: #14381f;
+  --color-warning-ink: #fcd34d;
+  --color-warning-soft: #2e2205;
+  --color-warning-tint: #3d2c06;
+  --color-warning-line: #8a6a12;
+  --color-info-ink: #93c5fd;
+  --color-info-tint: #0c2340;
+}
+
+:root[data-theme="dark"] body {
+  background-color: #190a05;
+  color: var(--color-neutral-darker);
+}
+
+/* The gradient is pinned to the screen, not the page, so short and
+   long pages look the same. A fixed layer rather than
+   background-attachment: fixed, which iOS Safari ignores. */
+:root[data-theme="dark"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to bottom, #190a05 0%, #2a0703 55%, #330602 100%);
+  pointer-events: none;
 }
 
 /* One typeface everywhere; pages used to opt in one by one. */
@@ -39,6 +171,15 @@
   html {
     font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
   }
+}
+
+/* Clickable cards (tracks, courses, sessions, events) glow red on
+   hover in dark mode, as in the original design; shadows alone
+   barely show on maroon. Static panels don't glow. */
+:root[data-theme="dark"] .card-glow:hover {
+  box-shadow:
+    0 0 0 1px rgb(255 153 153 / 0.25),
+    0 0 28px rgb(232 59 59 / 0.3);
 }
 
 /* ── Motion ──────────────────────────────────────────────────

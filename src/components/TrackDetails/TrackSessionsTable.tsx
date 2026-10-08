@@ -54,7 +54,7 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
     canWatch && isFullSession(session) ? (
       <Link
         to={`/sessions/${session._id}`}
-        className="font-semibold text-gray-900 hover:text-primary transition-colors"
+        className="font-semibold text-gray-900 hover:text-brand transition-colors"
       >
         {session.title}
       </Link>
@@ -84,7 +84,7 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
           type="button"
           disabled={session.myProgress?.status === "watched" || updatingSessionId === session._id}
           onClick={() => markWatched(session._id)}
-          className="mt-2 flex min-h-8 items-center gap-1 text-xs font-semibold text-primary disabled:text-green-700 disabled:cursor-default"
+          className="mt-2 flex min-h-8 items-center gap-1 text-xs font-semibold text-brand disabled:text-success-ink disabled:cursor-default"
         >
           {updatingSessionId === session._id ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -106,7 +106,7 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
                   href={r.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-6 items-center gap-1 text-xs font-semibold text-gray-700 hover:text-primary"
+                  className="inline-flex min-h-6 items-center gap-1 text-xs font-semibold text-gray-700 hover:text-brand"
                 >
                   <Paperclip className="h-3 w-3 shrink-0" aria-hidden="true" />
                   {r.title || `Material ${i + 1}`}
@@ -124,7 +124,7 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
 
   return (
     <div>
-      <h2 className="mb-6 text-2xl font-bold text-primary-darker">Sessions</h2>
+      <h2 className="mb-6 text-2xl font-bold text-brand-darker">Sessions</h2>
       {rows.length === 0 ? (
         <EmptyState icon={CalendarClock} message="No sessions have been scheduled for this track yet." />
       ) : (
@@ -134,10 +134,10 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
             {rows.map((session, index) => (
               <li
                 key={session._id}
-                className="rounded-xl border border-gray-200 bg-white p-4"
+                className="rounded-xl border border-gray-200 bg-surface p-4"
               >
                 <div className="flex items-start gap-3">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-light text-xs font-bold text-primary-dark">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-light text-xs font-bold text-brand-dark">
                     {index + 1}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -158,7 +158,7 @@ const TrackSessionsTable: React.FC<TrackSessionsTableProps> = ({
           </ol>
 
           {/* Table from md up */}
-          <div className="hidden overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm md:block">
+          <div className="hidden overflow-x-auto rounded-xl border border-gray-200 bg-surface shadow-sm md:block">
             <table className="min-w-full border-collapse">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">

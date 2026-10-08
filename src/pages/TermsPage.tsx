@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import LegalPage from "../components/LegalPage";
 import type { LegalSection } from "../components/LegalPage";
 
-const linkCls = "font-semibold text-primary hover:text-primary-hover";
+const linkCls = "font-semibold text-brand hover:text-brand-hover";
 
 const sections: LegalSection[] = [
   {

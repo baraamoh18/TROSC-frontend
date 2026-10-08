@@ -79,7 +79,7 @@ const CourseForm = ({ course, onClose, onSaved }: CourseFormProps) => {
 
   const fieldError = (key: string) =>
     errors[key] ? (
-      <p id={`c-${key}-error`} className="mt-1 text-xs font-medium text-red-700">
+      <p id={`c-${key}-error`} className="mt-1 text-xs font-medium text-danger-ink">
         {errors[key]}
       </p>
     ) : null;

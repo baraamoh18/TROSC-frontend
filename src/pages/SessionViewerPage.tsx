@@ -23,9 +23,9 @@ import usePageTitle from "../hooks/usePageTitle";
 import { isStandaloneSession } from "../utils/catalog";
 
 const LEVEL_BADGE: Record<BackendSession["level"], string> = {
-  beginner: "bg-emerald-100 text-emerald-700",
-  intermediate: "bg-amber-100 text-amber-700",
-  advanced: "bg-red-100 text-red-700",
+  beginner: "bg-success-tint text-success-ink",
+  intermediate: "bg-warning-tint text-warning-ink",
+  advanced: "bg-danger-tint text-danger-ink",
 };
 
 const SessionViewerPage = () => {
@@ -65,7 +65,7 @@ const SessionViewerPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-light pt-24 pb-20">
+      <div className="min-h-screen bg-page pt-24 pb-20">
         <div className="mx-auto w-full max-w-4xl px-6">
           <div className="aspect-video w-full animate-pulse rounded-xl bg-gray-200" />
           <div className="mt-6 h-8 w-2/3 animate-pulse rounded-xl bg-gray-200" />
@@ -81,7 +81,7 @@ const SessionViewerPage = () => {
 
   if (!session || hiddenDraft) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-light pt-16">
+      <div className="flex min-h-screen items-center justify-center bg-page pt-16">
         <div className="px-4 text-center">
           <h1 className="mb-3 text-3xl font-bold text-neutral-darker">
             {errorStatus === 403
@@ -163,11 +163,11 @@ const SessionViewerPage = () => {
     : "TBA";
 
   return (
-    <div className="min-h-screen bg-neutral-light pt-24 pb-20">
+    <div className="min-h-screen bg-page pt-24 pb-20">
       <div className="mx-auto w-full max-w-4xl px-6">
         {/* Breadcrumb */}
         <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-neutral-dark">
-          <Link to={back.to} className="inline-flex items-center gap-1.5 hover:text-primary transition-colors">
+          <Link to={back.to} className="inline-flex items-center gap-1.5 hover:text-brand transition-colors">
             <ArrowLeft size={16} />
             {back.label}
           </Link>
@@ -185,9 +185,9 @@ const SessionViewerPage = () => {
             />
           </div>
         ) : session.url ? (
-          <div className="flex flex-col items-start gap-3 rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm">
+          <div className="flex flex-col items-start gap-3 rounded-xl border border-neutral-light-active bg-surface p-6 shadow-sm">
             <p className="flex items-center gap-2 font-bold text-neutral-darker">
-              <Video size={20} className="text-primary" />
+              <Video size={20} className="text-brand" />
               This session's content is hosted externally.
             </p>
             <a
@@ -246,7 +246,7 @@ const SessionViewerPage = () => {
         )}
 
         {/* Title & meta */}
-        <div className="mt-6 rounded-xl bg-white p-6 shadow-sm sm:p-8">
+        <div className="mt-6 rounded-xl bg-surface p-6 shadow-sm sm:p-8">
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${LEVEL_BADGE[session.level]}`}
@@ -271,7 +271,7 @@ const SessionViewerPage = () => {
 
           {session.instructor && (
             <div className="mt-3 flex items-center gap-2 text-sm text-neutral-dark">
-              <UserCircle size={22} className="text-primary" />
+              <UserCircle size={22} className="text-brand" />
               <span>
                 Instructor:{" "}
                 <span className="font-semibold text-neutral-darker">
@@ -316,7 +316,7 @@ const SessionViewerPage = () => {
                     type="button"
                     onClick={() => changeMembership(false)}
                     disabled={membershipBusy}
-                    className="ml-auto inline-flex min-h-11 items-center gap-2 rounded-lg border border-neutral-light-active px-4 text-sm font-bold text-neutral-darker transition-colors hover:border-primary hover:text-primary disabled:opacity-50"
+                    className="ml-auto inline-flex min-h-11 items-center gap-2 rounded-lg border border-neutral-light-active px-4 text-sm font-bold text-neutral-darker transition-colors hover:border-primary hover:text-brand disabled:opacity-50"
                   >
                     {membershipBusy && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
                     Leave session
@@ -353,9 +353,9 @@ const SessionViewerPage = () => {
 
         {/* Resources */}
         {(session.resources?.length ?? 0) > 0 && (
-          <div className="mt-6 rounded-xl bg-white p-6 shadow-sm sm:p-8">
+          <div className="mt-6 rounded-xl bg-surface p-6 shadow-sm sm:p-8">
             <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-neutral-darker">
-              <FileText size={20} className="text-primary" />
+              <FileText size={20} className="text-brand" />
               Session resources
             </h2>
             <ul className="space-y-2">
@@ -365,7 +365,7 @@ const SessionViewerPage = () => {
                     href={resource.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex max-w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-primary transition-colors hover:bg-primary-light hover:text-primary-hover"
+                    className="inline-flex max-w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-brand transition-colors hover:bg-primary-light hover:text-brand-hover"
                   >
                     <BarChart3 size={15} className="shrink-0" />
                     <span className="truncate">{resource.title}</span>

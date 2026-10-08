@@ -49,7 +49,7 @@ const MyEvents = () => {
     return (
       <p className="text-center text-neutral-dark">
         You haven't RSVP'd to any events yet.{" "}
-        <Link to="/#events" className="font-semibold text-primary hover:text-primary-hover">
+        <Link to="/#events" className="font-semibold text-brand hover:text-brand-hover">
           Browse events
         </Link>{" "}
         to find something you like.
@@ -73,7 +73,7 @@ const MyEvents = () => {
             />
             <div className="min-w-0 flex-1">
               <p className="text-lg font-bold text-neutral-darker">{event.title}</p>
-              <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-primary">
+              <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-brand">
                 <CalendarCheck size={16} aria-hidden="true" />
                 {new Date(event.date).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}
                 {event.locationType === "offline" && event.locationAddress

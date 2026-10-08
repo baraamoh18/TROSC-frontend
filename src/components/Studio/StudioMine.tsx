@@ -19,15 +19,15 @@ const canManageOwn = () => true;
 const badgeCls = "rounded-full px-2 py-0.5 text-xs font-bold";
 
 const courseBadge = (c: BackendCourse) => {
-  if (!c.published) return <span className={`${badgeCls} bg-amber-100 text-amber-800`}>Draft</span>;
+  if (!c.published) return <span className={`${badgeCls} bg-warning-tint text-warning-ink`}>Draft</span>;
   if (c.track) return <span className={`${badgeCls} bg-gray-100 text-gray-700`}>In {c.track.title}</span>;
-  if (isOpenCourse(c)) return <span className={`${badgeCls} bg-emerald-50 text-emerald-800`}>On Explore</span>;
+  if (isOpenCourse(c)) return <span className={`${badgeCls} bg-success-soft text-success-ink`}>On Explore</span>;
   return <span className={`${badgeCls} bg-gray-100 text-gray-700`}>Not listed</span>;
 };
 
 const sessionBadge = (s: BackendSession, courses: BackendCourse[]) => {
-  if (!s.published) return <span className={`${badgeCls} bg-amber-100 text-amber-800`}>Draft</span>;
-  if (isOpenSession(s)) return <span className={`${badgeCls} bg-emerald-50 text-emerald-800`}>Open session</span>;
+  if (!s.published) return <span className={`${badgeCls} bg-warning-tint text-warning-ink`}>Draft</span>;
+  if (isOpenSession(s)) return <span className={`${badgeCls} bg-success-soft text-success-ink`}>Open session</span>;
   if ((s.tracks?.length ?? 0) > 0) return <span className={`${badgeCls} bg-gray-100 text-gray-700`}>In a track</span>;
   const course = courses.find((c) => c._id === s.course);
   if (s.course) return <span className={`${badgeCls} bg-gray-100 text-gray-700`}>In {course?.title ?? "a course"}</span>;
@@ -127,7 +127,7 @@ const StudioMine = ({ userId }: { userId: string }) => {
             {courses.map((c) => (
               <li key={c._id} className={`${cardCls} flex flex-wrap items-center justify-between gap-3 px-4 py-3`}>
                 <span className="flex min-w-0 flex-wrap items-center gap-2">
-                  <Link to={`/courses/${c._id}`} className="font-semibold text-gray-900 hover:text-primary">
+                  <Link to={`/courses/${c._id}`} className="font-semibold text-gray-900 hover:text-brand">
                     {c.title}
                   </Link>
                   {courseBadge(c)}
@@ -169,7 +169,7 @@ const StudioMine = ({ userId }: { userId: string }) => {
             {sessions.map((s) => (
               <li key={s._id} className={`${cardCls} flex flex-wrap items-center justify-between gap-3 px-4 py-3`}>
                 <span className="flex min-w-0 flex-wrap items-center gap-2">
-                  <Link to={`/sessions/${s._id}`} className="font-semibold text-gray-900 hover:text-primary">
+                  <Link to={`/sessions/${s._id}`} className="font-semibold text-gray-900 hover:text-brand">
                     {s.title}
                   </Link>
                   {sessionBadge(s, courses)}

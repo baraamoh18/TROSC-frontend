@@ -45,7 +45,7 @@ const Tracks = () => {
   const featured = tracks ?? [];
 
   return (
-    <div className="bg-neutral-light px-6 py-16 w-full flex items-center justify-center">
+    <div className="bg-page px-6 py-16 w-full flex items-center justify-center">
       <div className="w-full max-w-6xl mx-auto">
         <Reveal>
           <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 text-center mb-12">

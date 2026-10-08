@@ -68,9 +68,9 @@ export const TaskItemRow = ({
     >
       <span className="shrink-0" aria-hidden="true">
         {toggling ? (
-          <Loader2 className="w-5 h-5 text-primary animate-spin" />
+          <Loader2 className="w-5 h-5 text-brand animate-spin" />
         ) : item.done ? (
-          <CheckSquare className="w-5 h-5 text-primary" />
+          <CheckSquare className="w-5 h-5 text-brand" />
         ) : (
           <Square className="w-5 h-5 text-gray-500 group-hover:text-gray-700 transition-colors" />
         )}
@@ -119,7 +119,7 @@ const TaskBucket = ({ task }: { task: WeeklyTask }) => {
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-bold uppercase tracking-wider text-primary">
+            <span className="text-xs font-bold uppercase tracking-wider text-brand">
               Week {task.week}
             </span>
             <h3 className="font-semibold text-gray-900 text-sm">{task.title}</h3>
@@ -175,7 +175,7 @@ const TrackWeeklyTasks: React.FC<TrackWeeklyTasksProps> = ({ tasks }) => {
   if (tasks.length === 0) {
     return (
       <div>
-        <h2 className="mb-6 text-2xl font-bold text-primary-darker">Weekly tasks</h2>
+        <h2 className="mb-6 text-2xl font-bold text-brand-darker">Weekly tasks</h2>
         <EmptyState icon={ClipboardList} message="No weekly tasks have been added to this track yet." />
       </div>
     );
@@ -186,7 +186,7 @@ const TrackWeeklyTasks: React.FC<TrackWeeklyTasksProps> = ({ tasks }) => {
 
   return (
     <div>
-      <h2 className="mb-6 text-2xl font-bold text-primary-darker">Weekly tasks</h2>
+      <h2 className="mb-6 text-2xl font-bold text-brand-darker">Weekly tasks</h2>
       <div className="space-y-4 max-w-3xl">
         {sorted.map((task) => (
           <TaskBucket key={task._id} task={task} />

@@ -34,7 +34,7 @@ const SubmissionBadge = ({
       <span
         className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${
           isOverdue
-            ? "bg-red-100 text-red-700"
+            ? "bg-danger-tint text-danger-ink"
             : "bg-gray-100 text-gray-600"
         }`}
       >
@@ -46,7 +46,7 @@ const SubmissionBadge = ({
 
   if (sub.grade !== undefined && sub.grade !== null) {
     return (
-      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-yellow-100 text-yellow-700">
+      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-warning-tint text-warning-ink">
         <Star className="w-3 h-3" />
         Graded: {sub.grade}/100
       </span>
@@ -54,7 +54,7 @@ const SubmissionBadge = ({
   }
 
   return (
-    <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700">
+    <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-success-tint text-success-ink">
       <CheckSquare className="w-3 h-3" />
       Submitted · awaiting grade
     </span>
@@ -132,7 +132,7 @@ const SubmitModal = ({
           })}
         </p>
         {assignment.mySubmission?.grade != null && (
-          <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <p className="mb-4 rounded-lg bg-warning-soft px-3 py-2 text-xs text-warning-ink">
             Resubmitting clears your current grade and feedback until your
             instructor grades the new work.
           </p>
@@ -159,7 +159,7 @@ const SubmitModal = ({
           Make sure anyone with the link can view it. Allowed hosts: {hostListLabel(hosts)}.
         </p>
         {error && (
-          <p id="submission-link-error" role="alert" className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-800">
+          <p id="submission-link-error" role="alert" className="mb-4 rounded-lg bg-danger-soft px-3 py-2 text-sm font-medium text-danger-ink">
             {error}
           </p>
         )}
@@ -217,7 +217,7 @@ const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
   if (assignments.length === 0) {
     return (
       <div>
-        {!hideHeading && <h2 className="mb-6 text-2xl font-bold text-primary-darker">Assignments</h2>}
+        {!hideHeading && <h2 className="mb-6 text-2xl font-bold text-brand-darker">Assignments</h2>}
         <EmptyState icon={FileText} message="No assignments have been added to this track yet." />
       </div>
     );
@@ -225,7 +225,7 @@ const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
 
   return (
     <div>
-      {!hideHeading && <h2 className="mb-6 text-2xl font-bold text-primary-darker">Assignments</h2>}
+      {!hideHeading && <h2 className="mb-6 text-2xl font-bold text-brand-darker">Assignments</h2>}
 
       <div className="space-y-4">
         {assignments.map((assignment, index) => {
@@ -241,7 +241,7 @@ const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
           return (
             <div
               key={assignment._id}
-              className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+              className="rounded-xl border border-gray-200 bg-surface p-5 shadow-sm"
             >
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div className="flex-1 min-w-0">
@@ -263,7 +263,7 @@ const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
 
                   <div className="flex items-center gap-1.5 text-xs text-gray-500">
                     <Clock className="w-3.5 h-3.5" />
-                    <span className={isOverdue && !hasSub ? "text-red-500 font-medium" : ""}>
+                    <span className={isOverdue && !hasSub ? "text-danger-ink font-medium" : ""}>
                       Deadline: {deadlineLabel}
                     </span>
                   </div>
@@ -276,7 +276,7 @@ const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
                             href={url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex min-h-6 max-w-full items-center gap-1 text-xs font-semibold text-primary hover:text-primary-hover"
+                            className="inline-flex min-h-6 max-w-full items-center gap-1 text-xs font-semibold text-brand hover:text-brand-hover"
                           >
                             <Paperclip className="h-3 w-3 shrink-0" aria-hidden="true" />
                             <span className="truncate">{url.replace(/^https?:\/\//, "")}</span>
@@ -293,7 +293,7 @@ const TrackAssignments: React.FC<TrackAssignmentsProps> = ({
                         href={assignment.mySubmission.file}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="break-all font-semibold text-primary hover:text-primary-hover"
+                        className="break-all font-semibold text-brand hover:text-brand-hover"
                       >
                         {assignment.mySubmission.file}
                       </a>

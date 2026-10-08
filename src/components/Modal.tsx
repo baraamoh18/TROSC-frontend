@@ -84,7 +84,7 @@ const Modal = ({ onClose, labelledBy, label, className = "", children }: ModalPr
         aria-labelledby={labelledBy}
         aria-label={labelledBy ? undefined : label}
         tabIndex={-1}
-        className={`w-full rounded-xl bg-white shadow-2xl focus:outline-none ${className}`}
+        className={`w-full rounded-xl bg-surface shadow-2xl focus:outline-none ${className}`}
       >
         {children}
       </div>

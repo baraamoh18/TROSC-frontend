@@ -22,8 +22,8 @@ interface StatCardProps {
 
 // One brand accent for every card: the label says what it is, not the colour.
 const StatCard: React.FC<StatCardProps> = ({ icon, label, value, sub }) => (
-  <div className="rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm">
-    <div className="mb-4 inline-flex items-center justify-center rounded-lg bg-primary-light p-2.5 text-primary" aria-hidden="true">
+  <div className="rounded-xl border border-neutral-light-active bg-surface p-6 shadow-sm">
+    <div className="mb-4 inline-flex items-center justify-center rounded-lg bg-primary-light p-2.5 text-brand" aria-hidden="true">
       {icon}
     </div>
     <p className="text-2xl font-extrabold text-neutral-darker">{value}</p>
@@ -53,7 +53,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
 
   if (!stats) {
     return (
-      <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-10 text-center text-neutral-dark">
+      <div className="rounded-xl border border-dashed border-neutral-light-active bg-surface p-10 text-center text-neutral-dark">
         Could not load platform statistics.
       </div>
     );
@@ -127,9 +127,9 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats, loading, onRefresh
       {mostActiveId && (
         <Link
           to={`/track/${mostActiveId}`}
-          className="mt-4 flex items-center gap-3 rounded-xl border border-neutral-light-active bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+          className="mt-4 flex items-center gap-3 rounded-xl border border-neutral-light-active bg-surface p-4 shadow-sm transition-shadow hover:shadow-md"
         >
-          <span className="rounded-xl bg-primary-light p-2.5 text-primary">
+          <span className="rounded-xl bg-primary-light p-2.5 text-brand">
             <Flame size={20} />
           </span>
           <span>

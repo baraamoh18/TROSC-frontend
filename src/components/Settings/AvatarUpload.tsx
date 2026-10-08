@@ -116,7 +116,7 @@ const AvatarUpload = () => {
       ) : (
         <UserCircle
           size={96}
-          className="text-primary-light"
+          className="text-brand-light"
           strokeWidth={1}
         />
       )}
@@ -135,7 +135,7 @@ const AvatarUpload = () => {
           onClick={() => fileInputRef.current?.click()}
           aria-label="Change profile picture"
           title="Change profile picture"
-          className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-md transition-colors hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border-2 border-surface bg-primary text-white shadow-md transition-colors hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
         >
           <Camera size={17} aria-hidden="true" />
         </button>

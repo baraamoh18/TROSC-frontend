@@ -66,7 +66,7 @@ const SecurityForm = () => {
           placeholder="Enter your current password"
         />
         {errors.passwordCurrent && (
-          <span className="text-xs text-red-600">
+          <span className="text-xs text-danger-ink">
             {errors.passwordCurrent.message}
           </span>
         )}
@@ -92,7 +92,7 @@ const SecurityForm = () => {
           placeholder="Enter a new password"
         />
         {errors.password && (
-          <span className="text-xs text-red-600">{errors.password.message}</span>
+          <span className="text-xs text-danger-ink">{errors.password.message}</span>
         )}
       </div>
 
@@ -114,7 +114,7 @@ const SecurityForm = () => {
           placeholder="Repeat the new password"
         />
         {errors.passwordConfirm && (
-          <span className="text-xs text-red-600">
+          <span className="text-xs text-danger-ink">
             {errors.passwordConfirm.message}
           </span>
         )}

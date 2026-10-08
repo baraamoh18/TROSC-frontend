@@ -82,7 +82,7 @@ const ProfileForm = () => {
           className={inputClasses}
         />
         {errors.name && (
-          <span className="text-xs text-red-600">{errors.name.message}</span>
+          <span className="text-xs text-danger-ink">{errors.name.message}</span>
         )}
       </div>
 
@@ -124,7 +124,7 @@ const ProfileForm = () => {
           className={inputClasses}
         />
         {errors.website && (
-          <span className="text-xs text-red-600">{errors.website.message}</span>
+          <span className="text-xs text-danger-ink">{errors.website.message}</span>
         )}
       </div>
 

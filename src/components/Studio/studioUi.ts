@@ -3,7 +3,7 @@ import type { BackendAssignment, BackendCourse, BackendSession } from "../../ser
 // Shared classes and helpers for the Studio sections.
 
 export const inputCls =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-60";
+  "w-full rounded-lg border border-gray-300 bg-surface px-3 py-2 text-sm text-gray-900 placeholder:text-gray-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-60";
 
 export const labelCls = "mb-1 block text-sm font-semibold text-gray-800";
 
@@ -11,12 +11,12 @@ export const primaryBtn =
   "inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-bold text-white transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60";
 
 export const secondaryBtn =
-  "inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 text-sm font-bold text-gray-800 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-surface px-4 text-sm font-bold text-gray-800 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60";
 
 export const smallBtn =
   "inline-flex min-h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60";
 
-export const cardCls = "rounded-xl border border-gray-200 bg-white shadow-sm";
+export const cardCls = "rounded-xl border border-gray-200 bg-surface shadow-sm";
 
 /** ISO date → value for <input type="datetime-local"> in the viewer's time zone. */
 export const toLocalInput = (iso?: string | null): string => {

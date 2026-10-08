@@ -65,7 +65,7 @@ const StudioAssignments = ({
       </div>
 
       {!canCreate && (
-        <p className="mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <p className="mb-4 rounded-lg bg-warning-soft px-4 py-3 text-sm text-warning-ink">
           Assignments belong to a course or a session. Create one first, then add assignments to it.
         </p>
       )}
@@ -93,7 +93,7 @@ const StudioAssignments = ({
                       submitted !== undefined && (
                         <p className="mt-1 text-xs font-semibold text-gray-700">
                           {submitted} submission{submitted === 1 ? "" : "s"}
-                          {ungraded > 0 && <span className="text-primary"> · {ungraded} to grade</span>}
+                          {ungraded > 0 && <span className="text-brand"> · {ungraded} to grade</span>}
                         </p>
                       )
                     ) : (
@@ -104,7 +104,7 @@ const StudioAssignments = ({
                   </div>
                   {canManage(a.instructor) && (
                   <div className="flex shrink-0 flex-wrap gap-1">
-                    <button type="button" className={`${smallBtn} text-primary hover:bg-primary-light`} onClick={() => onGrade(a._id)}>
+                    <button type="button" className={`${smallBtn} text-brand hover:bg-primary-light`} onClick={() => onGrade(a._id)}>
                       <ClipboardCheck size={13} aria-hidden="true" />
                       Grade
                     </button>

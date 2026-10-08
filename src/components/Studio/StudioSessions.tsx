@@ -62,11 +62,11 @@ const StudioSessions = ({ trackId, sessions, looseSessions, courses, canManage, 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Link to={`/sessions/${s._id}`} className="font-bold text-gray-900 hover:text-primary">
+                    <Link to={`/sessions/${s._id}`} className="font-bold text-gray-900 hover:text-brand">
                       {s.title}
                     </Link>
                     {!s.published && (
-                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-800">Draft</span>
+                      <span className="rounded-full bg-warning-tint px-2 py-0.5 text-xs font-bold text-warning-ink">Draft</span>
                     )}
                   </div>
                   <p className="mt-1 text-sm text-gray-600">
@@ -80,12 +80,12 @@ const StudioSessions = ({ trackId, sessions, looseSessions, courses, canManage, 
                   </p>
                   <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-600">
                     {s.url ? (
-                      <a href={s.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:text-primary">
+                      <a href={s.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:text-brand">
                         <ExternalLink size={12} aria-hidden="true" />
                         Video link
                       </a>
                     ) : (
-                      <span className="font-semibold text-amber-800">No video link yet</span>
+                      <span className="font-semibold text-warning-ink">No video link yet</span>
                     )}
                     {!canManage(s.instructor) && <span>Created by {ownerName(s.instructor)}</span>}
                     {(s.resources?.length ?? 0) > 0 && (
@@ -136,11 +136,11 @@ const StudioSessions = ({ trackId, sessions, looseSessions, courses, canManage, 
             {looseSessions.map((s) => (
               <li key={s._id} className={`${cardCls} flex flex-wrap items-center justify-between gap-3 px-4 py-3`}>
                 <span className="flex min-w-0 flex-wrap items-center gap-2">
-                  <Link to={`/sessions/${s._id}`} className="font-semibold text-gray-900 hover:text-primary">
+                  <Link to={`/sessions/${s._id}`} className="font-semibold text-gray-900 hover:text-brand">
                     {s.title}
                   </Link>
                   {isOpenSession(s) ? (
-                    <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-800">Open session</span>
+                    <span className="rounded-full bg-success-soft px-2 py-0.5 text-xs font-bold text-success-ink">Open session</span>
                   ) : (
                     <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-700">
                       {!s.published ? "Draft" : s.course ? "In a course" : "Not listed"}
@@ -154,7 +154,7 @@ const StudioSessions = ({ trackId, sessions, looseSessions, courses, canManage, 
                   </button>
                   <button
                     type="button"
-                    className={`${smallBtn} text-primary hover:bg-primary-light`}
+                    className={`${smallBtn} text-brand hover:bg-primary-light`}
                     onClick={() =>
                       run(() => api.attachSessionToTrack(trackId, s._id), "Session added to the track.", "Couldn't add it.")
                     }

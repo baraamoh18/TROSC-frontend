@@ -41,17 +41,17 @@ const UpcomingEventCard: React.FC<{ event: BackendEvent }> = ({ event }) => {
   ].filter(Boolean);
 
   return (
-    <article className="grid grid-cols-1 items-center gap-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm md:grid-cols-[1fr_320px] md:p-6">
+    <article className="grid grid-cols-1 items-center gap-6 rounded-xl border border-gray-200 bg-surface p-5 shadow-sm md:grid-cols-[1fr_320px] md:p-6">
       <div>
-        <span className="mb-3 inline-block rounded-full bg-primary-light px-3 py-1 text-xs font-bold text-primary-dark">
+        <span className="mb-3 inline-block rounded-full bg-primary-light px-3 py-1 text-xs font-bold text-brand-dark">
           {relativeDay(start)}
         </span>
         <h3 className="mb-2 text-2xl font-bold leading-snug text-neutral-darker">
-          <Link to={`/events/${event._id}`} className="transition-colors hover:text-primary">
+          <Link to={`/events/${event._id}`} className="transition-colors hover:text-brand">
             {event.title}
           </Link>
         </h3>
-        <p className="mb-3 text-sm font-semibold text-primary">{meta.join(" · ")}</p>
+        <p className="mb-3 text-sm font-semibold text-brand">{meta.join(" · ")}</p>
         {event.description && (
           <p className="mb-5 line-clamp-3 whitespace-pre-line text-base leading-7 text-neutral-dark">
             {event.description}
@@ -73,7 +73,7 @@ const UpcomingEventCard: React.FC<{ event: BackendEvent }> = ({ event }) => {
 };
 
 const PastEventCard: React.FC<{ event: BackendEvent }> = ({ event }) => (
-  <article className="group relative h-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-[box-shadow,translate] duration-300 hover:shadow-lg motion-safe:hover:-translate-y-1">
+  <article className="group relative h-full overflow-hidden rounded-xl border border-gray-200 bg-surface shadow-sm transition-[box-shadow,translate] duration-300 hover:shadow-lg motion-safe:hover:-translate-y-1 card-glow">
     <EventCover event={event} flush className="h-36" />
     <div className="p-4">
       <p className="mb-1 text-xs font-semibold text-neutral-dark">
@@ -87,7 +87,7 @@ const PastEventCard: React.FC<{ event: BackendEvent }> = ({ event }) => (
         {/* The link covers the whole card. */}
         <Link
           to={`/events/${event._id}`}
-          className="after:absolute after:inset-0 group-hover:text-primary"
+          className="after:absolute after:inset-0 group-hover:text-brand"
         >
           {event.title}
         </Link>
@@ -125,10 +125,10 @@ const Events: React.FC = () => {
   }, []);
 
   return (
-    <section className="w-full bg-neutral-light px-6 py-14">
+    <section className="w-full bg-page px-6 py-14">
       <div className="mx-auto w-full max-w-5xl">
         <Reveal>
-          <h2 className="mb-2 text-center text-4xl font-extrabold text-primary-darker">Events</h2>
+          <h2 className="mb-2 text-center text-4xl font-extrabold text-brand-darker">Events</h2>
           <p className="mb-10 text-center text-neutral-dark">
             Workshops, talks and meetups run by TROSC.
           </p>

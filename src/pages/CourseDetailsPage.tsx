@@ -119,7 +119,7 @@ const CourseDetailsPage = () => {
 
   if (!hasValidId) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 pt-16">
+      <div className="flex min-h-screen items-center justify-center bg-page pt-16">
         <div className="px-4 text-center">
           <h1 className="mb-3 text-3xl font-bold text-gray-900">
             Course not found
@@ -184,7 +184,7 @@ const CourseDetailsPage = () => {
 
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-24 pb-20">
+      <div className="min-h-screen bg-page pt-24 pb-20">
         <div className="mx-auto w-full max-w-5xl px-4">
           <div className="h-72 animate-pulse rounded-xl bg-gray-200" />
           <div className="mt-8 h-40 animate-pulse rounded-xl bg-gray-200" />
@@ -195,7 +195,7 @@ const CourseDetailsPage = () => {
 
   if (!course) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 pt-16">
+      <div className="flex min-h-screen items-center justify-center bg-page pt-16">
         <div className="px-4 text-center">
           <h1 className="mb-3 text-3xl font-bold text-gray-900">
             {errorStatus === 401
@@ -240,13 +240,13 @@ const CourseDetailsPage = () => {
   const isMember = isEnrolled || (!!user && !!course.track && user.enrolledTrack === course.track._id);
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20 pt-16">
+    <div className="bg-page min-h-screen pb-20 pt-16">
       <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <div className="mb-4 mt-2 text-sm font-semibold text-neutral-dark">
           <Link
             to={course.track ? `/track/${course.track._id}` : "/explore#courses"}
-            className="inline-flex items-center gap-1.5 hover:text-primary transition-colors"
+            className="inline-flex items-center gap-1.5 hover:text-brand transition-colors"
           >
             <ArrowLeft size={16} />
             {course.track ? `Back to ${course.track.title}` : "Back to courses"}
@@ -318,9 +318,9 @@ const CourseDetailsPage = () => {
             return stats.map((stat, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm"
+                className="flex items-center gap-3 rounded-xl bg-surface p-4 shadow-sm"
               >
-                <span className="rounded-full bg-primary-light p-2.5 text-primary">
+                <span className="rounded-full bg-primary-light p-2.5 text-brand">
                   <stat.icon size={20} />
                 </span>
                 <div>
@@ -338,8 +338,8 @@ const CourseDetailsPage = () => {
 
         <div className="mt-10 space-y-10">
           {/* Overview */}
-          <section className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">
+          <section className="rounded-xl bg-surface p-6 shadow-sm sm:p-8">
+            <h2 className="mb-4 text-2xl font-extrabold text-brand-darker">
               Overview
             </h2>
             <p className="whitespace-pre-line text-base leading-8 text-neutral-dark">
@@ -348,7 +348,7 @@ const CourseDetailsPage = () => {
             {course.track && (
               <Link
                 to={`/track/${course.track._id}`}
-                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary-light px-5 py-2.5 text-sm font-bold text-primary-dark transition-colors hover:bg-primary-light-active"
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary-light px-5 py-2.5 text-sm font-bold text-brand-dark transition-colors hover:bg-primary-light-active"
               >
                 <GraduationCap size={16} />
                 Part of the {course.track.title} track
@@ -357,8 +357,8 @@ const CourseDetailsPage = () => {
           </section>
 
           {/* Syllabus */}
-          <section className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="mb-4 flex items-center gap-2 text-2xl font-extrabold text-primary-darker">
+          <section className="rounded-xl bg-surface p-6 shadow-sm sm:p-8">
+            <h2 className="mb-4 flex items-center gap-2 text-2xl font-extrabold text-brand-darker">
               <ListChecks size={22} />
               Syllabus
             </h2>
@@ -394,8 +394,8 @@ const CourseDetailsPage = () => {
 
           {/* Attachments */}
           {(course.attachments?.length ?? 0) > 0 && (
-            <section className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
-              <h2 className="mb-4 flex items-center gap-2 text-2xl font-extrabold text-primary-darker">
+            <section className="rounded-xl bg-surface p-6 shadow-sm sm:p-8">
+              <h2 className="mb-4 flex items-center gap-2 text-2xl font-extrabold text-brand-darker">
                 <FileText size={22} />
                 Materials
               </h2>
@@ -406,7 +406,7 @@ const CourseDetailsPage = () => {
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex max-w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-primary transition-colors hover:bg-primary-light hover:text-primary-hover"
+                      className="inline-flex max-w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-brand transition-colors hover:bg-primary-light hover:text-brand-hover"
                     >
                       <Link2 size={15} className="shrink-0" />
                       <span className="truncate">{url}</span>
@@ -419,8 +419,8 @@ const CourseDetailsPage = () => {
 
           {/* Sessions (signed-in only; the session list needs a sign-in) */}
           {user && sessions !== null && sessions.length > 0 && (
-            <section className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
-              <h2 className="mb-4 flex items-center gap-2 text-2xl font-extrabold text-primary-darker">
+            <section className="rounded-xl bg-surface p-6 shadow-sm sm:p-8">
+              <h2 className="mb-4 flex items-center gap-2 text-2xl font-extrabold text-brand-darker">
                 <Video className="h-6 w-6" />
                 Sessions
               </h2>
@@ -430,7 +430,7 @@ const CourseDetailsPage = () => {
                     <li key={s._id}>
                       <Link
                         to={`/sessions/${s._id}`}
-                        className="flex items-center justify-between gap-3 py-3 font-semibold text-neutral-darker transition-colors hover:text-primary"
+                        className="flex items-center justify-between gap-3 py-3 font-semibold text-neutral-darker transition-colors hover:text-brand"
                       >
                         <span className="min-w-0 truncate">{s.title}</span>
                         <span className="shrink-0 text-xs font-semibold text-neutral-dark">
@@ -458,8 +458,8 @@ const CourseDetailsPage = () => {
           )}
 
           {/* Enrollment */}
-          <section className="rounded-xl bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">
+          <section className="rounded-xl bg-surface p-6 shadow-sm sm:p-8">
+            <h2 className="mb-4 text-2xl font-extrabold text-brand-darker">
               {isEnrolled ? "You're enrolled" : isStaffUser(user) ? "For staff" : "Join this course"}
             </h2>
 
@@ -499,7 +499,7 @@ const CourseDetailsPage = () => {
                       <button
                         type="button"
                         onClick={() => setConfirmingLeave(true)}
-                        className="rounded-lg border-2 border-primary-dark bg-white px-8 py-3 text-base font-bold text-primary-dark transition-colors hover:bg-primary-light"
+                        className="rounded-lg border-2 border-primary-dark bg-surface px-8 py-3 text-base font-bold text-brand-dark transition-colors hover:bg-primary-light"
                       >
                         Leave course
                       </button>
@@ -507,7 +507,7 @@ const CourseDetailsPage = () => {
                   </>
                 ) : (
                   <div className="rounded-xl border-2 border-primary-light-active bg-primary-light p-5">
-                    <p className="mb-3 text-sm font-semibold text-primary-darker">
+                    <p className="mb-3 text-sm font-semibold text-brand-darker">
                       Leave this course? You can re-enroll later while it's
                       open.
                     </p>
@@ -527,7 +527,7 @@ const CourseDetailsPage = () => {
                         type="button"
                         onClick={() => setConfirmingLeave(false)}
                         disabled={actionLoading}
-                        className="rounded-lg bg-white px-6 py-2.5 text-sm font-bold text-neutral-darker transition-colors hover:bg-neutral-light-active disabled:opacity-50"
+                        className="rounded-lg bg-surface px-6 py-2.5 text-sm font-bold text-neutral-darker transition-colors hover:bg-neutral-light-active disabled:opacity-50"
                       >
                         Cancel
                       </button>

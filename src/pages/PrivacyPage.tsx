@@ -3,7 +3,7 @@ import LegalPage from "../components/LegalPage";
 import type { LegalSection } from "../components/LegalPage";
 
 const EMAIL = "troscscu2@gmail.com";
-const mail = <a href={`mailto:${EMAIL}`} className="font-semibold text-primary hover:text-primary-hover">{EMAIL}</a>;
+const mail = <a href={`mailto:${EMAIL}`} className="font-semibold text-brand hover:text-brand-hover">{EMAIL}</a>;
 
 const sections: LegalSection[] = [
   {
@@ -109,7 +109,7 @@ const sections: LegalSection[] = [
         <p>We keep your information while your account exists.</p>
         <p>
           You can deactivate your account in{" "}
-          <Link to="/settings" className="font-semibold text-primary hover:text-primary-hover">
+          <Link to="/settings" className="font-semibold text-brand hover:text-brand-hover">
             Settings
           </Link>
           . That signs you out and removes you from your tracks, courses and events, but keeps your data so you can

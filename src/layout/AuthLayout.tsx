@@ -9,7 +9,7 @@ interface AuthLayoutProps {
 
 const AuthLayout: React.FC<AuthLayoutProps> = ({ children, logo }) => {
   return (
-    <div className="relative w-full min-h-screen bg-neutral-light lg:bg-white">
+    <div className="relative w-full min-h-screen bg-page lg:bg-page-alt">
       <Link
         to="/"
         className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-neutral-dark transition-colors hover:text-neutral-darker sm:left-6 sm:top-6"
@@ -18,13 +18,13 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, logo }) => {
         Back to TROSC
       </Link>
       <div className="w-full h-full grid grid-cols-1 lg:grid-cols-2">
-        <div className="hidden lg:flex flex-col items-center justify-center bg-white px-8 py-12">
+        <div className="hidden lg:flex flex-col items-center justify-center bg-page-alt px-8 py-12">
           <Link to="/" className="text-center">
             <div className="mb-2">
               {logo ? (
                 <img src={logo} alt="TROSC Logo" className="w-1 lg:w-[28rem] mx-auto cursor-pointer" />
               ) : (
-                <p className="text-5xl lg:text-6xl font-black text-primary mb-2 cursor-pointer">
+                <p className="text-5xl lg:text-6xl font-black text-brand mb-2 cursor-pointer">
                   TROSC
                 </p>
               )}
@@ -38,7 +38,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, logo }) => {
         </div>
 
         {/* Right Section - Form */}
-        <div className="flex flex-col items-center justify-center min-h-screen px-6 pt-20 pb-12 lg:py-0 bg-neutral-light lg:bg-white">
+        <div className="flex flex-col items-center justify-center min-h-screen px-6 pt-20 pb-12 lg:py-0 bg-page lg:bg-page-alt">
           {children}
         </div>
       </div>

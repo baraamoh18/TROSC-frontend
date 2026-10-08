@@ -47,7 +47,7 @@ const TrackOverview = ({ trackId, track, overview, nextSession, courseCount }: T
     if (!isEnrolled) return null;
     if (isLeavePending) {
       return (
-        <p className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800">
+        <p className="flex items-center gap-2 rounded-lg bg-warning-soft px-3 py-2 text-sm font-medium text-warning-ink">
           <Clock size={15} aria-hidden="true" />
           Leave requested, waiting for approval
         </p>
@@ -58,7 +58,7 @@ const TrackOverview = ({ trackId, track, overview, nextSession, courseCount }: T
         <button
           type="button"
           onClick={() => setShowLeaveConfirm(true)}
-          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold text-red-700 transition-colors hover:bg-red-50"
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold text-danger-ink transition-colors hover:bg-danger-soft"
         >
           <LogOut size={15} aria-hidden="true" />
           Leave this track
@@ -66,8 +66,8 @@ const TrackOverview = ({ trackId, track, overview, nextSession, courseCount }: T
       );
     }
     return (
-      <div className="space-y-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm">
-        <p className="text-center font-medium text-red-800">
+      <div className="space-y-3 rounded-lg border border-danger-line bg-danger-soft p-3 text-sm">
+        <p className="text-center font-medium text-danger-ink">
           Leave this track? Your progress will be kept.
         </p>
         <div className="flex gap-2">
@@ -75,7 +75,7 @@ const TrackOverview = ({ trackId, track, overview, nextSession, courseCount }: T
             type="button"
             onClick={handleLeave}
             disabled={leaving}
-            className="min-h-10 flex-1 rounded-lg bg-red-700 px-3 font-bold text-white transition-colors hover:bg-red-800 disabled:opacity-50"
+            className="min-h-10 flex-1 rounded-lg bg-danger px-3 font-bold text-white transition-colors hover:bg-danger-hover disabled:opacity-50"
           >
             {leaving ? "Submitting..." : "Yes, leave"}
           </button>
@@ -83,7 +83,7 @@ const TrackOverview = ({ trackId, track, overview, nextSession, courseCount }: T
             type="button"
             onClick={() => setShowLeaveConfirm(false)}
             disabled={leaving}
-            className="min-h-10 flex-1 rounded-lg bg-white px-3 font-bold text-gray-800 ring-1 ring-gray-300 transition-colors hover:bg-gray-100 disabled:opacity-50"
+            className="min-h-10 flex-1 rounded-lg bg-surface px-3 font-bold text-gray-800 ring-1 ring-gray-300 transition-colors hover:bg-gray-100 disabled:opacity-50"
           >
             Cancel
           </button>
@@ -105,18 +105,18 @@ const TrackOverview = ({ trackId, track, overview, nextSession, courseCount }: T
   return (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
       <div className="md:col-span-2">
-        <h2 className="mb-4 text-2xl font-bold text-primary-darker">About this track</h2>
+        <h2 className="mb-4 text-2xl font-bold text-brand-darker">About this track</h2>
         <p className="whitespace-pre-line text-lg leading-relaxed text-gray-700">{overview}</p>
       </div>
 
       <div className="space-y-4">
         {track && (
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-gray-200 bg-surface p-5 shadow-sm">
             <h3 className="mb-4 text-base font-bold text-gray-900">Track info</h3>
             <dl className="space-y-3 text-sm">
               {infoRows.map(({ icon: Icon, label, value, capitalize }) => (
                 <div key={label} className="flex items-start gap-2">
-                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-brand" aria-hidden="true" />
                   {/* Inline so long values wrap under the label, not into a column. */}
                   <div className="min-w-0">
                     <dt className="inline text-gray-600">{label}: </dt>

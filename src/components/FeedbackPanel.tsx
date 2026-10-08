@@ -80,7 +80,7 @@ const ReviewCard = ({ review, onDelete }: { review: Review; onDelete?: () => Pro
   });
 
   return (
-    <div className="flex gap-4 rounded-xl border border-gray-200 bg-white p-4">
+    <div className="flex gap-4 rounded-xl border border-gray-200 bg-surface p-4">
       {!isDefaultPhoto(review.user.photo) ? (
         <img loading="lazy"
           src={review.user.photo}
@@ -116,14 +116,14 @@ const ReviewCard = ({ review, onDelete }: { review: Review; onDelete?: () => Pro
               <button
                 type="button"
                 onClick={() => setConfirming(true)}
-                className="inline-flex items-center gap-1 font-semibold text-neutral-dark hover:text-primary-dark"
+                className="inline-flex items-center gap-1 font-semibold text-neutral-dark hover:text-brand-dark"
               >
                 <Trash2 size={12} />
                 Delete my review
               </button>
             ) : (
               <>
-                <span className="font-semibold text-primary-dark">Delete this review?</span>
+                <span className="font-semibold text-brand-dark">Delete this review?</span>
                 <button
                   type="button"
                   disabled={deleting}
@@ -144,7 +144,7 @@ const ReviewCard = ({ review, onDelete }: { review: Review; onDelete?: () => Pro
                   type="button"
                   disabled={deleting}
                   onClick={() => setConfirming(false)}
-                  className="rounded-lg border border-neutral-light-active bg-white px-3 py-1 font-bold text-neutral-dark"
+                  className="rounded-lg border border-neutral-light-active bg-surface px-3 py-1 font-bold text-neutral-dark"
                 >
                   No
                 </button>
@@ -236,7 +236,7 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
     <div className="space-y-8">
       {/* Signed out: no form they can't use, just a way in */}
       {!user ? (
-        <div className="flex flex-col items-start gap-3 rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col items-start gap-3 rounded-xl border border-gray-200 bg-surface p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <p className="text-gray-700">Sign in to rate and review this {subject}.</p>
           <Link
             to="/signin"
@@ -247,8 +247,8 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
           </Link>
         </div>
       ) : (
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
-        <h2 className="mb-2 text-2xl font-bold text-primary-darker">Review this {subject}</h2>
+      <div className="rounded-xl border border-gray-200 bg-surface p-6 shadow-sm md:p-8">
+        <h2 className="mb-2 text-2xl font-bold text-brand-darker">Review this {subject}</h2>
         <p className="mb-6 max-w-2xl text-gray-700">
           Tell us what you liked, what was hard, and what you want to learn next.
         </p>
@@ -260,7 +260,7 @@ const FeedbackPanel: FC<FeedbackPanelProps> = ({ subject, subjectId }) => {
               onChange={(e) => setText(e.target.value)}
               disabled={submitting}
               aria-label={`Your review of this ${subject}`}
-              className="w-full h-32 md:h-full p-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none bg-white disabled:opacity-60"
+              className="w-full h-32 md:h-full p-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none bg-surface disabled:opacity-60"
               placeholder={
                 user
                   ? "Tell us your feedback..."

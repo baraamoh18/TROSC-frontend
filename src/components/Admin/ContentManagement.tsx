@@ -60,8 +60,8 @@ const DeleteButton: React.FC<{
   if (asking) {
     return (
       <span className="inline-flex items-center gap-2 text-xs">
-        <AlertTriangle size={13} className="text-primary-dark" />
-        <span className="font-semibold text-primary-dark">Delete?</span>
+        <AlertTriangle size={13} className="text-brand-dark" />
+        <span className="font-semibold text-brand-dark">Delete?</span>
         <button
           type="button"
           disabled={busy}
@@ -74,7 +74,7 @@ const DeleteButton: React.FC<{
           type="button"
           disabled={busy}
           onClick={() => setAsking(false)}
-          className="rounded-lg bg-white px-3 py-1 text-xs font-bold text-neutral-dark border border-neutral-light-active"
+          className="rounded-lg bg-surface px-3 py-1 text-xs font-bold text-neutral-dark border border-neutral-light-active"
         >
           No
         </button>
@@ -87,7 +87,7 @@ const DeleteButton: React.FC<{
       type="button"
       disabled={disabled}
       onClick={() => setAsking(true)}
-      className="inline-flex items-center gap-1 rounded-lg border border-neutral-light-active bg-white px-3 py-1.5 text-xs font-bold text-primary-dark transition-colors hover:bg-primary-light disabled:opacity-40"
+      className="inline-flex items-center gap-1 rounded-lg border border-neutral-light-active bg-surface px-3 py-1.5 text-xs font-bold text-brand-dark transition-colors hover:bg-primary-light disabled:opacity-40"
     >
       <Trash2 size={12} />
       Delete
@@ -100,7 +100,7 @@ const EditButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className="inline-flex items-center gap-1 rounded-lg border border-neutral-light-active bg-white px-3 py-1.5 text-xs font-bold text-neutral-dark transition-colors hover:bg-neutral-light-active"
+    className="inline-flex items-center gap-1 rounded-lg border border-neutral-light-active bg-surface px-3 py-1.5 text-xs font-bold text-neutral-dark transition-colors hover:bg-neutral-light-active"
   >
     <Pencil size={12} />
     Edit
@@ -120,10 +120,10 @@ const Section: React.FC<{
 }> = ({ icon, title, count, children, defaultOpen = false, flat = false }) => {
   const [open, setOpen] = useState(defaultOpen);
   if (flat) {
-    return <div className="rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm">{children}</div>;
+    return <div className="rounded-xl border border-neutral-light-active bg-surface p-6 shadow-sm">{children}</div>;
   }
   return (
-    <div className="rounded-xl border border-neutral-light-active bg-white shadow-sm overflow-hidden">
+    <div className="rounded-xl border border-neutral-light-active bg-surface shadow-sm overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -131,9 +131,9 @@ const Section: React.FC<{
         className="flex w-full items-center justify-between px-6 py-4 text-left"
       >
         <span className="flex items-center gap-3 font-bold text-neutral-darker">
-          <span className="text-primary">{icon}</span>
+          <span className="text-brand">{icon}</span>
           {title}
-          <span className="rounded-full bg-primary-light px-2.5 py-0.5 text-xs font-bold text-primary-dark">
+          <span className="rounded-full bg-primary-light px-2.5 py-0.5 text-xs font-bold text-brand-dark">
             {count}
           </span>
         </span>
@@ -1004,7 +1004,7 @@ const AnnouncementsPanel: React.FC<{
             <li key={a._id} className="flex items-center justify-between gap-3 py-3">
               <div className="min-w-0">
                 <p className="flex items-center gap-1.5 truncate font-semibold text-neutral-darker">
-                  {a.isPinned && <Pin size={13} className="shrink-0 text-primary" aria-label="Pinned" />}
+                  {a.isPinned && <Pin size={13} className="shrink-0 text-brand" aria-label="Pinned" />}
                   {a.title}
                 </p>
                 <p className="text-xs text-neutral-dark">

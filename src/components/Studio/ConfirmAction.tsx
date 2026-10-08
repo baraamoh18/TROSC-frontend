@@ -24,10 +24,10 @@ const ConfirmAction = ({ label, confirmLabel, onConfirm, danger = true, disabled
 
   const tone = danger
     ? asking
-      ? "bg-red-700 text-white hover:bg-red-800"
-      : "text-red-700 hover:bg-red-50"
+      ? "bg-danger text-white hover:bg-danger-hover"
+      : "text-danger-ink hover:bg-danger-soft"
     : asking
-      ? "bg-gray-900 text-white hover:bg-black"
+      ? "bg-inverse text-on-inverse hover:bg-inverse-hover"
       : "text-gray-700 hover:bg-gray-100";
 
   const handleClick = async () => {

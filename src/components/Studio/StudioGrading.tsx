@@ -69,17 +69,17 @@ const GradeRow = ({ assignmentId, submission, onSaved }: { assignmentId: string;
                 href={submission.file ?? api.submissionFileUrl(assignmentId, student._id)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 inline-flex min-h-8 items-center gap-1.5 text-sm font-bold text-primary hover:text-primary-hover"
+                className="mt-2 inline-flex min-h-8 items-center gap-1.5 text-sm font-bold text-brand hover:text-brand-hover"
               >
                 <ExternalLink size={14} aria-hidden="true" />
                 Open submission
               </a>
             ) : (
-              <p className="mt-2 text-xs font-semibold text-amber-800">No link attached</p>
+              <p className="mt-2 text-xs font-semibold text-warning-ink">No link attached</p>
             )}
             <span
               className={`mt-2 block w-fit rounded-full px-2 py-0.5 text-xs font-bold ${
-                graded ? "bg-emerald-100 text-emerald-800" : "bg-primary-light text-primary-dark"
+                graded ? "bg-success-tint text-success-ink" : "bg-primary-light text-brand-dark"
               }`}
             >
               {graded ? `Graded: ${submission.grade}/100` : "Needs a grade"}
@@ -118,7 +118,7 @@ const GradeRow = ({ assignmentId, submission, onSaved }: { assignmentId: string;
           </div>
           <div className="flex items-center justify-end gap-3 sm:col-span-2">
             {error && (
-              <p id={`${base}-err`} className="text-xs font-medium text-red-700">
+              <p id={`${base}-err`} className="text-xs font-medium text-danger-ink">
                 {error}
               </p>
             )}
@@ -235,7 +235,7 @@ const StudioGrading = ({ assignments: all, courses, sessions, canManage, selecte
             aria-pressed={filter === f.id}
             onClick={() => setFilter(f.id)}
             className={`min-h-9 rounded-lg px-3 text-sm font-bold transition-colors ${
-              filter === f.id ? "bg-gray-900 text-white" : "bg-white text-gray-700 ring-1 ring-gray-300 hover:bg-gray-50"
+              filter === f.id ? "bg-inverse text-on-inverse" : "bg-surface text-gray-700 ring-1 ring-gray-300 hover:bg-gray-50"
             }`}
           >
             {f.label} ({counts[f.id]})
@@ -250,7 +250,7 @@ const StudioGrading = ({ assignments: all, courses, sessions, canManage, selecte
           ))}
         </div>
       ) : loadError ? (
-        <p role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
+        <p role="alert" className="rounded-lg bg-danger-soft px-4 py-3 text-sm font-medium text-danger-ink">
           Couldn't load submissions: {loadError}
         </p>
       ) : submissions.length === 0 ? (

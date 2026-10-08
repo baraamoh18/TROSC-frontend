@@ -313,7 +313,7 @@ const TrackDetailsPage = () => {
   // Keep the validation guard after all hooks so the hook order is stable.
   if (!hasValidTrackId || trackMissing) {
     return (
-      <div className="bg-gray-50 min-h-screen pt-16 flex items-center justify-center">
+      <div className="bg-page min-h-screen pt-16 flex items-center justify-center">
         <div className="text-center px-4">
           <h1 className="text-3xl font-bold text-gray-900 mb-3">Track not found</h1>
           <p className="text-gray-600 mb-6">
@@ -370,7 +370,7 @@ const TrackDetailsPage = () => {
   };
 
   const sectionHeading = (title: string) => (
-    <h2 className="mb-6 text-2xl font-bold text-primary-darker">{title}</h2>
+    <h2 className="mb-6 text-2xl font-bold text-brand-darker">{title}</h2>
   );
 
   const skeleton = (count: number, height: string) => (
@@ -463,7 +463,7 @@ const TrackDetailsPage = () => {
   // ── Render ────────────────────────────────────────────────────
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20 pt-16">
+    <div className="bg-page min-h-screen pb-20 pt-16">
       <TrackHero
         title={heroTitle}
         subtitle={heroSubtitle}

@@ -97,11 +97,11 @@ const HowItWorks = () => {
   const reached = useJourneyProgress(listRef, fillRef, reduceMotion);
 
   return (
-    <section id="how-it-works" className="w-full bg-neutral-light px-4 py-20 sm:px-6 lg:px-8">
+    <section id="how-it-works" className="w-full bg-page px-4 py-20 sm:px-6 lg:px-8">
       <div className="mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
         <Reveal className="self-start lg:sticky lg:top-28">
-          <p className="mb-4 text-sm font-bold uppercase tracking-widest text-primary">How it works</p>
-          <h2 className="text-3xl font-extrabold leading-tight text-primary-darker md:text-4xl">
+          <p className="mb-4 text-sm font-bold uppercase tracking-widest text-brand">How it works</p>
+          <h2 className="text-3xl font-extrabold leading-tight text-brand-darker md:text-4xl">
             From your first click to your first reviewed assignment.
           </h2>
           <p className="mt-5 max-w-md text-base leading-relaxed text-neutral-dark">
@@ -109,7 +109,7 @@ const HowItWorks = () => {
           </p>
           <Link
             to="/explore"
-            className="group mt-8 inline-flex min-h-11 items-center gap-2 font-bold text-primary transition-colors hover:text-primary-hover"
+            className="group mt-8 inline-flex min-h-11 items-center gap-2 font-bold text-brand transition-colors hover:text-brand-hover"
           >
             Find your track
             <ArrowRight
@@ -143,7 +143,7 @@ const HowItWorks = () => {
                   className={`relative z-10 mt-6 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 transition-colors duration-500 ${
                     done
                       ? "border-primary bg-primary text-white"
-                      : "border-neutral-light-active bg-white text-neutral-dark"
+                      : "border-neutral-light-active bg-surface text-neutral-dark"
                   }`}
                 >
                   <Icon size={20} aria-hidden="true" />
@@ -151,11 +151,11 @@ const HowItWorks = () => {
 
                 <Reveal delay={80} className="min-w-0 flex-1">
                   <div
-                    className={`rounded-xl border bg-white p-6 transition-[border-color,box-shadow] duration-500 ${
+                    className={`rounded-xl border bg-surface p-6 transition-[border-color,box-shadow] duration-500 ${
                       done ? "border-primary-light-active shadow-md" : "border-neutral-light-active shadow-sm"
                     }`}
                   >
-                    <p className="mb-1 text-xs font-bold uppercase tracking-widest text-primary">
+                    <p className="mb-1 text-xs font-bold uppercase tracking-widest text-brand">
                       Step {i + 1}
                     </p>
                     <h3 className="mb-2 text-xl font-bold text-neutral-darker">{step.title}</h3>

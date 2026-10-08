@@ -150,7 +150,7 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
 
   const fieldError = (key: string) =>
     errors[key] ? (
-      <p id={`${key}-error`} className="mt-1 text-xs font-medium text-red-700">
+      <p id={`${key}-error`} className="mt-1 text-xs font-medium text-danger-ink">
         {errors[key]}
       </p>
     ) : null;
@@ -358,7 +358,7 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
                   <button
                     type="button"
                     onClick={() => setResources((prev) => prev.filter((_, j) => j !== i))}
-                    className={`${smallBtn} self-end text-red-700 hover:bg-red-50 sm:self-center`}
+                    className={`${smallBtn} self-end text-danger-ink hover:bg-danger-soft sm:self-center`}
                     aria-label={`Remove material ${i + 1}`}
                   >
                     <Trash2 size={14} />
@@ -368,7 +368,7 @@ const SessionForm = ({ trackId, courses, session, onClose, onSaved }: SessionFor
               <button
                 type="button"
                 onClick={() => setResources((prev) => [...prev, { title: "", url: "" }])}
-                className={`${smallBtn} text-primary hover:bg-primary-light`}
+                className={`${smallBtn} text-brand hover:bg-primary-light`}
               >
                 <Plus size={14} />
                 Add material

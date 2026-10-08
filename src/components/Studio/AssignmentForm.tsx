@@ -75,7 +75,7 @@ const AssignmentForm = ({ courses, sessions, assignment, onClose, onSaved }: Ass
 
   const fieldError = (key: string) =>
     errors[key] ? (
-      <p id={`a-${key}-error`} className="mt-1 text-xs font-medium text-red-700">
+      <p id={`a-${key}-error`} className="mt-1 text-xs font-medium text-danger-ink">
         {errors[key]}
       </p>
     ) : null;

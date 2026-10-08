@@ -5,7 +5,7 @@ import TroscLogo from "../../assets/Trosc4x.webp";
 const MailIcon: React.FC = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5 mr-3 text-gray-400"
+    className="h-5 w-5 mr-3 text-white/70"
     viewBox="0 0 20 20"
     fill="currentColor"
   >
@@ -17,7 +17,7 @@ const MailIcon: React.FC = () => (
 const PhoneIcon: React.FC = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5 mr-3 text-gray-400"
+    className="h-5 w-5 mr-3 text-white/70"
     viewBox="0 0 20 20"
     fill="currentColor"
   >
@@ -29,7 +29,7 @@ const Footer: React.FC = () => {
   return (
     <footer
       id="contact"
-      className="bg-primary-darker text-gray-300 py-12 px-8 font-sans"
+      className="bg-primary-darker text-white/80 py-12 px-8 font-sans"
     >
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -41,7 +41,7 @@ const Footer: React.FC = () => {
           {/* Column 2: About Us */}
           <div className="md:col-span-1">
             <h3 className="text-lg font-bold text-white mb-4">About Us</h3>
-            <p className="text-sm leading-relaxed text-gray-400">
+            <p className="text-sm leading-relaxed text-white/70">
               TROSC is a student team at the Faculty of Computers and Information
               that runs learning tracks, sessions and events.
             </p>
@@ -55,14 +55,14 @@ const Footer: React.FC = () => {
                 <MailIcon />
                 <a
                   href="mailto:troscscu2@gmail.com"
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-white/70 hover:text-white transition-colors"
                 >
                   troscscu2@gmail.com
                 </a>
               </li>
               <li className="flex items-center">
                 <PhoneIcon />
-                <a href="tel:+201201864338" className="text-gray-400 hover:text-white transition-colors">
+                <a href="tel:+201201864338" className="text-white/70 hover:text-white transition-colors">
                   01201864338
                 </a>
               </li>
@@ -79,7 +79,7 @@ const Footer: React.FC = () => {
                 { to: "/contact", label: "Contact us" },
               ].map((l) => (
                 <li key={l.to}>
-                  <Link to={l.to} className="text-gray-400 hover:text-white transition-colors">
+                  <Link to={l.to} className="text-white/70 hover:text-white transition-colors">
                     {l.label}
                   </Link>
                 </li>
@@ -88,7 +88,7 @@ const Footer: React.FC = () => {
           </nav>
         </div>
 
-        <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-white/70 sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {new Date().getFullYear()} TROSC. A student team at the Faculty of Computers and Information, Suez Canal
             University.

@@ -18,7 +18,7 @@ const AnnouncementCard = ({ ann }: { ann: BackendAnnouncement }) => {
 
   return (
     <div
-      className={`rounded-xl border bg-white px-5 py-4 shadow-sm transition-all ${
+      className={`rounded-xl border bg-surface px-5 py-4 shadow-sm transition-all ${
         ann.isPinned
           ? "border-primary/30 ring-1 ring-primary/20"
           : "border-gray-200"
@@ -28,7 +28,7 @@ const AnnouncementCard = ({ ann }: { ann: BackendAnnouncement }) => {
         {/* Icon */}
         <div
           className={`mt-0.5 shrink-0 rounded-xl p-2 ${
-            ann.isPinned ? "bg-primary/10 text-primary" : "bg-gray-100 text-gray-500"
+            ann.isPinned ? "bg-primary/10 text-brand" : "bg-gray-100 text-gray-500"
           }`}
         >
           {ann.isPinned ? (
@@ -44,7 +44,7 @@ const AnnouncementCard = ({ ann }: { ann: BackendAnnouncement }) => {
               {ann.title}
             </h3>
             {ann.isPinned && (
-              <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-semibold text-brand bg-primary/10 px-2 py-0.5 rounded-full">
                 Pinned
               </span>
             )}
@@ -65,7 +65,7 @@ const AnnouncementCard = ({ ann }: { ann: BackendAnnouncement }) => {
             <button
               type="button"
               onClick={() => setExpanded((e) => !e)}
-              className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-hover transition-colors"
+              className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-brand hover:text-brand-hover transition-colors"
             >
               {expanded ? (
                 <>
@@ -118,11 +118,11 @@ const Announcements = () => {
   return (
     <section
       id="announcements"
-      className="w-full bg-white px-6 py-12"
+      className="w-full bg-page-alt px-6 py-12"
     >
       <div className="mx-auto w-full max-w-5xl">
         <Reveal>
-          <h2 className="mb-8 text-3xl font-extrabold text-primary-darker">
+          <h2 className="mb-8 text-3xl font-extrabold text-brand-darker">
             Announcements
           </h2>
         </Reveal>

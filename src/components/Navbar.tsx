@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { smoothScrollToId } from "../utils/smoothScroll";
 import { useAuth } from "../context/useAuth";
 import UserDropdown from "./UserDropdown";
+import ThemeToggle from "./ThemeToggle/ThemeToggle";
 
 type NavLink = {
   name: string;
@@ -108,7 +109,7 @@ const Navbar: React.FC = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-nav shadow-sm dark:border-b dark:border-neutral-light-active">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative flex items-center justify-between h-16">
           <div className="flex-shrink-0">
@@ -135,6 +136,7 @@ const Navbar: React.FC = () => {
             ))}
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             {loading ? (
               // Placeholder while the session check runs, so signed-in users
               // don't see "Log In" flash before their avatar appears.
@@ -171,7 +173,7 @@ const Navbar: React.FC = () => {
         className={`lg:hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-screen opacity-100" : "invisible max-h-0 opacity-0 overflow-hidden"
           }`}
       >
-        <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-100">
+        <div className="px-2 pt-2 pb-3 space-y-1 bg-nav border-t border-gray-100">
           {navLinks.map((link) => (
             <Link
               key={link.name}
@@ -191,9 +193,9 @@ const Navbar: React.FC = () => {
                 <Link
                   to={user.role === "student" ? "/dashboard" : "/settings"}
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-1.5 text-sm font-semibold text-gray-800 hover:text-primary transition-colors"
+                  className="flex items-center gap-1.5 text-sm font-semibold text-gray-800 hover:text-brand transition-colors"
                 >
-                  <UserCircle size={20} className="text-primary" />
+                  <UserCircle size={20} className="text-brand" />
                   {user.name}
                 </Link>
                 <button

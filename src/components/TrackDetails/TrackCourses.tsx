@@ -19,7 +19,7 @@ import EmptyState from "../EmptyState";
 const AccessBadge = ({ access }: { access: BackendCourse["access"] }) => {
   if (access === "public")
     return (
-      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-success-tint text-success-ink">
         <Globe className="w-3 h-3" />
         Public
       </span>
@@ -32,7 +32,7 @@ const AccessBadge = ({ access }: { access: BackendCourse["access"] }) => {
       </span>
     );
   return (
-    <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+    <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-info-tint text-info-ink">
       <Layers className="w-3 h-3" />
       Track only
     </span>
@@ -43,9 +43,9 @@ const AccessBadge = ({ access }: { access: BackendCourse["access"] }) => {
 
 const LevelBadge = ({ level }: { level: BackendCourse["level"] }) => {
   const colors: Record<string, string> = {
-    beginner: "bg-emerald-100 text-emerald-700",
-    intermediate: "bg-amber-100 text-amber-700",
-    advanced: "bg-red-100 text-red-700",
+    beginner: "bg-success-tint text-success-ink",
+    intermediate: "bg-warning-tint text-warning-ink",
+    advanced: "bg-danger-tint text-danger-ink",
   };
   return (
     <span
@@ -67,7 +67,7 @@ const CourseCard = ({ course }: { course: BackendCourse }) => {
   return (
     // The title link stretches over the whole card (after:inset-0), so the
     // card is clickable without nesting the syllabus button inside a link.
-    <div className="group relative rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:ring-1 hover:ring-primary/40">
+    <div className="group relative rounded-xl border border-gray-200 bg-surface shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:ring-1 hover:ring-primary/40 card-glow">
       {/* Cover image or gradient fallback */}
       {course.coverImage &&
       course.coverImage !== "https://placehold.co/800x400?text=Trosc+Course" ? (
@@ -89,7 +89,7 @@ const CourseCard = ({ course }: { course: BackendCourse }) => {
           <AccessBadge access={course.access} />
         </div>
 
-        <h3 className="font-bold text-gray-900 mb-1 leading-snug group-hover:text-primary transition-colors">
+        <h3 className="font-bold text-gray-900 mb-1 leading-snug group-hover:text-brand transition-colors">
           <Link
             to={`/courses/${course._id}`}
             className="after:absolute after:inset-0 after:content-[''] focus:outline-none focus-visible:underline"
@@ -139,7 +139,7 @@ const CourseCard = ({ course }: { course: BackendCourse }) => {
               type="button"
               aria-expanded={syllabusOpen}
               onClick={() => setSyllabusOpen((o) => !o)}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-hover transition-colors"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-brand hover:text-brand-hover transition-colors"
             >
               {syllabusOpen ? (
                 <>
@@ -185,7 +185,7 @@ const TrackCourses: React.FC<TrackCoursesProps> = ({ courses }) => {
   if (courses.length === 0) {
     return (
       <div>
-        <h2 className="mb-6 text-2xl font-bold text-primary-darker">Courses</h2>
+        <h2 className="mb-6 text-2xl font-bold text-brand-darker">Courses</h2>
         <EmptyState icon={BookOpen} message="No courses have been added to this track yet." />
       </div>
     );
@@ -193,7 +193,7 @@ const TrackCourses: React.FC<TrackCoursesProps> = ({ courses }) => {
 
   return (
     <div>
-      <h2 className="mb-6 text-2xl font-bold text-primary-darker">Courses</h2>
+      <h2 className="mb-6 text-2xl font-bold text-brand-darker">Courses</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {courses.map((course) => (
           <CourseCard key={course._id} course={course} />

@@ -19,10 +19,10 @@ interface LegalPageProps {
 const LegalPage = ({ title, updated, intro, sections }: LegalPageProps) => {
   usePageTitle(title);
   return (
-    <div className="min-h-screen bg-neutral-light pb-20 pt-28">
+    <div className="min-h-screen bg-page pb-20 pt-28">
       <article className="mx-auto w-full max-w-3xl px-4 sm:px-6">
         <header className="mb-8 border-b border-neutral-light-active pb-8">
-          <h1 className="text-3xl font-extrabold text-primary-darker sm:text-4xl">{title}</h1>
+          <h1 className="text-3xl font-extrabold text-brand-darker sm:text-4xl">{title}</h1>
           <p className="mt-2 text-sm text-neutral-dark">Last updated {updated}</p>
           <div className="mt-5 space-y-3 text-base leading-relaxed text-neutral-darker">{intro}</div>
         </header>
@@ -32,7 +32,7 @@ const LegalPage = ({ title, updated, intro, sections }: LegalPageProps) => {
           <ol className="grid gap-1 text-sm sm:grid-cols-2">
             {sections.map((s, i) => (
               <li key={s.id}>
-                <a href={`#${s.id}`} className="inline-flex min-h-8 items-center text-primary hover:text-primary-hover">
+                <a href={`#${s.id}`} className="inline-flex min-h-8 items-center text-brand hover:text-brand-hover">
                   {i + 1}. {s.title}
                 </a>
               </li>
@@ -43,7 +43,7 @@ const LegalPage = ({ title, updated, intro, sections }: LegalPageProps) => {
         <div className="space-y-10">
           {sections.map((s, i) => (
             <section key={s.id} id={s.id} aria-labelledby={`${s.id}-h`} className="scroll-mt-24">
-              <h2 id={`${s.id}-h`} className="mb-3 text-xl font-bold text-primary-darker">
+              <h2 id={`${s.id}-h`} className="mb-3 text-xl font-bold text-brand-darker">
                 {i + 1}. {s.title}
               </h2>
               <div className="space-y-3 [&_li]:pl-1 [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-5 text-[15px] leading-relaxed text-neutral-darker">{s.body}</div>
@@ -53,11 +53,11 @@ const LegalPage = ({ title, updated, intro, sections }: LegalPageProps) => {
 
         <p className="mt-12 border-t border-neutral-light-active pt-6 text-sm text-neutral-dark">
           Questions? Email{" "}
-          <a href="mailto:troscscu2@gmail.com" className="font-semibold text-primary hover:text-primary-hover">
+          <a href="mailto:troscscu2@gmail.com" className="font-semibold text-brand hover:text-brand-hover">
             troscscu2@gmail.com
           </a>{" "}
           or use the{" "}
-          <Link to="/contact" className="font-semibold text-primary hover:text-primary-hover">
+          <Link to="/contact" className="font-semibold text-brand hover:text-brand-hover">
             contact page
           </Link>
           .

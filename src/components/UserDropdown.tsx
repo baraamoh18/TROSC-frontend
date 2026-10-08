@@ -188,15 +188,15 @@ const StyledWrapper = styled.div`
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid rgba(255, 255, 255, 0.7);
-    background: white;
+    background: var(--color-surface);
   }
 
   .avatar-fallback {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
-    color: #d32f2f;
+    background: var(--color-surface);
+    color: var(--color-brand);
     flex-shrink: 0;
   }
 
@@ -218,8 +218,8 @@ const StyledWrapper = styled.div`
     top: calc(100% + 12px);
     right: 0;
     transform: scale(0.8);
-    background: white;
-    border: 1px solid #e8e8e8;
+    background: var(--color-surface);
+    border: 1px solid var(--color-neutral-light-active);
     border-radius: 15px;
     padding: 14px 16px;
     box-shadow: 0 15px 30px rgba(64, 64, 64, 0.2);
@@ -232,7 +232,6 @@ const StyledWrapper = styled.div`
     z-index: 100;
     pointer-events: none;
     backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.95);
   }
 
   /* Arrow pointing at the pill */
@@ -243,7 +242,7 @@ const StyledWrapper = styled.div`
     right: 22px;
     border-width: 0 10px 10px 10px;
     border-style: solid;
-    border-color: transparent transparent rgba(255, 255, 255, 0.95) transparent;
+    border-color: transparent transparent var(--color-surface) transparent;
     filter: drop-shadow(0 -3px 3px rgba(64, 64, 64, 0.1));
   }
 
@@ -282,8 +281,8 @@ const StyledWrapper = styled.div`
     height: 40px;
     border: none;
     border-radius: 50%;
-    background: #f8f8f8;
-    color: #525252;
+    background: var(--color-neutral-light);
+    color: var(--color-neutral-dark-hover);
     cursor: pointer;
     transition:
       transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),

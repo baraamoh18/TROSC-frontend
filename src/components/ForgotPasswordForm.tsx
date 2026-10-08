@@ -20,7 +20,7 @@ const ForgotPasswordForm = ({ onSubmit }: ForgotPasswordFormProps) => {
   return (
     <div className="w-full max-w-md bg-neutral-light px-8 py-12 rounded-xl shadow-lg">
       <div className="flex justify-center mb-6">
-        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary-light text-primary">
+        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary-light text-brand">
           <KeyRound size={28} aria-hidden="true" />
         </div>
       </div>
@@ -57,7 +57,7 @@ const ForgotPasswordForm = ({ onSubmit }: ForgotPasswordFormProps) => {
             className="px-4 py-3 border-2 border-neutral-light-active rounded-lg bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors"
           />
           {errors.email && (
-            <span id="email-error" role="alert" className="text-xs text-red-600">{errors.email.message}</span>
+            <span id="email-error" role="alert" className="text-xs text-danger-ink">{errors.email.message}</span>
           )}
         </div>
 
@@ -74,7 +74,7 @@ const ForgotPasswordForm = ({ onSubmit }: ForgotPasswordFormProps) => {
         <span className="text-neutral-darker">Know your Password? </span>
         <Link
           to="/signin"
-          className="text-primary font-semibold hover:text-primary-hover transition-colors"
+          className="text-brand font-semibold hover:text-brand-hover transition-colors"
         >
           Sign In
         </Link>

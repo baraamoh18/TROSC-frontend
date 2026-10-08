@@ -25,7 +25,7 @@ interface NextUpProps {
 /** An assignment plus the page where it can be submitted. */
 type DueAssignment = BackendAssignment & { to: string };
 
-const cardCls = "rounded-xl border border-neutral-light-active bg-white p-5 shadow-sm";
+const cardCls = "rounded-xl border border-neutral-light-active bg-surface p-5 shadow-sm";
 const cardTitle = "mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-neutral-dark";
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -164,15 +164,15 @@ const NextUp = ({ user, trackId, ownCourses, ownSessions }: NextUpProps) => {
     );
   }
 
-  const linkCls = "font-semibold text-primary hover:text-primary-hover";
+  const linkCls = "font-semibold text-brand hover:text-brand-hover";
 
   return (
     <section aria-labelledby="next-up" className="mb-10">
-      <h2 id="next-up" className="mb-4 text-2xl font-extrabold text-primary-darker">Next up</h2>
+      <h2 id="next-up" className="mb-4 text-2xl font-extrabold text-brand-darker">Next up</h2>
 
       {pinned.map((a) => (
         <div key={a._id} className="mb-4 flex gap-3 rounded-xl border border-primary/20 bg-primary-light/40 p-4">
-          <Pin size={18} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
+          <Pin size={18} className="mt-0.5 shrink-0 text-brand" aria-hidden="true" />
           <div className="min-w-0">
             <p className="font-bold text-neutral-darker">{a.title}</p>
             <p className="mt-0.5 line-clamp-3 whitespace-pre-line text-sm text-neutral-dark">{a.message}</p>
@@ -203,12 +203,12 @@ const NextUp = ({ user, trackId, ownCourses, ownSessions }: NextUpProps) => {
               <li key={s.label}>
                 {s.done ? (
                   <span className="flex min-h-10 items-center gap-2 text-sm text-neutral-dark line-through decoration-neutral">
-                    <CheckCircle2 size={18} className="shrink-0 text-emerald-600" aria-hidden="true" />
+                    <CheckCircle2 size={18} className="shrink-0 text-success-ink" aria-hidden="true" />
                     {s.label}
                     <span className="sr-only">(done)</span>
                   </span>
                 ) : (
-                  <Link to={s.to} className="flex min-h-10 items-center gap-2 text-sm font-semibold text-neutral-darker hover:text-primary">
+                  <Link to={s.to} className="flex min-h-10 items-center gap-2 text-sm font-semibold text-neutral-darker hover:text-brand">
                     <Circle size={18} className="shrink-0 text-neutral" aria-hidden="true" />
                     {s.label}
                   </Link>
@@ -228,11 +228,11 @@ const NextUp = ({ user, trackId, ownCourses, ownSessions }: NextUpProps) => {
             </p>
             {nextSession ? (
               <>
-                <Link to={`/sessions/${nextSession._id}`} className="text-lg font-bold text-neutral-darker hover:text-primary">
+                <Link to={`/sessions/${nextSession._id}`} className="text-lg font-bold text-neutral-darker hover:text-brand">
                   {nextSession.title}
                 </Link>
                 <p className="mt-1 text-sm text-neutral-dark">
-                  <span className="font-semibold text-primary">{fromNow(nextSession.startDate!)}</span>
+                  <span className="font-semibold text-brand">{fromNow(nextSession.startDate!)}</span>
                   {" · "}
                   {when(nextSession.startDate!)}
                   {nextSession.duration ? ` · ${nextSession.duration} min` : ""}
@@ -266,14 +266,14 @@ const NextUp = ({ user, trackId, ownCourses, ownSessions }: NextUpProps) => {
                 <ul className="space-y-2">
                   {due.slice(0, 3).map((a) => (
                     <li key={a._id} className="flex items-baseline justify-between gap-3 text-sm">
-                      <Link to={a.to} className="min-w-0 truncate font-semibold text-neutral-darker hover:text-primary">
+                      <Link to={a.to} className="min-w-0 truncate font-semibold text-neutral-darker hover:text-brand">
                         {a.title}
                       </Link>
-                      <span className="shrink-0 font-semibold text-primary">due {fromNow(a.deadline)}</span>
+                      <span className="shrink-0 font-semibold text-brand">due {fromNow(a.deadline)}</span>
                     </li>
                   ))}
                   {overdue > 0 && (
-                    <li className="text-sm font-semibold text-red-700">
+                    <li className="text-sm font-semibold text-danger-ink">
                       {overdue} past the deadline and not submitted.{" "}
                       <Link to={overdueList[0].to} className={linkCls}>
                         Open {overdue === 1 ? "it" : "the first"}

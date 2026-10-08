@@ -36,7 +36,7 @@ const EventDetailsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-light pt-24 pb-20">
+      <div className="min-h-screen bg-page pt-24 pb-20">
         <div className="mx-auto w-full max-w-4xl px-6">
           <div className="h-64 animate-pulse rounded-xl bg-gray-200" />
           <div className="mt-6 h-8 w-2/3 animate-pulse rounded-xl bg-gray-200" />
@@ -47,7 +47,7 @@ const EventDetailsPage = () => {
 
   if (!event) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-light px-4 pt-16 text-center">
+      <div className="flex min-h-screen items-center justify-center bg-page px-4 pt-16 text-center">
         <div>
           <h1 className="mb-3 text-3xl font-bold text-neutral-darker">Event not found</h1>
           <p className="mb-6 text-neutral-dark">It may have been removed, or the link is incorrect.</p>
@@ -67,11 +67,11 @@ const EventDetailsPage = () => {
   const isOnline = event.locationType === "online";
 
   return (
-    <div className="min-h-screen bg-neutral-light pt-24 pb-20">
+    <div className="min-h-screen bg-page pt-24 pb-20">
       <div className="mx-auto w-full max-w-4xl px-6">
         <Link
           to="/#events"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-dark transition-colors hover:text-primary"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-dark transition-colors hover:text-brand"
         >
           <ArrowLeft size={16} aria-hidden="true" />
           All events
@@ -79,7 +79,7 @@ const EventDetailsPage = () => {
 
         <EventCover event={event} className="h-56 sm:h-72" />
 
-        <article className="mt-6 rounded-xl bg-white p-6 shadow-sm sm:p-8">
+        <article className="mt-6 rounded-xl bg-surface p-6 shadow-sm sm:p-8">
           {!isUpcoming && (
             <span className="mb-3 inline-block rounded-full bg-neutral-light-active px-3 py-1 text-xs font-bold text-neutral-dark">
               Past event
@@ -89,14 +89,14 @@ const EventDetailsPage = () => {
 
           <ul className="mt-4 space-y-2 text-sm text-neutral-dark">
             <li className="flex items-center gap-2">
-              <CalendarDays size={16} className="shrink-0 text-primary" aria-hidden="true" />
+              <CalendarDays size={16} className="shrink-0 text-brand" aria-hidden="true" />
               {start.toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" })}
             </li>
             <li className="flex items-center gap-2">
               {isOnline ? (
-                <Globe size={16} className="shrink-0 text-primary" aria-hidden="true" />
+                <Globe size={16} className="shrink-0 text-brand" aria-hidden="true" />
               ) : (
-                <MapPin size={16} className="shrink-0 text-primary" aria-hidden="true" />
+                <MapPin size={16} className="shrink-0 text-brand" aria-hidden="true" />
               )}
               {isOnline ? "Online" : event.locationAddress || "Location to be announced"}
             </li>
@@ -136,7 +136,7 @@ const EventDetailsPage = () => {
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-hover"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-brand hover:text-brand-hover"
                     >
                       <Paperclip size={14} aria-hidden="true" />
                       Attachment {i + 1}

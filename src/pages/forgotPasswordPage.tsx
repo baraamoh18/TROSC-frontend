@@ -32,7 +32,7 @@ const ForgotPasswordPage = () => {
       {sent ? (
         <div className="w-full max-w-md bg-neutral-light px-8 py-12 rounded-xl shadow-lg text-center">
           <div className="mb-6 flex justify-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary-light text-primary">
+            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary-light text-brand">
               <MailCheck size={28} aria-hidden="true" />
             </div>
           </div>

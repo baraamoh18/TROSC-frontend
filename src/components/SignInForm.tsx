@@ -71,7 +71,7 @@ function SignInForm() {
             className="px-4 py-3 border-2 border-neutral-light-active rounded-lg bg-neutral-light text-neutral-darker placeholder-neutral focus:outline-none focus:border-primary transition-colors"
           />
           {errors.email && (
-            <span id="email-error" role="alert" className="text-xs text-red-600">{errors.email.message}</span>
+            <span id="email-error" role="alert" className="text-xs text-danger-ink">{errors.email.message}</span>
           )}
         </div>
 
@@ -98,7 +98,7 @@ function SignInForm() {
             placeholder="Enter your password"
           />
           {errors.password && (
-            <span id="password-error" role="alert" className="text-xs text-red-600">
+            <span id="password-error" role="alert" className="text-xs text-danger-ink">
               {errors.password.message}
             </span>
           )}
@@ -122,7 +122,7 @@ function SignInForm() {
           </label>
           <Link
             to="/forgot-password"
-            className="text-sm text-primary hover:text-primary-hover font-semibold transition-colors"
+            className="text-sm text-brand hover:text-brand-hover font-semibold transition-colors"
           >
             Forgot Password?
           </Link>
@@ -143,7 +143,7 @@ function SignInForm() {
         <span className="text-neutral-darker">Don't have an Account? </span>
         <Link
           to="/signup"
-          className="text-primary font-semibold hover:text-primary-hover transition-colors"
+          className="text-brand font-semibold hover:text-brand-hover transition-colors"
         >
           Sign Up
         </Link>

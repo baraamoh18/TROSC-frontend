@@ -154,7 +154,7 @@ const WeeklyTaskForm = ({ courseId, task, nextWeek, onClose, onSaved }: WeeklyTa
                     </button>
                     <button
                       type="button"
-                      className={`${smallBtn} text-red-700 hover:bg-red-50`}
+                      className={`${smallBtn} text-danger-ink hover:bg-danger-soft`}
                       onClick={() => setItems((prev) => prev.filter((i) => i.key !== item.key))}
                       aria-label={`Remove item ${index + 1}`}
                     >
@@ -167,20 +167,20 @@ const WeeklyTaskForm = ({ courseId, task, nextWeek, onClose, onSaved }: WeeklyTa
             <button
               type="button"
               onClick={() => setItems((prev) => [...prev, { title: "", type: "reading", key: newKey() }])}
-              className={`${smallBtn} mt-2 text-primary hover:bg-primary-light`}
+              className={`${smallBtn} mt-2 text-brand hover:bg-primary-light`}
             >
               <Plus size={14} />
               Add item
             </button>
             {removedExisting > 0 && (
-              <p className="mt-2 text-xs text-amber-800">
+              <p className="mt-2 text-xs text-warning-ink">
                 Removing an item also removes students' ticks for it.
               </p>
             )}
           </fieldset>
 
           {error && (
-            <p role="alert" className="text-sm font-medium text-red-700">
+            <p role="alert" className="text-sm font-medium text-danger-ink">
               {error}
             </p>
           )}

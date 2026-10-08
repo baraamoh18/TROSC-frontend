@@ -59,17 +59,17 @@ function Hero() {
   const afterHeadline = 80 + (HEADLINE.length + 1) * 70;
 
   return (
-    <section className="relative overflow-hidden bg-white pt-16">
+    <section className="relative overflow-hidden bg-page-alt pt-16">
       <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 pb-10 pt-12 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:pb-14 lg:pt-20">
         <div>
           <p
-            className="anim-rise mb-5 text-sm font-bold uppercase tracking-widest text-primary"
+            className="anim-rise mb-5 text-sm font-bold uppercase tracking-widest text-brand"
             style={delay(0)}
           >
             Student-led tech team
           </p>
 
-          <h1 className="text-4xl font-extrabold leading-[1.1] text-primary-darker sm:text-5xl lg:text-6xl">
+          <h1 className="text-4xl font-extrabold leading-[1.1] text-brand-darker sm:text-5xl lg:text-6xl">
             {HEADLINE.map((word, i) => (
               <span key={i}>
                 <span className="anim-rise inline-block" style={wordDelay(i)}>
@@ -77,7 +77,7 @@ function Hero() {
                 </span>{" "}
               </span>
             ))}
-            <span className="anim-rise relative isolate inline-block text-primary" style={wordDelay(HEADLINE.length)}>
+            <span className="anim-rise relative isolate inline-block text-brand" style={wordDelay(HEADLINE.length)}>
               growth.
               <span
                 aria-hidden="true"
@@ -124,7 +124,7 @@ function Hero() {
             </Link>
             <Link
               to="/explore"
-              className="inline-flex min-h-12 items-center rounded-lg border border-neutral-light-active bg-white px-7 text-base font-bold text-neutral-darker transition-colors hover:border-primary hover:text-primary"
+              className="inline-flex min-h-12 items-center rounded-lg border border-neutral-light-active bg-surface px-7 text-base font-bold text-neutral-darker transition-colors hover:border-primary hover:text-brand"
             >
               Explore tracks and courses
             </Link>
@@ -158,18 +158,18 @@ function Hero() {
           {nextEvent && (
             <Link
               to={`/events/${nextEvent._id}`}
-              className="anim-rise group absolute -bottom-2 left-4 flex max-w-[85%] items-center gap-3 rounded-xl border border-neutral-light-active bg-white p-3 pr-4 shadow-lg transition-shadow hover:shadow-xl sm:left-6 lg:-bottom-8"
+              className="anim-rise group absolute -bottom-2 left-4 flex max-w-[85%] items-center gap-3 rounded-xl border border-neutral-light-active bg-surface p-3 pr-4 shadow-lg transition-shadow hover:shadow-xl sm:left-6 lg:-bottom-8"
               style={delay(900)}
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary-light text-primary">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary-light text-brand">
                 <CalendarDays size={20} aria-hidden="true" />
               </span>
               <span className="min-w-0">
                 <span className="block text-xs font-semibold text-neutral-dark">Next event</span>
-                <span className="block truncate font-bold text-neutral-darker group-hover:text-primary">
+                <span className="block truncate font-bold text-neutral-darker group-hover:text-brand">
                   {nextEvent.title}
                 </span>
-                <span className="block text-xs font-semibold text-primary">
+                <span className="block text-xs font-semibold text-brand">
                   {new Date(nextEvent.date).toLocaleString(undefined, {
                     weekday: "short",
                     month: "short",
@@ -189,7 +189,7 @@ function Hero() {
           type="button"
           onClick={() => smoothScrollToId("how-it-works")}
           aria-label="Scroll to how it works"
-          className="flex h-11 w-11 items-center justify-center rounded-lg text-neutral-dark transition-colors hover:text-primary"
+          className="flex h-11 w-11 items-center justify-center rounded-lg text-neutral-dark transition-colors hover:text-brand"
         >
           <ChevronDown size={24} aria-hidden="true" className="anim-nudge" />
         </button>

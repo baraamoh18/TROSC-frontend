@@ -32,11 +32,11 @@ const PendingApprovals: React.FC<PendingApprovalsProps> = ({
   onReject,
 }) => {
   return (
-    <div className="rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-neutral-light-active bg-surface p-6 shadow-sm">
       <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-neutral-darker">
         {heading}
         {!loading && people.length > 0 && (
-          <span className="rounded-full bg-primary-light px-2.5 py-0.5 text-xs font-bold text-primary-dark">
+          <span className="rounded-full bg-primary-light px-2.5 py-0.5 text-xs font-bold text-brand-dark">
             {people.length}
           </span>
         )}
@@ -88,7 +88,7 @@ const PendingApprovals: React.FC<PendingApprovalsProps> = ({
                   type="button"
                   disabled={busyId !== null}
                   onClick={() => onApprove(person._id)}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-success px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-success-hover disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {busyId === person._id ? (
                     <Loader2 size={15} className="animate-spin" />

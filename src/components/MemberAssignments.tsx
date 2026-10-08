@@ -23,7 +23,7 @@ const MemberAssignments = ({
   load,
   canSubmit,
   className = "",
-  headingClassName = "text-2xl font-extrabold text-primary-darker",
+  headingClassName = "text-2xl font-extrabold text-brand-darker",
 }: MemberAssignmentsProps) => {
   const [assignments, setAssignments] = useState<BackendAssignment[]>([]);
 
@@ -48,12 +48,12 @@ const MemberAssignments = ({
   if (assignments.length === 0) return null;
 
   return (
-    <section aria-labelledby={`assignments-${loadKey}`} className={`rounded-xl bg-white p-6 shadow-sm sm:p-8 ${className}`}>
+    <section aria-labelledby={`assignments-${loadKey}`} className={`rounded-xl bg-surface p-6 shadow-sm sm:p-8 ${className}`}>
       <h2
         id={`assignments-${loadKey}`}
         className={`mb-4 flex items-center gap-2 ${headingClassName}`}
       >
-        <ClipboardList className="h-6 w-6 shrink-0 text-primary" aria-hidden="true" />
+        <ClipboardList className="h-6 w-6 shrink-0 text-brand" aria-hidden="true" />
         Assignments
       </h2>
       <TrackAssignments

@@ -23,17 +23,17 @@ const RoleBadge: React.FC<{ role: AuthUser["role"] }> = ({ role }) => {
   const map: Record<AuthUser["role"], { label: string; cls: string; icon: React.ReactNode }> = {
     admin: {
       label: "Admin",
-      cls: "bg-red-100 text-red-700",
+      cls: "bg-danger-tint text-danger-ink",
       icon: <Shield size={11} />,
     },
     instructor: {
       label: "Instructor",
-      cls: "bg-amber-100 text-amber-700",
+      cls: "bg-warning-tint text-warning-ink",
       icon: <GraduationCap size={11} />,
     },
     student: {
       label: "Student",
-      cls: "bg-sky-100 text-sky-700",
+      cls: "bg-info-tint text-info-ink",
       icon: <User size={11} />,
     },
   };
@@ -78,8 +78,8 @@ const ConfirmButton: React.FC<{
         armed && danger
           ? "border-primary-dark bg-primary-dark text-white"
           : armed
-            ? "border-neutral-darker bg-neutral-darker text-white"
-            : "border-neutral-light-active bg-white text-neutral-dark hover:bg-neutral-light"
+            ? "border-inverse bg-inverse text-on-inverse"
+            : "border-neutral-light-active bg-surface text-neutral-dark hover:bg-neutral-light"
       }`}
     >
       {busy ? <Loader2 size={12} className="animate-spin" /> : icon}
@@ -284,7 +284,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
             placeholder="Search by name or email…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-neutral-light-active bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="w-full rounded-lg border border-neutral-light-active bg-surface py-2.5 pl-10 pr-4 text-sm text-neutral-darker placeholder:text-neutral focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>
         <label htmlFor="user-status" className="sr-only">Show</label>
@@ -295,7 +295,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
             setStatus(e.target.value as StatusFilter);
             setPage(1);
           }}
-          className="shrink-0 rounded-lg border border-neutral-light-active bg-white px-3 py-2.5 text-sm font-semibold text-neutral-darker focus:border-primary focus:outline-none"
+          className="shrink-0 rounded-lg border border-neutral-light-active bg-surface px-3 py-2.5 text-sm font-semibold text-neutral-darker focus:border-primary focus:outline-none"
         >
           <option value="active">Active</option>
           <option value="inactive">Deactivated</option>
@@ -314,7 +314,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
           ))}
         </div>
       ) : users.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-10 text-center text-sm text-neutral-dark">
+        <div className="rounded-xl border border-dashed border-neutral-light-active bg-surface p-10 text-center text-sm text-neutral-dark">
           {query
             ? `No ${status === "inactive" ? "deactivated " : ""}users match "${query}".`
             : status === "inactive"
@@ -322,7 +322,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
               : "No users found."}
         </div>
       ) : (
-        <div className="rounded-xl border border-neutral-light-active bg-white shadow-sm">
+        <div className="rounded-xl border border-neutral-light-active bg-surface shadow-sm">
           <table className="block w-full text-sm xl:table">
             <thead className="hidden xl:table-header-group">
               <tr className="border-b border-neutral-light-active bg-neutral-light">
@@ -381,7 +381,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
                         disabled={busyId !== null}
                         onClick={() => setRoleTarget(user)}
                         aria-label={`Change role for ${user.name}`}
-                        className="inline-flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-light-active bg-white px-3.5 py-1.5 text-xs font-bold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-lg border border-neutral-light-active bg-surface px-3.5 py-1.5 text-xs font-bold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {busyId === user._id ? (
                           <Loader2 size={12} className="animate-spin" />
@@ -435,7 +435,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
               type="button"
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
-              className="inline-flex items-center gap-1 rounded-lg border border-neutral-light-active bg-white px-3 py-1.5 font-semibold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-lg border border-neutral-light-active bg-surface px-3 py-1.5 font-semibold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronLeft size={14} />
               Prev
@@ -444,7 +444,7 @@ const UserManagementTable: React.FC<{ currentUserId?: string }> = ({ currentUser
               type="button"
               disabled={page === totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className="inline-flex items-center gap-1 rounded-lg border border-neutral-light-active bg-white px-3 py-1.5 font-semibold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-lg border border-neutral-light-active bg-surface px-3 py-1.5 font-semibold text-neutral-dark transition-colors hover:bg-neutral-light disabled:cursor-not-allowed disabled:opacity-40"
             >
               Next
               <ChevronRight size={14} />

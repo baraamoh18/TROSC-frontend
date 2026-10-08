@@ -75,13 +75,13 @@ const DashboardPage = () => {
   const ready = !enrollmentsLoading && !enrollmentsError;
 
   return (
-    <div className="min-h-screen bg-neutral-light pt-24 pb-20">
+    <div className="min-h-screen bg-page pt-24 pb-20">
       <div className="mx-auto w-full max-w-5xl px-6">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
-          <h1 className="text-3xl font-extrabold text-primary-darker">Hi, {firstName}</h1>
+          <h1 className="text-3xl font-extrabold text-brand-darker">Hi, {firstName}</h1>
           <Link
             to="/settings"
-            className="inline-flex min-h-10 items-center gap-1.5 text-sm font-semibold text-neutral-dark hover:text-primary"
+            className="inline-flex min-h-10 items-center gap-1.5 text-sm font-semibold text-neutral-dark hover:text-brand"
           >
             <Settings size={16} aria-hidden="true" />
             Profile and settings
@@ -91,13 +91,13 @@ const DashboardPage = () => {
         {ready && <NextUp user={user} trackId={enrolledTrack?._id ?? null} ownCourses={ownCourses} ownSessions={ownSessions} />}
 
         <section className="mb-10">
-          <h2 className="mb-4 text-2xl font-extrabold text-primary-darker">My Track</h2>
+          <h2 className="mb-4 text-2xl font-extrabold text-brand-darker">My Track</h2>
           {enrollmentsLoading ? (
             <div className="h-24 animate-pulse rounded-xl bg-gray-200" />
           ) : enrollmentsError ? (
             <SectionError what="your track" onRetry={loadEnrollments} />
           ) : enrolledTrack ? (
-            <div className="flex flex-col gap-4 rounded-xl border border-neutral-light-active bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 rounded-xl border border-neutral-light-active bg-surface p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="mb-1 text-xl font-bold text-neutral-darker">{enrolledTrack.title}</h3>
                 <p className="flex flex-wrap gap-4 text-sm text-neutral-dark">
@@ -120,16 +120,16 @@ const DashboardPage = () => {
               </Link>
             </div>
           ) : user.pendingTrack ? (
-            <div className="rounded-xl border border-dashed border-amber-300 bg-amber-50 p-6 text-center text-amber-800">
+            <div className="rounded-xl border border-dashed border-warning-line bg-warning-soft p-6 text-center text-warning-ink">
               Your request to join a track is waiting for approval.{" "}
-              <Link to={`/track/${user.pendingTrack}`} className="font-semibold text-primary hover:text-primary-hover">
+              <Link to={`/track/${user.pendingTrack}`} className="font-semibold text-brand hover:text-brand-hover">
                 View track
               </Link>
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
+            <div className="rounded-xl border border-dashed border-neutral-light-active bg-surface p-6 text-center text-neutral-dark">
               You haven't joined a track yet.{" "}
-              <Link to="/explore" className="font-semibold text-primary hover:text-primary-hover">
+              <Link to="/explore" className="font-semibold text-brand hover:text-brand-hover">
                 Browse tracks
               </Link>{" "}
               to get started.
@@ -139,25 +139,25 @@ const DashboardPage = () => {
 
         {ready && (
           <section>
-            <h2 className="mb-1 text-2xl font-extrabold text-primary-darker">On their own</h2>
+            <h2 className="mb-1 text-2xl font-extrabold text-brand-darker">On their own</h2>
             <p className="mb-4 text-sm text-neutral-dark">Courses and open sessions you joined outside a track.</p>
             {ownCourses.length + ownSessions.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-neutral-light-active bg-white p-6 text-center text-neutral-dark">
+              <div className="rounded-xl border border-dashed border-neutral-light-active bg-surface p-6 text-center text-neutral-dark">
                 Nothing here yet.{" "}
-                <Link to="/explore#courses" className="font-semibold text-primary hover:text-primary-hover">
+                <Link to="/explore#courses" className="font-semibold text-brand hover:text-brand-hover">
                   Find a course or open session
                 </Link>
                 .
               </div>
             ) : (
-              <ul className="divide-y divide-neutral-light-active overflow-hidden rounded-xl border border-neutral-light-active bg-white shadow-sm">
+              <ul className="divide-y divide-neutral-light-active overflow-hidden rounded-xl border border-neutral-light-active bg-surface shadow-sm">
                 {ownCourses.map((c) => (
                   <li key={c._id}>
                     <Link
                       to={`/courses/${c._id}`}
-                      className="flex items-center gap-3 px-5 py-4 font-semibold text-neutral-darker transition-colors hover:bg-neutral-light hover:text-primary"
+                      className="flex items-center gap-3 px-5 py-4 font-semibold text-neutral-darker transition-colors hover:bg-neutral-light hover:text-brand"
                     >
-                      <BookOpen size={18} className="shrink-0 text-primary" aria-hidden="true" />
+                      <BookOpen size={18} className="shrink-0 text-brand" aria-hidden="true" />
                       <span className="min-w-0 flex-1 truncate">{c.title}</span>
                       <span className="text-xs font-semibold text-neutral-dark">Course</span>
                     </Link>
@@ -167,9 +167,9 @@ const DashboardPage = () => {
                   <li key={sess._id}>
                     <Link
                       to={`/sessions/${sess._id}`}
-                      className="flex items-center gap-3 px-5 py-4 font-semibold text-neutral-darker transition-colors hover:bg-neutral-light hover:text-primary"
+                      className="flex items-center gap-3 px-5 py-4 font-semibold text-neutral-darker transition-colors hover:bg-neutral-light hover:text-brand"
                     >
-                      <Video size={18} className="shrink-0 text-primary" aria-hidden="true" />
+                      <Video size={18} className="shrink-0 text-brand" aria-hidden="true" />
                       <span className="min-w-0 flex-1 truncate">{sess.title}</span>
                       <span className="text-xs font-semibold text-neutral-dark">Session</span>
                     </Link>

@@ -223,9 +223,9 @@ const StudioPage = () => {
 
   if (!user || !isStaff) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-light pt-16">
+      <div className="flex min-h-screen items-center justify-center bg-page pt-16">
         <div className="px-4 text-center">
-          <ShieldAlert size={48} className="mx-auto mb-3 text-primary" aria-hidden="true" />
+          <ShieldAlert size={48} className="mx-auto mb-3 text-brand" aria-hidden="true" />
           <h1 className="mb-3 text-3xl font-bold text-neutral-darker">Restricted area</h1>
           <p className="text-neutral-dark">The Studio is for instructors and admins.</p>
           <button
@@ -354,11 +354,11 @@ const StudioPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-light pb-20 pt-24">
+    <div className="min-h-screen bg-page pb-20 pt-24">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="flex items-center gap-3 text-3xl font-extrabold text-primary-darker">
+            <h1 className="flex items-center gap-3 text-3xl font-extrabold text-brand-darker">
               <LayoutGrid size={28} aria-hidden="true" />
               Studio
             </h1>
@@ -389,7 +389,7 @@ const StudioPage = () => {
               {track && (
                 <Link
                   to={`/track/${track._id}`}
-                  className="inline-flex min-h-10 items-center gap-1.5 text-sm font-bold text-primary hover:text-primary-hover"
+                  className="inline-flex min-h-10 items-center gap-1.5 text-sm font-bold text-brand hover:text-brand-hover"
                 >
                   <ExternalLink size={14} aria-hidden="true" />
                   View track page
@@ -421,10 +421,10 @@ const StudioPage = () => {
                                 aria-current={selected ? "page" : undefined}
                                 onClick={() => setParam({ section: id })}
                                 className={`flex min-h-11 w-full items-center gap-2.5 whitespace-nowrap rounded-lg px-3 text-sm font-semibold transition-colors ${
-                                  selected ? "bg-white text-gray-900 shadow-sm ring-1 ring-gray-200" : "text-gray-700 hover:bg-white/70"
+                                  selected ? "bg-surface text-gray-900 shadow-sm ring-1 ring-gray-200" : "text-gray-700 hover:bg-surface/70"
                                 }`}
                               >
-                                <Icon size={17} className={selected ? "text-primary" : "text-gray-500"} aria-hidden="true" />
+                                <Icon size={17} className={selected ? "text-brand" : "text-gray-500"} aria-hidden="true" />
                                 {name}
                                 {count > 0 && (
                                   <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-white">
@@ -442,7 +442,7 @@ const StudioPage = () => {
             </nav>
 
             <div className="min-w-0">
-              <h2 className="mb-5 text-2xl font-bold text-primary-darker">{active.name}</h2>
+              <h2 className="mb-5 text-2xl font-bold text-brand-darker">{active.name}</h2>
               {renderSection()}
             </div>
         </div>
