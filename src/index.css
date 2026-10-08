@@ -200,6 +200,21 @@
   }
 }
 
+/* Hero backdrop: a faint square grid, strongest behind the headline */
+.hero-grid {
+  --grid-line: rgb(81 21 21 / 0.07);
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 44px 44px;
+  background-position: -1px -1px;
+  mask-image: radial-gradient(ellipse 75% 65% at 25% 35%, #000 25%, transparent 75%);
+}
+
+:root[data-theme="dark"] .hero-grid {
+  --grid-line: rgb(255 153 153 / 0.07);
+}
+
 /* Clickable cards (tracks, courses, sessions, events) glow red on
    hover in dark mode, as in the original design; shadows alone
    barely show on maroon. Static panels don't glow. */

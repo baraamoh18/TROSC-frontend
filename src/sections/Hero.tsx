@@ -62,7 +62,9 @@ function Hero() {
   const afterHeadline = 80 + (HEADLINE.length + 1) * 70;
 
   return (
-    <section className="relative overflow-hidden bg-page-alt pt-16">
+    <section className="relative isolate overflow-hidden bg-page-alt pt-16">
+      {/* Faint grid behind the headline, fading out towards the edges */}
+      <div aria-hidden="true" className="hero-grid pointer-events-none absolute inset-0 -z-10" />
       <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 pb-10 pt-12 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:pb-14 lg:pt-20">
         <div>
           <p
