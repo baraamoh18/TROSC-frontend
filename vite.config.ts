@@ -11,6 +11,9 @@ const DEFAULT_DEV_API_TARGET = "http://localhost:5000";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const devApiTarget = env.DEV_API_TARGET || DEFAULT_DEV_API_TARGET;
+  // Optional Origin to present to the API. Its CORS check rejects
+  // http://localhost, which blocks sign-in and other writes in dev.
+  const devApiOrigin = env.DEV_API_ORIGIN;
 
   return {
     plugins: [react(), tailwindcss()],
@@ -22,6 +25,12 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
           cookieDomainRewrite: "localhost",
+          configure: (proxy) => {
+            if (!devApiOrigin) return;
+            proxy.on("proxyReq", (proxyReq) => {
+              if (proxyReq.getHeader("origin")) proxyReq.setHeader("origin", devApiOrigin);
+            });
+          },
         },
       },
     },
