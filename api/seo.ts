@@ -73,7 +73,7 @@ export interface FaqItem {
 /** src/content/faq.json, published by the build as /faq.json */
 export interface Faq {
   en: { questions: FaqItem[] };
-  ar: { heading: string; about: string; questions: FaqItem[] };
+  ar: { about: string; questions: FaqItem[] };
 }
 
 export class NotFound extends Error {}
@@ -219,7 +219,7 @@ async function homePage(get: Fetcher, faq?: Faq): Promise<Page> {
         : "",
       faq ? `<h2>Questions</h2>${faqText(faq.en.questions)}` : "",
       faq
-        ? `<section lang="ar" dir="rtl"><h2>${esc(faq.ar.heading)}</h2><p>${esc(faq.ar.about)}</p>${faqText(faq.ar.questions)}</section>`
+        ? `<section lang="ar" dir="rtl"><p>${esc(faq.ar.about)}</p>${faqText(faq.ar.questions)}</section>`
         : "",
       nav,
     ].join(""),

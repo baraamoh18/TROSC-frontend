@@ -58,8 +58,7 @@ const Faq = () => (
       className="mx-auto mt-16 grid w-full max-w-6xl gap-10 border-t border-gray-200 pt-16 font-arabic lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16"
     >
       <Reveal className="self-start">
-        <h2 className="text-3xl font-extrabold leading-tight text-brand-darker md:text-4xl">{faq.ar.heading}</h2>
-        <p className="mt-5 max-w-md text-base leading-loose text-neutral-dark">{faq.ar.about}</p>
+        <p className="max-w-md text-lg leading-loose text-neutral-dark">{faq.ar.about}</p>
       </Reveal>
       <FaqList items={faq.ar.questions} />
     </div>
