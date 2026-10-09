@@ -543,12 +543,6 @@ export function rejectEnrollment(
   return request("POST", `/tracks/${trackId}/students/${studentId}/reject`);
 }
 
-export function getTrackLeaves(
-  trackId: string,
-): Promise<PendingListResponse> {
-  return request<PendingListResponse>("GET", `/tracks/${trackId}/leaves`);
-}
-
 export function approveLeave(
   trackId: string,
   studentId: string,
