@@ -460,7 +460,7 @@ export function getPopularTracks(): Promise<TracksResponse> {
 
 export function getTrackAnalytics(
   trackId: string,
-): Promise<{ status: string; data: TrackAnalytics }> {
+): Promise<{ status: string; data: { analytics: TrackAnalytics } }> {
   return request("GET", `/tracks/${trackId}/analytics`);
 }
 
@@ -1197,12 +1197,27 @@ export interface DashboardStats {
   computedAt?: string;
 }
 
+export interface Pagination {
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalResults: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
 export interface DashboardStatsResponse {
   status: string;
   results: number;
   total: number;
-  pagination: object;
-  data: { stats: DashboardStats[] };
+  pagination: Pagination;
+  data: { dashboardStats: DashboardStats[] };
+}
+
+/** A single stored snapshot, from /latest, /:id and /snapshot */
+export interface DashboardStatResponse {
+  status: string;
+  data: { dashboardStat: DashboardStats };
 }
 
 export interface DashboardTrendsResponse {
@@ -1218,7 +1233,7 @@ export function getDashboardLive(): Promise<{ status: string; data: DashboardSta
 /** Most recently generated snapshot for a period */
 export function getDashboardLatest(
   period: "daily" | "weekly" | "monthly",
-): Promise<{ status: string; data: DashboardStats }> {
+): Promise<DashboardStatResponse> {
   return request("GET", `/dashboard-stats/latest?period=${period}`);
 }
 
@@ -1235,7 +1250,7 @@ export function getDashboardTrends(
 export function createDashboardSnapshot(payload: {
   period: "daily" | "weekly" | "monthly";
   date?: string;
-}): Promise<{ status: string; data: DashboardStats }> {
+}): Promise<DashboardStatResponse> {
   return request("POST", "/dashboard-stats/snapshot", payload);
 }
 
@@ -1251,7 +1266,7 @@ export function getDashboardStats(
 
 export function getDashboardStat(
   id: string,
-): Promise<{ status: string; data: DashboardStats }> {
+): Promise<DashboardStatResponse> {
   return request("GET", `/dashboard-stats/${id}`);
 }
 
@@ -1270,7 +1285,8 @@ export function deleteDashboardStat(id: string): Promise<void> {
 
 export interface ActivityLog {
   _id: string;
-  user: string;
+  /** Populated on the admin list and single-log endpoints; a bare id on /me and /user/:id */
+  user: string | { _id: string; name: string; email: string; photo?: string; role: string };
   /** e.g. "enrolled_in_course", "login", "submitted_assignment" */
   action: string;
   targetModel?: string;
@@ -1283,16 +1299,17 @@ export interface ActivityLogsResponse {
   status: string;
   results: number;
   total: number;
-  pagination: object;
-  data: { logs: ActivityLog[] };
+  pagination: Pagination;
+  data: { activityLogs: ActivityLog[] };
 }
 
 export interface ActivitySummaryResponse {
   status: string;
   data: {
-    totalCount: number;
-    byAction: Record<string, number>;
-    mostActiveUsers: { user: string; count: number }[];
+    totalActivities: number;
+    /** Most frequent first */
+    byAction: { action: string; count: number }[];
+    mostActiveUsers: { userId: string; name: string; count: number }[];
   };
 }
 
@@ -1343,7 +1360,7 @@ export function getActivityLogs(query?: string): Promise<ActivityLogsResponse> {
 
 export function getActivityLog(
   id: string,
-): Promise<{ status: string; data: ActivityLog }> {
+): Promise<{ status: string; data: { activityLog: ActivityLog } }> {
   return request("GET", `/activity-logs/${id}`);
 }
 

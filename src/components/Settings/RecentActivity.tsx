@@ -38,7 +38,7 @@ const RecentActivity = () => {
     api
       .getMyActivityLogs("limit=20")
       .then((res) => {
-        if (!cancelled) setLogs(res.data?.logs || []);
+        if (!cancelled) setLogs(res.data?.activityLogs || []);
       })
       .catch(() => {
         if (!cancelled) setError(true);
