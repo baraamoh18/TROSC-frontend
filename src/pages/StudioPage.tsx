@@ -11,6 +11,7 @@ import {
   ExternalLink,
   FileText,
   FolderTree,
+  History,
   Inbox,
   LayoutGrid,
   ListChecks,
@@ -33,6 +34,7 @@ import StudioOverview from "../components/Studio/StudioOverview";
 import StudioMine from "../components/Studio/StudioMine";
 import UserManagementTable from "../components/Admin/UserManagementTable";
 import ContentManagement from "../components/Admin/ContentManagement";
+import ActivityLogPanel from "../components/Admin/ActivityLogPanel";
 import { inputCls, refId } from "../components/Studio/studioUi";
 import type { CanManage } from "../components/Studio/studioUi";
 
@@ -47,7 +49,8 @@ type SectionId =
   | "users"
   | "catalog"
   | "events"
-  | "announcements";
+  | "announcements"
+  | "activity";
 
 interface SectionDef {
   id: SectionId;
@@ -72,6 +75,7 @@ const SECTIONS: SectionDef[] = [
   { id: "catalog", name: "Tracks & courses", icon: FolderTree, group: "platform" },
   { id: "events", name: "Events", icon: CalendarDays, group: "platform" },
   { id: "announcements", name: "Announcements", icon: Megaphone, group: "platform" },
+  { id: "activity", name: "Activity", icon: History, group: "platform" },
 ];
 
 /** Assignments across the track. The track route is built for members, so fall
@@ -244,6 +248,8 @@ const StudioPage = () => {
         return <StudioMine userId={user._id} />;
       case "users":
         return <UserManagementTable currentUserId={user._id} />;
+      case "activity":
+        return <ActivityLogPanel />;
       case "catalog":
         return (
           <ContentManagement
@@ -360,7 +366,7 @@ const StudioPage = () => {
             </h1>
             <p className="mt-1 text-neutral-dark">
               {isAdmin
-                ? "Track content and grading, plus users, the catalog, events and announcements."
+                ? "Track content and grading, plus users, the catalog, events, announcements and activity."
                 : "Your own courses and sessions, plus requests, sessions, assignments, grading and weekly tasks for the tracks you lead or co-instruct."}
             </p>
           </div>

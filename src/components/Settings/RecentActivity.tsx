@@ -1,29 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { Activity, ClipboardList, LogIn, Star, UploadCloud, UserCheck } from "lucide-react";
 import * as api from "../../services/api";
 import type { ActivityLog } from "../../services/api";
+import { actionLabel, activityIcon, formatRelative } from "../../utils/activity";
 import SectionError from "./SectionError";
-
-const activityIcon = (action: string) => {
-  const cls = "h-4 w-4";
-  if (action.includes("login")) return <LogIn className={cls} />;
-  if (action.includes("enroll")) return <UserCheck className={cls} />;
-  if (action.includes("submit") || action.includes("assignment")) return <ClipboardList className={cls} />;
-  if (action.includes("review")) return <Star className={cls} />;
-  if (action.includes("upload") || action.includes("photo")) return <UploadCloud className={cls} />;
-  return <Activity className={cls} />;
-};
-
-const formatRelative = (isoDate: string) => {
-  const mins = Math.floor((Date.now() - new Date(isoDate).getTime()) / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(isoDate).toLocaleDateString(undefined, { month: "short", day: "numeric" });
-};
 
 /** The signed-in person's last few actions. */
 const RecentActivity = () => {
@@ -67,15 +46,18 @@ const RecentActivity = () => {
 
   return (
     <ul className="divide-y divide-gray-100">
-      {logs.map((log) => (
+      {logs.map((log) => {
+        const Icon = activityIcon(log.action);
+        return (
         <li key={log._id} className="flex items-center gap-3 py-3">
           <span className="shrink-0 rounded-full bg-primary/10 p-2 text-brand" aria-hidden="true">
-            {activityIcon(log.action)}
+            <Icon className="h-4 w-4" />
           </span>
-          <p className="min-w-0 flex-1 text-sm capitalize leading-snug text-gray-800">{log.action.replace(/_/g, " ")}</p>
+          <p className="min-w-0 flex-1 text-sm capitalize leading-snug text-gray-800">{actionLabel(log.action)}</p>
           <span className="shrink-0 text-xs text-gray-500">{formatRelative(log.createdAt)}</span>
         </li>
-      ))}
+        );
+      })}
     </ul>
   );
 };

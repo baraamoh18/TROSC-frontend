@@ -1285,8 +1285,11 @@ export function deleteDashboardStat(id: string): Promise<void> {
 
 export interface ActivityLog {
   _id: string;
-  /** Populated on the admin list and single-log endpoints; a bare id on /me and /user/:id */
-  user: string | { _id: string; name: string; email: string; photo?: string; role: string };
+  /**
+   * Populated on the admin list and single-log endpoints; a bare id on /me
+   * and /user/:id. null once the user's account has been deleted.
+   */
+  user: string | { _id: string; name: string; email: string; photo?: string; role: string } | null;
   /** e.g. "enrolled_in_course", "login", "submitted_assignment" */
   action: string;
   targetModel?: string;
